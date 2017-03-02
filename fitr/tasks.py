@@ -3,41 +3,87 @@
 #
 import numpy as np
 
-class orthogng:
+class bandit(object):
     """
-    The orthogonalized go-nogo task.
+    Simple one-step bandit task.
 
-    References
+    Attributes
     ----------
-    Guitart-Masip, M. et al. (2014) Psychopharmacology (Berl). 231, 955–966
+    narms : int
+        Number of arms
+    rewards : ndarray(shape=(2))
+        First entry is the reward, if gained, and the second entry is the magnitude of the loss
+    rprob : {ndarray(shape=(narms)), 'stochastic'}
+        Probabilty of reward for each arm of the task. One can either specify the probabilities for each arm or enter 'stochastic,' which will vary the reward probability by a gaussian random walk
+
+    Methods
+    -------
+    simulate(nsubjects,ntrials)
+        Runs the task on simulated subjects
 
     """
-    def __init__(self):
-        self.pstates   = np.zeros(4) + 0.25
-        self.outcomes  = np.array([1, -1])
-        self.p_outcome = np.array([[0.8, 0.2]])
+    def __init__(self, narms=2, rewards=[1, 0], rprob='stochastic', rprob_sd=0.025, rprob_bounds=[0.2, 0.8]):
+        self.narms = narms
+        self.rewards = rewards
 
-    def simulate(self, nsubjects, ntrials):
+        if rprob == 'stochastic':
+            self.rprob_bounds = rprob_bounds
+            self.rprob = np.random.uniform(rprob_bounds[0], rprob_bounds[1], size=self.narms)
+        else:
+            if len(rprob) != self.narms:
+                print('Reward probability vector must have one entry per arm')
+                return
+            if np.any(rprob > 1) or np.any(rprob < 0):
+                print('Reward probabilities must all lie between 0 and 1')
+                return
+
+            self.rprob=rprob
+
+    def simulate(self, nsubjects, ntrials, params):
         """
-        Simulates a cohort of subjects
+        Runs the task
 
-        Parameters
-        ----------
-        nsubjects : int
-            Number of subjects to simulate.
-        ntrials : int
-            Number of trials
-
-        Returns
-        ----------
-        results : dict
-            Data for all subjects
         """
-        from utils import softmax, mnrandi
+
+        #initialize reward paths
+        path_max = 0.8
+        path_min = 0.2
+        path_sd  = 0.025
+        paths = np.random.uniform(path_min, path_max, size=[ntrials+1, 2])
+
 
         results = {}
 
-        for i in range(nsubjects):
-            Q = np.array([4, 3])
-            for t in range(ntrials):
-                s = mnrandi(self.pstates)
+        for i in range(0, nsubjects):
+            # initialize subject-level value table
+            Q    = np.zeros(2)
+            lr   = params[i,0]
+            beta = params[i,1]
+
+            results[i] = {'S': np.zeros(ntrials),
+                          'A': np.zeros(ntrials),
+                          'R': np.zeros(ntrials)}
+            for t in range(0, ntrials):
+                a = action(beta*Q)
+                r = reward(a, paths[t, :])
+
+                # learn
+                Q[a] = Q[a] + lr*(r - Q[a])
+
+                # store values
+                results[i]['S'][t] = 0
+                results[i]['A'][t] = a
+                results[i]['R'][t] = r
+
+                # update reward probabilities
+                rand_step = np.random.normal(0, path_sd, size=2)
+                paths[t+1, :] = np.maximum(np.minimum(paths[t,:] + rand_step, path_max), path_min)
+
+        return results
+
+def action(x):
+    p = np.exp(x)/np.sum(np.exp(x))
+    return np.argmax(np.random.multinomial(1, pvals=p))
+
+def reward(a, paths):
+    return np.random.binomial(1, p=paths[a])
