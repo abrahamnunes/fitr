@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal as mvn
+
+from fitrutils import *
 
 #===============================================================================
 #
@@ -16,17 +19,16 @@ class fitrmodel(object):
         self.loglik_func = loglik_func
         self.params = params
 
-    def fit(self, data, method='EM'):
+    def fit(self, data, method='EM', c_limit=0.01):
 
         if method=='EM':
             opt = EM(loglik_func=self.loglik_func, params=self.params)
-            results = opt.fit(data=data)
+            results = opt.fit(data=data, c_limit=c_limit)
         elif method=='MLE':
             opt = MLE(loglik_func=self.loglik_func, params=self.params)
-            results = opt.fit(data=data)
+            results = opt.fit(data=data, c_limit=c_limit)
 
         return results
-
 
 #===============================================================================
 #
@@ -45,8 +47,6 @@ class EM(object):
     Huys et al. (2011)
     """
     def __init__(self, loglik_func, params):
-        from scipy.stats import multivariate_normal as mvn
-
         self.loglik_func = loglik_func
         self.params = params
 
@@ -73,6 +73,7 @@ class EM(object):
         results = fitrfit(method='Expectation-Maximization',
                           nsubjects=nsubjects,
                           nparams=self.nparams)
+        results.set_paramnames(params=self.params)
 
         convergence = False
         opt_iter = 1
@@ -80,7 +81,7 @@ class EM(object):
         while convergence == False and opt_iter < n_iterations:
             for i in range(nsubjects):
                 print('ITERATION: '          + str(opt_iter) +
-                      ' | FITTING SUBJECT: ' + str(i+1))
+                      ' | [E-STEP] SUBJECT: ' + str(i+1))
 
                 # Extract subject-level data
                 S = data[i]['S']
@@ -92,7 +93,6 @@ class EM(object):
 
                 # Generate initial values
                 x0 = np.random.normal(loc=0, scale=2, size=self.nparams)
-
                 # Optimize
                 res = minimize(_nlogpost, x0, method=opt_algorithm)
 
@@ -100,8 +100,12 @@ class EM(object):
                 if res.fun < results.nlogpost[i]:
                     results.nlogpost[i] = res.fun
                     results.params[i,:] = res.x
-                    results.hess_inv[:, :, i] = res.hess_inv
+                    results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
+                    results.hess_inv[:,:,i] = res.hess_inv
                     results.nloglik[i]  = self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
+                    results.LME[i] = LME(-res.fun, self.nparams, np.linalg.inv(res.hess_inv))
+                    results.AIC[i] = AIC(self.nparams, results.nloglik[i])
+                    results.BIC[i] = BIC(results.nloglik[i], self.nparams, len(data[0]['A']))
 
             # If the group level posterior probability has converged, stop
             if np.abs(np.sum(results.nlogpost) - sum_nlogpost) < c_limit:
@@ -109,7 +113,14 @@ class EM(object):
             else:
                 # Update the running model log-posterior probability
                 sum_nlogpost = np.sum(results.nlogpost)
+
+                # Add total LME, BIC, and AIC to results list
+                results.ts_LME.append(np.sum(results.LME))
+                results.ts_BIC.append(np.sum(results.BIC))
+                results.ts_AIC.append(np.sum(results.AIC))
+
                 # Optimize group level hyperparameters
+                print('\nITERATION: ' + str(opt_iter) + ' | [M-STEP]\n')
                 self.group_level_estimate(param_est=results.params,
                                           hess_inv=results.hess_inv)
                 opt_iter += 1
@@ -131,8 +142,6 @@ class EM(object):
         """
         Updates the group-level hyperparameters
         """
-        print('==== UPDATING HYPERPARAMETERS ====')
-
         nsubjects = np.shape(param_est)[0]
 
         self.mu = np.mean(param_est, axis=0)
@@ -142,20 +151,33 @@ class EM(object):
             self.cov = self.cov + (np.outer(param_est[i,:], param_est[i,:]) + hess_inv[:, :, i]) - np.outer(self.mu, self.mu)
 
         self.cov = self.cov/nsubjects
-
-
-class MLE(object):
-    def __init__(self, loglik_func, params):
-        self.loglik_func = loglik_func
-        self.params = params
-        self.nparams = len(params)
-
-    def fit(self, data):
-        pass
-
-class EmpiricalPriors(object):
-    def __init__(self):
-        pass
+#
+# TODO: ADD MLE, EMPIRICALPRIORS, MCMC, VB, AND GAUSSIAN PROCESSES
+#
+#class MLE(object):
+#    def __init__(self, loglik_func, params):
+#        self.loglik_func = loglik_func
+#        self.params = params
+#        self.nparams = len(params)
+#
+#    def fit(self, data):
+#        pass
+#
+#class EmpiricalPriors(object):
+#    def __init__(self):
+#        pass
+#
+#class MCMC(object):
+#    def __init__(self):
+#        pass
+#
+#class VB(object):
+#    def __init__(self):
+#        pass
+#
+#class GP(object):
+#    def __init__(self):
+#        pass
 
 #===============================================================================
 #
@@ -202,16 +224,28 @@ class fitrfit(object):
         self.nsubjects = nsubjects
         self.nparams = nparams
         self.params = np.zeros([nsubjects, nparams])
-        self.paramnames = None
+        self.paramnames = []
+        self.hess = np.zeros([nparams, nparams, nsubjects])
         self.hess_inv = np.zeros([nparams, nparams, nsubjects])
         self.errs = np.zeros([nsubjects, nparams])
         self.nlogpost = np.zeros(nsubjects) + 1e7
         self.nloglik = np.zeros(nsubjects)
-        self.LME = None
+        self.LME = np.zeros(nsubjects)
         self.BIC = np.zeros(nsubjects)
         self.AIC = np.zeros(nsubjects)
+        self.ts_LME = []
+        self.ts_BIC = []
+        self.ts_AIC = []
+
+    def set_paramnames(self, params):
+        """
+        Sets the names of the RL parameters to the fitrfit object
+        """
+        for i in range(len(params)):
+            self.paramnames.append(params[i].name)
 
     def plot_ae(self, actual):
+        """ Plots actual parameters (if provided) against estimates """
         nparams = np.shape(self.params)[1]
         fig, ax = plt.subplots(1, nparams)
         for i in range(nparams):
@@ -226,28 +260,48 @@ class fitrfit(object):
 
         plt.show()
 
+    def plot_fit_ts(self):
+        """
+        Plots the log-model-evidence, BIC, and AIC over optimization iterations
+        """
+        n_opt_steps = len(self.ts_LME)
+        fig, ax = plt.subplots(1, 3, figsize=(15, 5))
 
-#===============================================================================
-#
-#   PARAMETERS
-#       Objects denoting parameters for simple use
-#
-#===============================================================================
+        #LME
+        ax[0].plot(np.arange(n_opt_steps), self.ts_LME, lw=1.5, c='k')
+        ax[0].scatter(np.arange(n_opt_steps), self.ts_LME, c='k')
+        ax[0].set_xlabel('Optimization step')
+        ax[0].set_title('Log Model Evidence (LME)\n')
+        ax[0].set_xlim([0, n_opt_steps])
 
-class Param(object):
-    def __init__(self, name=None, rng=None):
-        self.name = name
-        self.range = rng
+        #BIC
+        ax[1].plot(np.arange(n_opt_steps), self.ts_BIC, lw=1.5, c='k')
+        ax[1].scatter(np.arange(n_opt_steps), self.ts_BIC, c='k')
+        ax[1].set_xlabel('Optimization step')
+        ax[1].set_title('Bayesian Information Criterion\n')
+        ax[1].set_xlim([0, n_opt_steps])
 
-class LearningRate(Param):
-    def __init__(self, name='Learning Rate', rng='unit'):
-        self.name = name
-        self.rng  = rng
+        #AIC
+        ax[2].plot(np.arange(n_opt_steps), self.ts_AIC, lw=1.5, c='k')
+        ax[2].scatter(np.arange(n_opt_steps), self.ts_AIC, c='k')
+        ax[2].set_xlabel('Optimization step')
+        ax[2].set_title('Aikake Information Criterion\n')
+        ax[2].set_xlim([0, n_opt_steps])
 
-class ChoiceRandomness(Param):
-    def __init__(self, name='Choice Randomness', rng='pos'):
-        self.name = name
-        self.rng  = rng
+        plt.show()
+
+    def param_hist(self):
+        """ Plots histograms of the parameter estimates """
+        nparams = np.shape(self.params)[1]
+
+        fig, ax = plt.subplots(1, nparams)
+        for i in range(0, nparams):
+            n, bins, patches = ax[i].hist(self.params[:,i], normed=1)
+            y = mvn.pdf(bins, np.mean(self.params[:,i]), np.std(self.params[:,1]))
+            ax[i].plot(bins, y, 'r--', lw=1.5)
+            ax[i].set_title(self.paramnames[i] + '\n')
+
+        plt.show()
 
 #===============================================================================
 #
@@ -255,18 +309,6 @@ class ChoiceRandomness(Param):
 #       Functions used across fitr modules
 #
 #===============================================================================
-
-def softmax(x):
-    xmax = np.max(x)
-    return np.exp(x-xmax)/np.sum(np.exp(x-xmax))
-
-def logsumexp(x):
-    """
-    Numerically stable logsumexp.
-    """
-    xmax = np.max(x)
-    y = xmax + np.log(np.sum(np.exp(x-xmax)))
-    return y
 
 def trans_UC(values_U, rng):
     'Transform parameters from unconstrained to constrained space.'
@@ -290,10 +332,20 @@ def trans_UC(values_U, rng):
             values_T.append(value)
     return np.array(values_T)
 
-def BIC(x):
-    """ Bayesian information criterion """
-    pass
+def BIC(loglik, nparams, nsteps):
+    """
+    Calculates Bayesian information criterion
+    """
+    return nparams*np.log(nsteps) - 2*loglik
 
-def AIC(x):
-    """ Aikake information criterion """
-    pass
+def AIC(nparams, loglik):
+    """
+    Calculates Aikake information criterion
+    """
+    return 2*nparams - 2*loglik
+
+def LME(logpost, nparams, hessian):
+    """
+    Calculates log-model-evidence (LME)
+    """
+    return logpost + (nparams/2)*np.log(2*np.pi)-np.log(np.linalg.det(hessian))/2
