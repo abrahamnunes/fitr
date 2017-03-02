@@ -1,4 +1,7 @@
-# fitr
+#  fitr
+
+[![Build status](https://ci.appveyor.com/api/projects/status/2cbutmj6i890uujj?svg=true)](https://ci.appveyor.com/project/abrahamnunes/fitr)
+
 Python implementation of package to fit reinforcement learning models to behavioural data
 
 
