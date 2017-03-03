@@ -1,9 +1,6 @@
-#===============================================================================
-#
-#   LOG-LIKELIHOOD FUNCTIONS
-#       Log-likelihood functions for various tasks
-#
-#===============================================================================
+"""
+Log-likelihood functions for each task.
+"""
 
 import numpy as np
 from fitrutils import *

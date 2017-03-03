@@ -9,7 +9,11 @@ Welcome to fitr's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+
+   sections/quickstart/index
+   sections/tutorial/index
+   sections/API/index
 
 Indices and tables
 ==================

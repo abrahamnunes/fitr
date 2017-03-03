@@ -1,10 +1,7 @@
-#===============================================================================
-#
-#   PARAMETERS
-#       Objects denoting parameters for simple use
-#
-#===============================================================================
-import scipy.stats 
+"""
+Objects representing each parameter object
+"""
+import scipy.stats
 
 class Param(object):
     def __init__(self, name=None, rng=None):

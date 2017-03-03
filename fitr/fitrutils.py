@@ -1,9 +1,6 @@
-#===============================================================================
-#
-#   UTILITY FUNCTIONS
-#       Things that are used across fitr modules
-#
-#===============================================================================
+"""
+Functions that are used across fitr modules
+"""
 import numpy as np
 
 def softmax(x):

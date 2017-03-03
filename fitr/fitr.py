@@ -42,6 +42,10 @@ class EM(object):
     """
     Expectation-Maximization with the Laplace Approximation
 
+    \begin{equation}
+    P(\boldsymbol\theta|\mathcal{D})
+    \end{equation}
+
     References
     ----------
     Huys et al. (2011)
