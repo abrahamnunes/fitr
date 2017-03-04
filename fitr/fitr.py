@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import minimize
 from scipy.stats import multivariate_normal as mvn
 
-from fitrutils import *
+from utils import trans_UC, BIC, AIC, LME
 
 #===============================================================================
 #
@@ -42,10 +43,6 @@ class EM(object):
     """
     Expectation-Maximization with the Laplace Approximation
 
-    \begin{equation}
-    P(\boldsymbol\theta|\mathcal{D})
-    \end{equation}
-
     References
     ----------
     Huys et al. (2011)
@@ -70,7 +67,6 @@ class EM(object):
         """
         Performs maximum a posteriori estimation of subject-level parameters
         """
-        from scipy.optimize import minimize
 
         # Instantiate the results object
         nsubjects = len(data)
@@ -248,7 +244,7 @@ class fitrfit(object):
         for i in range(len(params)):
             self.paramnames.append(params[i].name)
 
-    def plot_ae(self, actual):
+    def plot_ae(self, actual, filename='actual-estimate.pdf'):
         """ Plots actual parameters (if provided) against estimates """
         nparams = np.shape(self.params)[1]
         fig, ax = plt.subplots(1, nparams)
@@ -262,9 +258,10 @@ class fitrfit(object):
             ax[i].set_ylim([minval, maxval])
             ax[i].set_xlim([minval, maxval])
 
+        plt.savefig(filename)
         plt.show()
 
-    def plot_fit_ts(self):
+    def plot_fit_ts(self, filename='fit-stats.pdf'):
         """
         Plots the log-model-evidence, BIC, and AIC over optimization iterations
         """
@@ -292,9 +289,10 @@ class fitrfit(object):
         ax[2].set_title('Aikake Information Criterion\n')
         ax[2].set_xlim([0, n_opt_steps])
 
+        plt.savefig(filename)
         plt.show()
 
-    def param_hist(self):
+    def param_hist(self, filename='param-hist.pdf'):
         """ Plots histograms of the parameter estimates """
         nparams = np.shape(self.params)[1]
 
@@ -305,6 +303,7 @@ class fitrfit(object):
             ax[i].plot(bins, y, 'r--', lw=1.5)
             ax[i].set_title(self.paramnames[i] + '\n')
 
+        plt.savefig(filename)
         plt.show()
 
 #===============================================================================
@@ -313,43 +312,3 @@ class fitrfit(object):
 #       Functions used across fitr modules
 #
 #===============================================================================
-
-def trans_UC(values_U, rng):
-    'Transform parameters from unconstrained to constrained space.'
-    if rng[0] == 'all_unc':
-        return values_U
-    values_T = []
-    for value, rng in zip(values_U, rng):
-        if rng   == 'unit':  # Range: 0 - 1.
-            if value < -16.:
-                value = -16.
-            values_T.append(1./(1. + np.exp(-value)))  # Don't allow values smaller than 1e-
-        elif rng   == 'half':  # Range: 0 - 0.5
-            if value < -16.:
-                value = -16.
-            values_T.append(0.5/(1. + np.exp(-value)))  # Don't allow values smaller than 1e-7
-        elif rng == 'pos':  # Range: 0 - inf
-            if value > 16.:
-                value = 16.
-            values_T.append(np.exp(value))  # Don't allow values bigger than ~ 1e7.
-        elif rng == 'unc': # Range: - inf - inf.
-            values_T.append(value)
-    return np.array(values_T)
-
-def BIC(loglik, nparams, nsteps):
-    """
-    Calculates Bayesian information criterion
-    """
-    return nparams*np.log(nsteps) - 2*loglik
-
-def AIC(nparams, loglik):
-    """
-    Calculates Aikake information criterion
-    """
-    return 2*nparams - 2*loglik
-
-def LME(logpost, nparams, hessian):
-    """
-    Calculates log-model-evidence (LME)
-    """
-    return logpost + (nparams/2)*np.log(2*np.pi)-np.log(np.linalg.det(hessian))/2

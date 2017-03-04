@@ -27,6 +27,15 @@ class RewardSensitivity(Param):
         self.rng  = rng
         self.dist = scipy.stats.beta(1.1, 1.1)
 
+class EligibilityTrace(Param):
+    """
+    An eligibility trace parameter object.
+    """
+    def __init__(self, name='Eligibility Trace', rng='unit'):
+        self.name = name
+        self.rng  = rng
+        self.dist = scipy.stats.beta(1.1, 1.1)
+
 class MBMF_Balance(Param):
     """
     An object representing the parameter that balances model-based and model-free control.

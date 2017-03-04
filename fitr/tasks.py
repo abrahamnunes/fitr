@@ -79,10 +79,10 @@ class bandit(object):
     def __init__(self, narms=2, rewards=[1, 0], rprob='stochastic', rprob_sd=0.025, rprob_bounds=[0.2, 0.8]):
         self.narms = narms
         self.rewards = rewards
+        self.rprob_sd = rprob_sd
 
         if rprob == 'stochastic':
             self.rprob_bounds = rprob_bounds
-            self.rprob = np.random.uniform(rprob_bounds[0], rprob_bounds[1], size=self.narms)
         else:
             if len(rprob) != self.narms:
                 print('Reward probability vector must have one entry per arm')
@@ -96,16 +96,16 @@ class bandit(object):
     def simulate(self, nsubjects, ntrials, params):
 
         # Initialize reward paths
-        path_max = 0.8
-        path_min = 0.2
-        path_sd  = 0.025
-        paths = np.random.uniform(path_min, path_max, size=[ntrials+1, 2])
-
+        path_max = self.rprob_bounds[0]
+        path_min = self.rprob_bounds[1]
+        path_sd  = self.rprob_sd
 
         results = SyntheticData()
         results.params = params
 
         for i in range(0, nsubjects):
+            paths = np.random.uniform(path_min, path_max, size=[ntrials+1, 2])
+
             # initialize subject-level value table
             Q  = np.zeros(2)
             lr = params[i,0]
@@ -174,9 +174,12 @@ class twostep(object):
         path_max = 0.8
         path_min = 0.2
         path_sd  = 0.025
-        paths = np.random.uniform(path_min, path_max, size=[ntrials+1, 4])
+
 
         for i in range(nsubjects):
+            # Initialize paths within subjects
+            paths = np.random.uniform(path_min, path_max, size=[ntrials+1, 4])
+
             lr = params[i,0]
             cr = params[i,1]
             w  = params[i,2]
