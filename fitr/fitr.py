@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 from scipy.stats import multivariate_normal as mvn
 
-from utils import trans_UC, BIC, AIC, LME
+from .utils import trans_UC, BIC, AIC, LME
 
 #===============================================================================
 #
