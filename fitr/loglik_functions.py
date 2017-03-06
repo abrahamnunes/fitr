@@ -3,7 +3,7 @@ Log-likelihood functions for each task.
 """
 
 import numpy as np
-from fitrutils import *
+from .utils import logsumexp
 
 #-------------------------------------------------------------------------------
 #
@@ -160,7 +160,6 @@ class bandit_ll(object):
         lrp = params[0]
         lrn = params[1]
         cr  = params[2]
-        rs  = params[3]
 
         ntrials = len(actions)
         Q = np.zeros(self.narms)
