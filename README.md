@@ -5,16 +5,13 @@ Python implementation of package to fit reinforcement learning models to behavio
 
 ## Tutorial
 
-### Import package components
-
-* Assumes your current directory is the `fitr` folder
-
 ### Generate some synthetic data
 
 ``` python
 import numpy as np
-from rlparams import *
-from tasks import bandit
+import fitr
+from fitr import tasks, loglik_functions, model_selection
+
 
 nsubjects=50
 
@@ -22,13 +19,13 @@ nsubjects=50
 params = np.zeros([nsubjects, 2])
 
 # Sample parameter values from rlparams objects
-params[:,0] = LearningRate().dist.rvs(size=nsubjects)
-params[:,1] = ChoiceRandomness().dist.rvs(size=nsubjects)
+params[:,0] = fitr.LearningRate().dist.rvs(size=nsubjects)
+params[:,1] = fitr.ChoiceRandomness().dist.rvs(size=nsubjects)
 
 # Run task
-res = bandit().simulate(nsubjects=nsubjects,
-                        ntrials=100,
-                        params=params)
+res = tasks.bandit().simulate(nsubjects=nsubjects,
+                              ntrials=100,
+                              params=params)
 
 # Plot the cumulative reward
 res.plot_cumreward()
@@ -41,12 +38,10 @@ res.cumreward_param_plot()
 ### Fit a reinforcement learning model to the data
 
 ``` python
-from fitr import *
-from loglik_functions import bandit_ll
 
 # Model with learning rate and choice randomness
-lrcr_model = fitrmodel(loglik_func=bandit_ll().lr_cr,
-                       params=[LearningRate(),ChoiceRandomness()])
+lrcr_model = fitrmodel(loglik_func=loglik_functions.bandit_ll().lr_cr,
+                       params=[fitr.LearningRate(),fitr.ChoiceRandomness()])
 ```
 
 Now that the models are created, we can fit them. The default method (the only one presently implemented) is Expectation-Maximization.
