@@ -1,5 +1,3 @@
-scipy
 numpy
+scipy
 matplotlib
-bayesian-optimization
-codecov
