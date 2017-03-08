@@ -16,11 +16,39 @@ from .utils import trans_UC, BIC, AIC, LME
 #===============================================================================
 
 class fitrmodel(object):
-    def __init__(self, loglik_func, params):
+    """
+    An object representing a model to be fit to behavioural data. This should be viewed as a high level wrapper for multiple potential model fitting algorithms which themselves can be run by using their respective classes.
+
+    Attributes
+    ----------
+    name : str
+        Name of the model. We suggest identifying model based on free parameters.
+    loglik_func : function
+        The log-likelihood function to be used to fit the data
+    params : list
+        List of reinforcement learning parameter objects from the rlparams module.
+    """
+    def __init__(self, name, loglik_func, params):
+        self.name = name
         self.loglik_func = loglik_func
         self.params = params
 
     def fit(self, data, method='EM', c_limit=0.01):
+        """
+        Runs model fitting
+
+        Parameters
+        ----------
+        method : {'EM', 'MLE'}
+            The inference algorithm to use.
+        c_limit : float
+            Limit at which convergence of log-posterior probability is determined
+
+        Returns
+        -------
+        fitrfit : object
+            Representation of the model fitting results
+        """
 
         if method=='EM':
             opt = EM(loglik_func=self.loglik_func, params=self.params)
@@ -43,9 +71,26 @@ class EM(object):
     """
     Expectation-Maximization with the Laplace Approximation
 
+    Attributes
+    ----------
+    loglik_func : function
+        The log-likelihood function to be used for model fitting
+    params : list
+        List of parameters from the rlparams module
+    nparams : int
+        Number of free parameters in the model
+    param_rng : list
+        List of strings denoting the parameter ranges (see rlparams module for further details)
+    prior : scipy.stats distribution
+        The prior distribution over parameter estimates. Here this is fixed to a multivariate normal.
+    mu : ndarray(shape=nparams)
+        The prior mean over parameters
+    cov : ndarray(shape=(nparams,nparams))
+        The covariance matrix for prior over parameter estimates
+
     References
     ----------
-    Huys et al. (2011)
+    [1] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).
     """
     def __init__(self, loglik_func, params):
         self.loglik_func = loglik_func
@@ -66,6 +111,22 @@ class EM(object):
     def fit(self, data, n_iterations=1000, c_limit=1, opt_algorithm='BFGS'):
         """
         Performs maximum a posteriori estimation of subject-level parameters
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary of data from all subjects.
+        n_iterations : int
+            Maximum number of iterations to allow.
+        c_limit : float
+            Threshold at which convergence is determined
+        opt_algorithm : {'BFGS', 'L-BFGS-B', 'Nelder-Mead'}
+            Algorithm to use for optimization
+
+        Returns
+        -------
+        fitrfit : object
+            Representation of the model fitting results
         """
 
         # Instantiate the results object
@@ -132,7 +193,25 @@ class EM(object):
         return results
 
     def logposterior(self, x, states, actions, rewards):
-        """ Represents the log-posterior probability function """
+        """
+        Represents the log-posterior probability function
+
+        Parameters
+        ----------
+        x : ndarray(nparams)
+            Array of parameters for single subject
+        states : ndarray
+            Array of states encountered by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.
+        actions: ndarray
+            Array of actions taken by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.
+        rewards : ndarray
+            Array of rewards received by the subject. Number of rows should reflect number of trials. If there are multiple steps at which rewards are received, they should be stored in different columns, unless a custom likelihood funciton is used which does not require this.
+
+        Returns
+        -------
+        float
+            Log-posterior probability
+        """
 
         lp = self.loglik_func(params=trans_UC(x, rng=self.param_rng), states=states, actions=actions, rewards=rewards) + self.prior.logpdf(x, mean=self.mu, cov=self.cov)
 
@@ -141,6 +220,13 @@ class EM(object):
     def group_level_estimate(self, param_est, hess_inv):
         """
         Updates the group-level hyperparameters
+
+        Parameters
+        ----------
+        param_est : ndarray(shape=(nsubjects, nparams))
+            Current parameter estimates for each subject
+        hess_inv : ndarray(shape=(nparams, nparams, nsubjects))
+            Inverse Hessian matrix estimate for each subject from the iteration with highest log-posterior probability
         """
         nsubjects = np.shape(param_est)[0]
 
@@ -192,6 +278,8 @@ class fitrfit(object):
 
     Attributes
     ----------
+    name : str
+        Model identifier. We suggest using free-parameters as identifiers
     method : str
         Method employed in optimization.
     nsubjects : int
@@ -218,8 +306,8 @@ class fitrfit(object):
     transform :
         Transforms data to constrained or unconstrained space
     """
-    def __init__(self, method, nsubjects, nparams):
-
+    def __init__(self, method, nsubjects, nparams, name=None):
+        self.name = name
         self.method = method
         self.nsubjects = nsubjects
         self.nparams = nparams
@@ -240,12 +328,30 @@ class fitrfit(object):
     def set_paramnames(self, params):
         """
         Sets the names of the RL parameters to the fitrfit object
+
+        Parameters
+        ----------
+        params : list
+            List of parameters from the rlparams module
         """
         for i in range(len(params)):
             self.paramnames.append(params[i].name)
 
-    def plot_ae(self, actual, filename='actual-estimate.pdf'):
-        """ Plots actual parameters (if provided) against estimates """
+    def plot_ae(self, actual, show_figure=True, save_figure=False, filename='actual-estimate.pdf'):
+        """
+        Plots actual parameters (if provided) against estimates
+
+        Parameters
+        ----------
+        actual : ndarray(shape=(nsubjects, nparams))
+            Array of actual parameters from a simulation
+        show_figure : bool
+            Whether to show figure output
+        save_figure : bool
+            Whether to save the figure to disk
+        filename : str
+            The file name to be output
+        """
         nparams = np.shape(self.params)[1]
         fig, ax = plt.subplots(1, nparams)
         for i in range(nparams):
@@ -258,12 +364,24 @@ class fitrfit(object):
             ax[i].set_ylim([minval, maxval])
             ax[i].set_xlim([minval, maxval])
 
-        plt.savefig(filename)
-        plt.show()
+        if save_figure is True:
+            plt.savefig(filename)
 
-    def plot_fit_ts(self, filename='fit-stats.pdf'):
+        if show_figure is True:
+            plt.show()
+
+    def plot_fit_ts(self, show_figure=True, save_figure=False, filename='fit-stats.pdf'):
         """
         Plots the log-model-evidence, BIC, and AIC over optimization iterations
+
+        Parameters
+        ----------
+        show_figure : bool
+            Whether to show figure output
+        save_figure : bool
+            Whether to save the figure to disk
+        filename : str
+            The file name to be output
         """
         n_opt_steps = len(self.ts_LME)
         fig, ax = plt.subplots(1, 3, figsize=(15, 5))
@@ -289,11 +407,26 @@ class fitrfit(object):
         ax[2].set_title('Aikake Information Criterion\n')
         ax[2].set_xlim([0, n_opt_steps])
 
-        plt.savefig(filename)
-        plt.show()
+        if save_figure is True:
+            plt.savefig(filename)
 
-    def param_hist(self, filename='param-hist.pdf'):
-        """ Plots histograms of the parameter estimates """
+        if show_figure is True:
+            plt.show()
+
+    def param_hist(self, show_figure=True, save_figure=False, filename='param-hist.pdf'):
+        """
+        Plots histograms of the parameter estimates
+
+        Parameters
+        ----------
+        show_figure : bool
+            Whether to show figure output
+        save_figure : bool
+            Whether to save the figure to disk
+        filename : str
+            The file name to be output
+
+        """
         nparams = np.shape(self.params)[1]
 
         fig, ax = plt.subplots(1, nparams)
@@ -303,12 +436,8 @@ class fitrfit(object):
             ax[i].plot(bins, y, 'r--', lw=1.5)
             ax[i].set_title(self.paramnames[i] + '\n')
 
-        plt.savefig(filename)
-        plt.show()
+        if save_figure is True:
+            plt.savefig(filename)
 
-#===============================================================================
-#
-#   UTILITY FUNCTIONS
-#       Functions used across fitr modules
-#
-#===============================================================================
+        if show_figure is True:
+            plt.show()
