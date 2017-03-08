@@ -28,7 +28,7 @@ class fitrmodel(object):
     params : list
         List of reinforcement learning parameter objects from the rlparams module.
     """
-    def __init__(self, name, loglik_func, params):
+    def __init__(self, loglik_func, params, name=None):
         self.name = name
         self.loglik_func = loglik_func
         self.params = params
@@ -51,10 +51,10 @@ class fitrmodel(object):
         """
 
         if method=='EM':
-            opt = EM(loglik_func=self.loglik_func, params=self.params)
+            opt = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
             results = opt.fit(data=data, c_limit=c_limit)
         elif method=='MLE':
-            opt = MLE(loglik_func=self.loglik_func, params=self.params)
+            opt = MLE(loglik_func=self.loglik_func, params=self.params, name=self.name)
             results = opt.fit(data=data, c_limit=c_limit)
 
         return results
@@ -73,6 +73,8 @@ class EM(object):
 
     Attributes
     ----------
+    name : str
+        Name of the model being fit. We suggest using the free parameters.
     loglik_func : function
         The log-likelihood function to be used for model fitting
     params : list
@@ -92,7 +94,8 @@ class EM(object):
     ----------
     [1] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).
     """
-    def __init__(self, loglik_func, params):
+    def __init__(self, loglik_func, params, name=None):
+        self.name = name
         self.loglik_func = loglik_func
         self.params = params
 
@@ -133,7 +136,8 @@ class EM(object):
         nsubjects = len(data)
         results = fitrfit(method='Expectation-Maximization',
                           nsubjects=nsubjects,
-                          nparams=self.nparams)
+                          nparams=self.nparams,
+                          name=self.name)
         results.set_paramnames(params=self.params)
 
         convergence = False
