@@ -2,17 +2,129 @@
 Functions for model selection/comparison.
 """
 import numpy as np
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-colorblind')
+
 from scipy.special import digamma as psi
 from scipy.special import gammaln
 
 
 class ModelSelectionResult(object):
-    def __init__(self):
-        self.modelnames = []
-        self.pms = []
-        self.xp = []
-        self.pxp = []
+    """
+    Object containing results of model selection
 
+    Attributes
+    ----------
+    modelnames : list
+        List of strings labeling models
+    xp : ndarray
+        Exceedance probabilities for each model
+    pxp : ndarray
+        Protected exceedance probabilities for each model
+    BIC : ndarray
+        Bayesian information criterion measures for each model
+    AIC : ndarray
+        Aikake information criterion measures for each model
+
+    """
+    def __init__(self, method):
+        self.modelnames = []
+
+        if method=='BMS':
+            self.xp = []
+            self.pxp = []
+
+        if method=='BIC':
+            self.BIC = []
+
+        if method=='AIC':
+            self.AIC = []
+
+        if method=='All':
+            self.xp = []
+            self.pxp = []
+            self.BIC = []
+            self.AIC = []
+
+    def plot(self, statistic, show_figure=True, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10)):
+        if statistic=='pxp':
+            bar_height = self.pxp
+            plot_title = 'Protected Exceedance Probabilities'
+            plot_ylabel = 'Probability'
+        elif statistic=='xp':
+            bar_height = self.xp
+            plot_title = 'Exceedance Probabilities'
+            plot_ylabel = 'Probability'
+        elif statistic=='BIC':
+            bar_height = self.BIC
+            plot_title = 'Bayesian Information Criterion'
+            plot_ylabel = 'BIC'
+        elif statistic=='AIC':
+            bar_height = self.AIC
+            plot_title = 'Aikake Information Criterion'
+            plot_ylabel = 'AIC'
+
+        width = 0.7
+        ind = np.arange(len(self.modelnames))
+
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        ax.bar(ind, bar_height, width=width, align="center")
+        ax.set_ylabel(plot_ylabel)
+        ax.set_xticks(ind)
+        ax.set_xticklabels(self.modelnames)
+        ax.set_title(plot_title)
+
+        if save_figure is True:
+            plt.savefig(filename)
+
+        if show_figure is True:
+            plt.show()
+
+class BIC(object):
+    """
+    Model comparison with Bayesian Information Criterion
+
+    Attributes
+    ----------
+    modelfits : list
+        List of fitrfit objects from completed model fitting
+    """
+    def __init__(self, model_fits):
+        self.modelfits = model_fits
+
+    def run(self):
+        """
+        Runs model comparison by Bayesian Information Criterion
+        """
+        results = ModelSelectionResult(method='BIC')
+
+        for i in range(len(self.modelfits)):
+            results.BIC.append(self.modelfits[i].name)
+
+        return results
+
+class AIC(object):
+    """
+    Model comparison with Aikake Information Criterion
+
+    Attributes
+    ----------
+    modelfits : list
+        List of fitrfit objects from completed model fitting
+    """
+    def __init__(self, model_fits):
+        self.modelfits = model_fits
+
+    def run(self):
+        """
+        Runs model comparison by Aikake Information Criterion
+        """
+        results = ModelSelectionResult(method='AIC')
+
+        for i in range(len(self.modelfits)):
+            results.AIC.append(self.modelfits[i].name)
+
+        return results
 
 class BMS(object):
     """
@@ -129,7 +241,14 @@ class BMS(object):
         bms_results['pxp'] = np.dot(bms_results['xp'], (1-bor))
         + bor/self.nmodels
 
-        return bms_results
+        # Store data in ModelSelectionResult object
+        results = ModelSelectionResult(method='BMS')
+        for i in range(len(self.modelfits)):
+            results.modelnames.append(self.modelfits[i].name)
+        results.pxp = bms_results['pxp']
+        results.xp = bms_results['xp']
+
+        return results
 
     def dirichlet_exceedance(self, alpha):
         """
