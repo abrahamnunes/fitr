@@ -53,7 +53,7 @@ class BMS(object):
     [1] Rigoux, L. et al. (2014) Bayesian model selection for group studies - Revisited. Neuroimage 84, 971–985
     [2] Samuel Gershman's _mfit_ package (on GitHub)
     """
-    def __init__(self, model_fits, c_limit=1e-11):
+    def __init__(self, model_fits, c_limit=10e-100):
         self.modelfits = model_fits
 
         # Extract number of models and number of subjects
@@ -84,7 +84,7 @@ class BMS(object):
         alpha = alpha0
 
         bms_iter = 0
-        prediction_error = self.c_limit * 1e11
+        prediction_error = 1
 
         print('===== STARTING BAYESIAN MODEL SELECTION =====\n' +
               'Number of models: ' + str(self.nmodels) + '\n' +
@@ -113,7 +113,7 @@ class BMS(object):
                 g[i,:] = u[i,:]/np.sum(u[i,:])
                 a[i,:] = np.random.multinomial(1, pvals=g[i,:])
 
-            beta = np.sum(a)
+            beta = np.sum(a, axis=0)
             alpha_previous = alpha
             alpha = alpha0 + beta
 
@@ -133,7 +133,7 @@ class BMS(object):
             'r': g.T
         }
         priors = {'a': alpha0}
-        bor = self.BOR(lme, posterior, priors)
+        bor = self.BOR(L=lme.T, posterior=posterior, priors=priors)
         bms_results['pxp'] = np.dot(bms_results['xp'], (1-bor)) + bor/self.nmodels
 
         return bms_results
@@ -221,7 +221,7 @@ class BMS(object):
             F0 = self.FE_null(L, options)[1]
 
         #Evidence of alternative
-        F1 = self.FE(L, posterior, priors)
+        F1 = self.FE(L=L, posterior=posterior, priors=priors)
 
         bor = 1/(1+np.exp(F1-F0))
         return bor
@@ -245,7 +245,7 @@ class BMS(object):
         ----------
         [1] Rigoux L., Daunizeau J. _VBA Toolbox_ (http://code.google.com/p/mbb-vb-toolbox/)
         """
-        nsubjects, nmodels = np.shape(L)
+        nmodels, nsubjects = np.shape(L)
         a0 = np.sum(posterior['a'])
         Elogr = psi(posterior['a']) - psi(np.sum(posterior['a']))
         Sqf = np.sum(gammaln(posterior['a'])) - gammaln(a0) - np.sum((posterior['a']-1)*Elogr)
@@ -258,7 +258,7 @@ class BMS(object):
 
         for i in range(nsubjects):
             for k in range(nmodels):
-                ELJ = ELJ + posterior['r'][k, i]*(Elogr[k]+L[i,k])
+                ELJ = ELJ + posterior['r'][k, i]*(Elogr[k]+L[k,i])
 
         F = ELJ + Sqf + Sqm
 
@@ -284,7 +284,7 @@ class BMS(object):
         ----------
         [1] Rigoux L., Daunizeau J. _VBA Toolbox_ (http://code.google.com/p/mbb-vb-toolbox/)
         """
-        nsubjects, nmodels = np.shape(L)
+        nmodels, nsubjects = np.shape(L)
         if options['families'] is True:
             f0 = np.dot(options['C'], np.sum(options['C'], axis=0))**(-1/(np.shape(options['C'])[1]))
             F0f = 0
@@ -293,11 +293,11 @@ class BMS(object):
 
         F0m = 0
         for i in range(nsubjects):
-            tmp = L[i,:] - np.max(L[i,:])
+            tmp = L[:,i] - np.max(L[:,i])
             g = np.exp(tmp)/np.sum(np.exp(tmp))
             for k in range(nmodels):
-                F0m = F0m + g[k]*(L[i,k]-np.log(nmodels)-np.log(g[k]+np.spacing(1)))
+                F0m = F0m + g[k]*(L[k,i]-np.log(nmodels)-np.log(g[k]+np.spacing(1)))
                 if options['families'] is True:
-                    F0f = F0f + g[k]*(L[i,k]-np.log(g[k]+np.spacing(1))+np.log(f0[k]))
+                    F0f = F0f + g[k]*(L[k,i]-np.log(g[k]+np.spacing(1))+np.log(f0[k]))
 
         return F0m, F0f
