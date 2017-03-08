@@ -93,7 +93,9 @@ class bandit(object):
 
             self.rprob=rprob
 
-    def simulate(self, nsubjects, ntrials, params):
+    def simulate(self, ntrials, params):
+
+        nsubjects = np.shape(params)[0]
 
         # Initialize reward paths
         path_max = self.rprob_bounds[0]
