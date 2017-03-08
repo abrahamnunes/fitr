@@ -1,4 +1,4 @@
-fitr |Build status| |Documentation Status|
+fitr |Build status| |Documentation Status| |Code Coverage|
 ==========================================
 
 Python implementation of package to fit reinforcement learning models to
@@ -82,7 +82,9 @@ of those, model fitting can be run again.
 
     lrcr_fit.plot_fit_ts()
 
-.. |Build status| image:: https://ci.appveyor.com/api/projects/status/2cbutmj6i890uujj?svg=true
-   :target: https://ci.appveyor.com/project/abrahamnunes/fitr
+.. |Build status| image::
+   :target: https://travis-ci.org/ComputationalPsychiatry/fitr
 .. |Documentation Status| image:: https://readthedocs.com/projects/computationalpsychiatry-fitr/badge/?version=latest
    :target: https://computationalpsychiatry-fitr.readthedocs-hosted.com/en/latest/?badge=latest
+   |Code Coverage| image::
+   :target: https://codecov.io/gh/ComputationalPsychiatry/fitr
