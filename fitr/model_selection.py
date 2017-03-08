@@ -5,25 +5,14 @@ import numpy as np
 from scipy.special import digamma as psi
 from scipy.special import gammaln
 
-#===============================================================================
-#
-#   MODELSELECTIONRESULT
-#
-#===============================================================================
 
 class ModelSelectionResult(object):
     def __init__(self):
         self.modelnames = []
         self.pms = []
-        self.xp  = []
+        self.xp = []
         self.pxp = []
 
-#===============================================================================
-#
-#   BMS
-#       Bayesian model selection code
-#
-#===============================================================================
 
 class BMS(object):
     """
@@ -50,14 +39,14 @@ class BMS(object):
 
     References
     ----------
-    [1] Rigoux, L. et al. (2014) Bayesian model selection for group studies - Revisited. Neuroimage 84, 971–985
+    [1] Rigoux, L. et al. (2014) Neuroimage 84, 971–985
     [2] Samuel Gershman's _mfit_ package (on GitHub)
     """
     def __init__(self, model_fits, c_limit=10e-100):
         self.modelfits = model_fits
 
         # Extract number of models and number of subjects
-        self.nmodels   = len(self.modelfits)
+        self.nmodels = len(self.modelfits)
         self.nsubjects = self.modelfits[0].nsubjects
         self.c_limit = c_limit
 
@@ -102,16 +91,19 @@ class BMS(object):
                     test_lme = self.modelfits[j].LME[i]
 
                     # If Hessian was degenerate, use BIC approximation of LME
-                    if np.isfinite(test_lme) is False or np.iscomplex(test_lme) is True:
-                        lme[i, j] = -0.5*self.modelfits[j].BIC[i] - self.modelfits[j].nparams*np.log(2*np.pi)
+                    lmefinite = np.isfinite(test_lme)
+                    lmecomplex = np.iscomplex(test_lme)
+                    if lmefinite is False or lmecomplex is True:
+                        lme[i, j] = -0.5*self.modelfits[j].BIC[i]
+                        - self.modelfits[j].nparams*np.log(2*np.pi)
                     else:
                         lme[i, j] = self.modelfits[j].LME[i]
 
                     log_u[j] = lme[i, j] + psi(alpha[j]) - psi(np.sum(alpha))
 
-                u[i,:] = np.exp(log_u - np.max(log_u))
-                g[i,:] = u[i,:]/np.sum(u[i,:])
-                a[i,:] = np.random.multinomial(1, pvals=g[i,:])
+                u[i, :] = np.exp(log_u - np.max(log_u))
+                g[i, :] = u[i, :]/np.sum(u[i, :])
+                a[i, :] = np.random.multinomial(1, pvals=g[i, :])
 
             beta = np.sum(a, axis=0)
             alpha_previous = alpha
@@ -134,10 +126,10 @@ class BMS(object):
         }
         priors = {'a': alpha0}
         bor = self.BOR(L=lme.T, posterior=posterior, priors=priors)
-        bms_results['pxp'] = np.dot(bms_results['xp'], (1-bor)) + bor/self.nmodels
+        bms_results['pxp'] = np.dot(bms_results['xp'], (1-bor))
+        + bor/self.nmodels
 
         return bms_results
-
 
     def dirichlet_exceedance(self, alpha):
         """
@@ -170,11 +162,11 @@ class BMS(object):
             # Sample from univariate gamma then normalize
             r = np.zeros([int(blk[i]), K])
             for k in range(0, K):
-                r[:,k] = np.random.gamma(alpha[k],1, size=int(blk[i]))
+                r[:, k] = np.random.gamma(alpha[k], 1, size=int(blk[i]))
 
-            sr = np.sum(r,axis=1)
+            sr = np.sum(r, axis=1)
             for k in range(K):
-                r[:,k] = r[:,k]/sr
+                r[:, k] = r[:, k]/sr
 
             # Compute Exceedance probabilities:
             #   For any given model k1, compute probability that
@@ -220,7 +212,7 @@ class BMS(object):
             # Evidence of null (equal model frequencies) under family prior
             F0 = self.FE_null(L, options)[1]
 
-        #Evidence of alternative
+        # Evidence of alternative
         F1 = self.FE(L=L, posterior=posterior, priors=priors)
 
         bor = 1/(1+np.exp(F1-F0))
@@ -228,7 +220,7 @@ class BMS(object):
 
     def FE(self, L, posterior, priors):
         """
-        Derives the free energy for the current approximate osterior distribution
+        Derives free energy for current approximate posterior distribution
 
         Parameters
         ----------
@@ -243,22 +235,26 @@ class BMS(object):
 
         References
         ----------
-        [1] Rigoux L., Daunizeau J. _VBA Toolbox_ (http://code.google.com/p/mbb-vb-toolbox/)
+        [1] Rigoux L., Daunizeau J. _VBA Toolbox_
         """
         nmodels, nsubjects = np.shape(L)
         a0 = np.sum(posterior['a'])
         Elogr = psi(posterior['a']) - psi(np.sum(posterior['a']))
-        Sqf = np.sum(gammaln(posterior['a'])) - gammaln(a0) - np.sum((posterior['a']-1)*Elogr)
+        Sqf = np.sum(gammaln(posterior['a']))
+        - gammaln(a0) - np.sum((posterior['a']-1)*Elogr)
         Sqm = 0
 
         for i in range(nsubjects):
-            Sqm = Sqm - np.sum(posterior['r'][:,i] * np.log(posterior['r'][:,i]+np.spacing(1)))
+            Sqm = Sqm - np.sum(posterior['r'][:, i] *
+                               np.log(posterior['r'][:, i]+np.spacing(1)))
 
-        ELJ = gammaln(np.sum(priors['a'])) - np.sum(gammaln(priors['a'])) + np.sum((priors['a']-1)*Elogr)
+        gln_sumprior = gammaln(np.sum(priors['a']))
+        sum_glnprior = np.sum(gammaln(priors['a']))
+        ELJ = gln_sumprior - sum_glnprior + np.sum((priors['a']-1)*Elogr)
 
         for i in range(nsubjects):
             for k in range(nmodels):
-                ELJ = ELJ + posterior['r'][k, i]*(Elogr[k]+L[k,i])
+                ELJ = ELJ + posterior['r'][k, i]*(Elogr[k]+L[k, i])
 
         F = ELJ + Sqf + Sqm
 
@@ -282,22 +278,27 @@ class BMS(object):
 
         References
         ----------
-        [1] Rigoux L., Daunizeau J. _VBA Toolbox_ (http://code.google.com/p/mbb-vb-toolbox/)
+        [1] Rigoux L., Daunizeau J. _VBA Toolbox_
         """
         nmodels, nsubjects = np.shape(L)
         if options['families'] is True:
-            f0 = np.dot(options['C'], np.sum(options['C'], axis=0))**(-1/(np.shape(options['C'])[1]))
+            f0 = np.dot(options['C'],
+                        np.sum(options['C'],
+                        axis=0))**(-1/(np.shape(options['C'])[1]))
             F0f = 0
         else:
             F0f = []
 
         F0m = 0
         for i in range(nsubjects):
-            tmp = L[:,i] - np.max(L[:,i])
+            tmp = L[:, i] - np.max(L[:, i])
             g = np.exp(tmp)/np.sum(np.exp(tmp))
             for k in range(nmodels):
-                F0m = F0m + g[k]*(L[k,i]-np.log(nmodels)-np.log(g[k]+np.spacing(1)))
+                lme_err = L[k, i]-np.log(nmodels)-np.log(g[k] + np.spacing(1))
+                F0m = F0m + g[k]*lme_err
                 if options['families'] is True:
-                    F0f = F0f + g[k]*(L[k,i]-np.log(g[k]+np.spacing(1))+np.log(f0[k]))
+                    logf0 = np.log(f0[k])
+                    logGeps = np.log(g[k]+np.spacing(1))
+                    F0f = F0f + g[k] * (L[k, i]-logGeps+logf0)
 
         return F0m, F0f
