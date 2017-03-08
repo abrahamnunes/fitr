@@ -62,9 +62,6 @@ class twostep_ll(object):
         """
         Likelihood function for model containing parameters (A) learning rate, (B) choice randomness, (C) eligibility trace, and (D) MB weight parameter
         """
-        """
-        Likelihood function for model containing parameters (A) learning rate, (B) choice randomness, and (C) MB weight parameter
-        """
         # Initialize parameters
         lr = params[0]
         cr = params[1]
@@ -101,6 +98,34 @@ class twostep_ll(object):
             # Linear combination of MF and MB
             Q = w*Qmb + (1-w)*Qmf
 
+
+        return loglik
+
+    def dummy(self, params, states, actions, rewards):
+        """
+        Likelihood function without learning
+        """
+
+        # Initialize parameters
+        cr = params[0]
+
+        # Initialize log-likelihood
+        loglik = 0
+
+        # Initialize Q arrays
+        Q   = np.zeros([3, 2])
+        Qmb = np.zeros([3, 2])
+        Qmf = np.zeros([3, 2])
+
+        ntrials = np.shape(states)[0]
+        for t in range(ntrials):
+            s1 = int(states[t,0])
+            s2 = int(states[t,1])
+            a1 = int(actions[t,0])
+            a2 = int(actions[t,1])
+
+            loglik = loglik + cr*Q[s2,a2] - logsumexp(cr*Q[s2,:])
+            loglik = loglik + cr*Q[s1,a1] - logsumexp(cr*Q[s1,:])
 
         return loglik
 #-------------------------------------------------------------------------------
@@ -205,5 +230,21 @@ class bandit_ll(object):
                 lr = lrn
 
             Q[a] = Q[a] + lr*rpe
+
+        return loglik
+
+    def dummy(self, params, states, actions, rewards):
+        """
+        Likelihood function without any learning
+        """
+        cr  = params[0]
+
+        ntrials = len(actions)
+        Q = np.zeros(self.narms)
+        loglik = 0
+
+        for t in range(0, ntrials):
+            a = int(actions[t])
+            loglik = loglik + cr*Q[a] - logsumexp(cr*Q)
 
         return loglik
