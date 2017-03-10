@@ -82,9 +82,9 @@ of those, model fitting can be run again.
 
     lrcr_fit.plot_fit_ts()
 
-.. |Build status| image::
+.. |Build status| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
    :target: https://travis-ci.org/ComputationalPsychiatry/fitr
 .. |Documentation Status| image:: https://readthedocs.com/projects/computationalpsychiatry-fitr/badge/?version=latest
    :target: https://computationalpsychiatry-fitr.readthedocs-hosted.com/en/latest/?badge=latest
-   |Code Coverage| image::
-   :target: https://codecov.io/gh/ComputationalPsychiatry/fitr
+.. |Code Coverage| image:: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master/graphs/badge.svg
+   :target: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
