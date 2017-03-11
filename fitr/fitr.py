@@ -27,6 +27,11 @@ class fitrmodel(object):
         The log-likelihood function to be used to fit the data
     params : list
         List of reinforcement learning parameter objects from the rlparams module.
+
+    Methods
+    -------
+    fit(data, method='EM', c_limit=0.01)
+        Runs the specified model fitting algorithm with the given data.
     """
     def __init__(self, loglik_func, params, name=None):
         self.name = name
@@ -39,7 +44,9 @@ class fitrmodel(object):
 
         Parameters
         ----------
-        method : {'EM', 'MLE'}
+        data : dict
+            Behavioural data.
+        method : {'EM', 'EP'}
             The inference algorithm to use.
         c_limit : float
             Limit at which convergence of log-posterior probability is determined
@@ -53,8 +60,8 @@ class fitrmodel(object):
         if method=='EM':
             opt = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
             results = opt.fit(data=data, c_limit=c_limit)
-        elif method=='MLE':
-            opt = MLE(loglik_func=self.loglik_func, params=self.params, name=self.name)
+        elif method=='EP':
+            opt = EmpiricalPriors(loglik_func=self.loglik_func, params=self.params, name=self.name)
             results = opt.fit(data=data, c_limit=c_limit)
 
         return results
@@ -67,6 +74,7 @@ class fitrmodel(object):
 #
 #===============================================================================
 
+# EXPECTATION-MAXIMIZATION METHOD
 class EM(object):
     """
     Expectation-Maximization with the Laplace Approximation
@@ -90,6 +98,15 @@ class EM(object):
     cov : ndarray(shape=(nparams,nparams))
         The covariance matrix for prior over parameter estimates
 
+    Methods
+    -------
+    fit(data, n_iterations=1000, c_limit=1, opt_algorithm='BFGS')
+        Run the model-fitting algorithm
+    logposterior(x, states, actions, rewards)
+        Computes the log-posterior probability
+    group_level_estimate(param_est, hess_inv)
+        Updates the hyperparameters of the group-level prior
+
     References
     ----------
     [1] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).
@@ -111,7 +128,7 @@ class EM(object):
         self.mu  = np.zeros(self.nparams)
         self.cov = np.eye(self.nparams)
 
-    def fit(self, data, n_iterations=1000, c_limit=1, opt_algorithm='BFGS'):
+    def fit(self, data, n_iterations=1000, c_limit=1, opt_algorithm='BFGS', verbose=True):
         """
         Performs maximum a posteriori estimation of subject-level parameters
 
@@ -123,8 +140,10 @@ class EM(object):
             Maximum number of iterations to allow.
         c_limit : float
             Threshold at which convergence is determined
-        opt_algorithm : {'BFGS', 'L-BFGS-B', 'Nelder-Mead'}
+        opt_algorithm : {'BFGS', 'L-BFGS-B'}
             Algorithm to use for optimization
+        verbose : bool
+            Whether to print progress of model fitting
 
         Returns
         -------
@@ -140,13 +159,23 @@ class EM(object):
                           name=self.name)
         results.set_paramnames(params=self.params)
 
+        print('=============================================\n' +
+              'MODEL: ' + self.name + '\n' +
+              'METHOD: Expectation-Maximization\n' +
+              'MAX ITERATIONS: ' + str(n_iterations) + '\n' +
+              'CONVERGENCE LIMIT: ' + str(c_limit) + '\n' +
+              'OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
+              'VERBOSE: ' + str(verbose) + '\n' +
+              '=============================================\n')
+
         convergence = False
         opt_iter = 1
         sum_nlogpost = 0 # Monitor total neg-log-posterior for convergence
         while convergence == False and opt_iter < n_iterations:
             for i in range(nsubjects):
-                print('ITERATION: '          + str(opt_iter) +
-                      ' | [E-STEP] SUBJECT: ' + str(i+1))
+                if verbose is True:
+                    print('ITERATION: '          + str(opt_iter) +
+                          ' | [E-STEP] SUBJECT: ' + str(i+1))
 
                 # Extract subject-level data
                 S = data[i]['S']
@@ -158,6 +187,7 @@ class EM(object):
 
                 # Generate initial values
                 x0 = np.random.normal(loc=0, scale=2, size=self.nparams)
+
                 # Optimize
                 res = minimize(_nlogpost, x0, method=opt_algorithm)
 
@@ -165,10 +195,16 @@ class EM(object):
                 if res.fun < results.nlogpost[i]:
                     results.nlogpost[i] = res.fun
                     results.params[i,:] = res.x
-                    results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
-                    results.hess_inv[:,:,i] = res.hess_inv
+
+                    if opt_algorithm=='L-BFGS-B':
+                        results.hess[:,:,i] = np.linalg.inv(res.hess_inv.todense())
+                        results.hess_inv[:,:,i] = res.hess_inv.todense()
+                    elif opt_algorithm=='BFGS':
+                        results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
+                        results.hess_inv[:,:,i] = res.hess_inv
+
                     results.nloglik[i]  = self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
-                    results.LME[i] = LME(-res.fun, self.nparams, np.linalg.inv(res.hess_inv))
+                    results.LME[i] = LME(-res.fun, self.nparams, results.hess[:,:,i])
                     results.AIC[i] = AIC(self.nparams, results.nloglik[i])
                     results.BIC[i] = BIC(results.nloglik[i], self.nparams, len(data[0]['A']))
 
@@ -193,6 +229,8 @@ class EM(object):
         # Transform data to constrained space
         for i in range(nsubjects):
             results.params[i,:] = trans_UC(results.params[i,:], self.param_rng)
+
+        print('\n MODEL FITTING COMPLETED \n')
 
         return results
 
@@ -241,19 +279,195 @@ class EM(object):
             self.cov = self.cov + (np.outer(param_est[i,:], param_est[i,:]) + hess_inv[:, :, i]) - np.outer(self.mu, self.mu)
 
         self.cov = self.cov/nsubjects
+
+# EMPIRICAL PRIORS METHOD
+class EmpiricalPriors(object):
+    """
+    Inference procedure with empirical priors
+
+    Attributes
+    ----------
+    name : str
+        Name of the model being fit. We suggest using the free parameters.
+    loglik_func : function
+        The log-likelihood function to be used for model fitting
+    params : list
+        List of parameters from the rlparams module
+    nparams : int
+        Number of free parameters in the model
+    param_rng : list
+        List of strings denoting the parameter ranges (see rlparams module for further details)
+
+    Methods
+    -------
+    fit(data, n_iterations=1000, opt_algorithm='BFGS')
+        Runs model-fitting algorithm
+    logposterior(x, states, actions, rewards)
+        Computes the log-poseterior probability
+
+    """
+    def __init__(self, loglik_func, params, name=None):
+        self.name = name
+        self.loglik_func = loglik_func
+        self.params = params
+
+        # Extract properties of parameters that will be used in later functions
+        self.nparams = len(params)
+        self.param_rng = []
+        for i in range(self.nparams):
+            self.param_rng.append(params[i].rng)
+
+    def fit(self, data, n_iterations=1000, c_limit=0.1, opt_algorithm='L-BFGS-B', verbose=True):
+        """
+        Runs the maximum a posterior model-fitting with empirical priors.
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary of data from all subjects.
+        n_iterations : int
+            Maximum number of iterations to allow.
+        c_limit : float
+            Threshold at which convergence is determined
+        opt_algorithm : {'L-BFGS-B'}
+            Algorithm to use for optimization. Only works at present with L-BFGS-B.
+        verbose : bool
+            Whether to print progress of model fitting
+
+        Returns
+        -------
+        fitrfit
+            Representation of the model fitting results
+        """
+
+        # Instantiate the results object
+        nsubjects = len(data)
+        results = fitrfit(method='Empirical Priors',
+                          nsubjects=nsubjects,
+                          nparams=self.nparams,
+                          name=self.name)
+        results.set_paramnames(params=self.params)
+
+        print('=============================================\n' +
+              'MODEL: ' + self.name + '\n' +
+              'METHOD: Empirical Priors\n' +
+              'ITERATIONS: ' + str(n_iterations) + '\n' +
+              'OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
+              'VERBOSE: ' + str(verbose) + '\n' +
+              '=============================================\n')
+
+        convergence = False
+        opt_iter = 1
+        sum_nlogpost = 0 # Monitor total neg-log-posterior for convergence
+        while convergence == False and opt_iter < n_iterations:
+            for i in range(nsubjects):
+                if verbose is True:
+                    print('ITERATION: '          + str(opt_iter) +
+                          ' | [E-STEP] SUBJECT: ' + str(i+1))
+
+                # Extract subject-level data
+                S = data[i]['S']
+                A = data[i]['A']
+                R = data[i]['R']
+
+                # Construct the subject's negative log-posterior function
+                _nlogpost = lambda x: -self.logposterior(x=x, states=S, actions=A, rewards=R)
+
+                # Generate initial values
+                x0 = np.zeros(self.nparams)
+                isfin = False
+                while isfin is False:
+                    for k in range(self.nparams):
+                        x0[k] = self.params[k].dist.rvs()
+                    lp = _nlogpost(x0)
+                    isfin = np.isfinite(lp)
+
+                # Create bounds
+                bounds = ()
+                for k in range(self.nparams):
+                    if self.params[k].rng == 'unit':
+                        bounds = bounds + ((0, 1),)
+                    elif self.params[k].rng == 'pos':
+                        bounds = bounds + ((0,100),)
+                    elif self.params[k].rng == 'neg':
+                        bounds = bounds + ((-100, 0),)
+                    elif self.params[k].rng == 'unc':
+                        bounds = bounds + ((-1000, 1000),)
+
+                np.seterr(divide='ignore', invalid='ignore')
+                # Optimize
+                if opt_algorithm == 'L-BFGS-B':
+                    res = minimize(_nlogpost, x0, bounds=bounds, method=opt_algorithm)
+                elif opt_algorithm == 'BFGS':
+                    res = minimize(_nlogpost, x0, method=opt_algorithm)
+
+                # Update subject level data if logposterior improved
+                if res.fun < results.nlogpost[i]:
+                    results.nlogpost[i] = res.fun
+                    results.params[i,:] = res.x
+
+                    if opt_algorithm=='L-BFGS-B':
+                        results.hess[:,:,i] = np.linalg.inv(res.hess_inv.todense())
+                        results.hess_inv[:,:,i] = res.hess_inv.todense()
+                    elif opt_algorithm=='BFGS':
+                        results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
+                        results.hess_inv[:,:,i] = res.hess_inv
+
+                    results.nloglik[i]  = self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
+                    results.LME[i] = LME(-res.fun, self.nparams, results.hess[:,:,i])
+                    results.AIC[i] = AIC(self.nparams, results.nloglik[i])
+                    results.BIC[i] = BIC(results.nloglik[i], self.nparams, len(data[0]['A']))
+
+            # If the group level posterior probability has converged, stop
+            if np.abs(np.sum(results.nlogpost) - sum_nlogpost) < c_limit:
+                convergence = True
+            else:
+                # Update the running model log-posterior probability
+                sum_nlogpost = np.sum(results.nlogpost)
+
+                # Add total LME, BIC, and AIC to results list
+                results.ts_LME.append(np.sum(results.LME))
+                results.ts_BIC.append(np.sum(results.BIC))
+                results.ts_AIC.append(np.sum(results.AIC))
+
+                opt_iter += 1
+
+        print('\n MODEL FITTING COMPLETED \n')
+
+        return results
+
+    def logposterior(self, x, states, actions, rewards):
+        """
+        Represents the log-posterior probability function
+
+        Parameters
+        ----------
+        x : ndarray(nparams)
+            Array of parameters for single subject
+        states : ndarray
+            Array of states encountered by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.
+        actions: ndarray
+            Array of actions taken by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.
+        rewards : ndarray
+            Array of rewards received by the subject. Number of rows should reflect number of trials. If there are multiple steps at which rewards are received, they should be stored in different columns, unless a custom likelihood funciton is used which does not require this.
+
+        Returns
+        -------
+        float
+            Log-posterior probability
+        """
+
+        lp = self.loglik_func(params=x, states=states, actions=actions, rewards=rewards)
+
+        for i in range(self.nparams):
+            lp = lp + self.params[i].dist.logpdf(x[i])
+
+        return lp
 #
-# TODO: ADD MLE, EMPIRICALPRIORS, MCMC, VB, AND GAUSSIAN PROCESSES
+# TODO: ADD MLE, MCMC, VB, AND GAUSSIAN PROCESSES
+#
 #
 #class MLE(object):
-#    def __init__(self, loglik_func, params):
-#        self.loglik_func = loglik_func
-#        self.params = params
-#        self.nparams = len(params)
-#
-#    def fit(self, data):
-#        pass
-#
-#class EmpiricalPriors(object):
 #    def __init__(self):
 #        pass
 #
