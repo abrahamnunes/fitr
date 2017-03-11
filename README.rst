@@ -6,7 +6,7 @@ behavioural data
 
 You can install fitr from the command line using `pip install fitr`.
 
-A tutorial can be found `here <http://www.abrahamnunes.com/fitr/fitr-intro-tutorial.html>`_.
+Tutorials (Jupyter Notebooks) can be found in the examples folder.
 
 .. |Build status| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
    :target: https://travis-ci.org/ComputationalPsychiatry/fitr
