@@ -33,20 +33,20 @@ class LearningRate(Param):
 
     """
     def __init__(self, name='Learning Rate', rng='unit', shape_alpha=1.1, shape_beta=1.1):
-    """
-    Instantiates the Parameter
+        """
+        Instantiates the Parameter
 
-    Parameters
-    ----------
-    name : str
-        Name of the parameter. To be used for plots and so forth.
-    rng : {'unit', 'pos', 'neg', 'unc'}
-        The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
-    shape_alpha : float over domain [0, +Inf]
-        The alpha parameter of the beta distribution
-    shape_beta : float over domain [0, +Inf]
-        The beta parameter of the beta distribution
-    """
+        Parameters
+        ----------
+        name : str
+            Name of the parameter. To be used for plots and so forth.
+        rng : {'unit', 'pos', 'neg', 'unc'}
+            The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
+        shape_alpha : float over domain [0, +Inf]
+            The alpha parameter of the beta distribution
+        shape_beta : float over domain [0, +Inf]
+            The beta parameter of the beta distribution
+        """
         self.name = name
         self.rng  = rng
         self.dist = scipy.stats.beta(shape_alpha, shape_beta)
