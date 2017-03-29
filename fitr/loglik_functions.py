@@ -36,24 +36,142 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1])
+            s2 = int(states[t,1] + 1)
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
             r = rewards[t]
 
-            loglik = loglik + cr*Q[s2,a2] - logsumexp(cr*Q[s2,:])
             loglik = loglik + cr*Q[s1,a1] - logsumexp(cr*Q[s1,:])
+            loglik = loglik + cr*Q[s2,a2] - logsumexp(cr*Q[s2,:])
 
             # Update model-free values
-            Qmf[s2, a2] = Qmf[s2, a2] + lr*(r - Qmf[s2, a2])
             Qmf[s1, a1] = Qmf[s1, a1] + lr*(Qmf[s2, a2]-Qmf[s1, a1])
 
+            rpe = r - Qmf[s2, a2]
+            Qmf[s2, a2] = Qmf[s2, a2] + lr*rpe
+            Qmf[s1, a1] = Qmf[s1, a1] + lr*rpe
+
             # Update model based values
-            Qmb[0, a1] = self.ptrans[1]*np.max(Qmf[1,:]) + self.ptrans[0]*np.max(Qmf[2,:])
-            Qmb[0, a2] = self.ptrans[1]*np.max(Qmf[2,:]) + self.ptrans[0]*np.max(Qmf[1,:])
+            Qmb[0, 0] = 0.7*np.max(Qmf[1,:]) + 0.3*np.max(Qmf[2,:])
+            Qmb[0, 1] = 0.7*np.max(Qmf[2,:]) + 0.3*np.max(Qmf[1,:])
 
             # Linear combination of MF and MB
             Q = w*Qmb + (1-w)*Qmf
+
+
+        return loglik
+
+    def lr_cr_w_p(self, params, states, actions, rewards):
+        """
+        Likelihood function for model containing parameters (A) learning rate, (B) choice randomness, (C) MB weight parameter, and (D) perseveration
+        """
+        # Initialize parameters
+        lr = params[0]
+        cr = params[1]
+        w = params[2]
+        p = params[3]
+
+        # Initialize log-likelihood
+        loglik = 0
+
+        # Initialize Q arrays
+        Q   = np.zeros([3, 2])
+        Qmb = np.zeros([3, 2])
+        Qmf = np.zeros([3, 2])
+
+        # Initialize a variable representing the last action taken
+        #   This is set to 10 in order for the initial perseveration value
+        #   to equal 0
+        a0 = 10
+
+        ntrials = np.shape(states)[0]
+        for t in range(ntrials):
+            s1 = int(states[t,0])
+            s2 = int(states[t,1]+1)
+            a1 = int(actions[t,0])
+            a2 = int(actions[t,1])
+            r = rewards[t]
+
+            loglik = loglik + cr*Q[s1,a1] - logsumexp(cr*Q[s1,:])
+            loglik = loglik + cr*Q[s2,a2] - logsumexp(cr*Q[s2,:])
+
+            # Update model-free values
+            Qmf[s1, a1] = Qmf[s1, a1] + lr*(Qmf[s2, a2]-Qmf[s1, a1])
+
+            rpe = r - Qmf[s2, a2]
+            Qmf[s2, a2] = Qmf[s2, a2] + lr*rpe
+            Qmf[s1, a1] = Qmf[s1, a1] + lr*rpe
+
+            # Update model based values
+            Qmb[0, 0] = 0.7*np.max(Qmf[1,:]) + 0.3*np.max(Qmf[2,:])
+            Qmb[0, 1] = 0.7*np.max(Qmf[2,:]) + 0.3*np.max(Qmf[1,:])
+
+            # Perseveration
+            persev = p * (a1 == a0)
+
+            # Linear combination of MF and MB
+            Q = w*Qmb + (1-w)*Qmf + persev
+
+            # Set a0 to the most recent action
+            a0 = a1
+
+
+        return loglik
+
+    def lr_cr_et_w_p(self, params, states, actions, rewards):
+        """
+        Likelihood function for model containing parameters (A) learning rate, (B) choice randomness, (C) eligibility trace parameter, (D) MB weight parameter, and (E) perseveration
+        """
+        # Initialize parameters
+        lr = params[0]
+        cr = params[1]
+        et = params[2]
+        w = params[3]
+        p = params[4]
+
+        # Initialize log-likelihood
+        loglik = 0
+
+        # Initialize Q arrays
+        Q   = np.zeros([3, 2])
+        Qmb = np.zeros([3, 2])
+        Qmf = np.zeros([3, 2])
+
+        # Initialize a variable representing the last action taken
+        #   This is set to 10 in order for the initial perseveration value
+        #   to equal 0
+        a0 = 10
+
+        ntrials = np.shape(states)[0]
+        for t in range(ntrials):
+            s1 = int(states[t,0])
+            s2 = int(states[t,1]+1)
+            a1 = int(actions[t,0])
+            a2 = int(actions[t,1])
+            r = rewards[t]
+
+            loglik = loglik + cr*Q[s1,a1] - logsumexp(cr*Q[s1,:])
+            loglik = loglik + cr*Q[s2,a2] - logsumexp(cr*Q[s2,:])
+
+            # Update model-free values
+            Qmf[s1, a1] = Qmf[s1, a1] + lr*(Qmf[s2, a2]-Qmf[s1, a1])
+
+            rpe = r - Qmf[s2, a2]
+            Qmf[s2, a2] = Qmf[s2, a2] + lr*rpe
+            Qmf[s1, a1] = Qmf[s1, a1] + lr*rpe*et
+
+            # Update model based values
+            Qmb[0, 0] = 0.7*np.max(Qmf[1,:]) + 0.3*np.max(Qmf[2,:])
+            Qmb[0, 1] = 0.7*np.max(Qmf[2,:]) + 0.3*np.max(Qmf[1,:])
+
+            # Perseveration
+            persev = p * (a1 == a0)
+
+            # Linear combination of MF and MB
+            Q = w*Qmb + (1-w)*Qmf + persev
+
+            # Set a0 to the most recent action
+            a0 = a1
 
 
         return loglik
@@ -79,24 +197,68 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1])
+            s2 = int(states[t,1]+1)
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
             r = rewards[t]
 
-            loglik = loglik + cr*Q[s2,a2] - logsumexp(cr*Q[s2,:])
             loglik = loglik + cr*Q[s1,a1] - logsumexp(cr*Q[s1,:])
+            loglik = loglik + cr*Q[s2,a2] - logsumexp(cr*Q[s2,:])
 
             # Update model-free values
-            Qmf[s2, a2] = Qmf[s2, a2] + lr*(r - Qmf[s2, a2])
-            Qmf[s1, a1] = Qmf[s1, a1] + lr*(Qmf[s2, a2]-Qmf[s1, a1])*et
+            Qmf[s1, a1] = Qmf[s1, a1] + lr*(Qmf[s2, a2]-Qmf[s1, a1])
+
+            rpe = r - Qmf[s2, a2]
+            Qmf[s2, a2] = Qmf[s2, a2] + lr*rpe
+            Qmf[s1, a1] = Qmf[s1, a1] + lr*rpe*et
+
+            # Update model based values
+            Qmb[0, 0] = 0.7*np.max(Qmf[1,:]) + 0.3*np.max(Qmf[2,:])
+            Qmb[0, 1] = 0.7*np.max(Qmf[2,:]) + 0.3*np.max(Qmf[1,:])
+
+            # Linear combination of MF and MB
+            Q = w*Qmb + (1-w)*Qmf
+
+
+        return loglik
+
+    def lr2_cr3(self, params, states, actions, rewards):
+        """
+        Likelihood function for model containing parameters (A) step 1 learning rate, (B) step 2 learning rate, (C) MB choice randomness, (D) MF choice randomness, (E) step 2 choice randomness
+        """
+        # Initialize parameters
+        lr_1 = params[0]
+        lr_2 = params[1]
+        cr_mb = params[2]
+        cr_mf  = params[3]
+        cr_2 = params[4]
+
+        # Initialize log-likelihood
+        loglik = 0
+
+        # Initialize Q arrays
+        Qmb = np.zeros([3, 2])
+        Qmf = np.zeros([3, 2])
+
+        ntrials = np.shape(states)[0]
+        for t in range(ntrials):
+            s1 = int(states[t,0])
+            s2 = int(states[t,1]+1)
+            a1 = int(actions[t,0])
+            a2 = int(actions[t,1])
+            r = rewards[t]
+
+            Q1 = cr_mb*Qmb[s1,a1] + cr_mf*Qmf[s1, a1]
+            loglik = loglik + cr_2*Qmf[s2,a2] - logsumexp(cr_2*Qmf[s2,:])
+            loglik = loglik + Q1 - logsumexp(Q1)
+
+            # Update model-free values
+            Qmf[s2, a2] = Qmf[s2, a2] + lr_2*(r - Qmf[s2, a2])
+            Qmf[s1, a1] = Qmf[s1, a1] + lr_1*(Qmf[s2, a2]-Qmf[s1, a1])
 
             # Update model based values
             Qmb[0, a1] = self.ptrans[1]*np.max(Qmf[1,:]) + self.ptrans[0]*np.max(Qmf[2,:])
             Qmb[0, a2] = self.ptrans[1]*np.max(Qmf[2,:]) + self.ptrans[0]*np.max(Qmf[1,:])
-
-            # Linear combination of MF and MB
-            Q = w*Qmb + (1-w)*Qmf
 
 
         return loglik
@@ -120,7 +282,7 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1])
+            s2 = int(states[t,1]+1)
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
 
