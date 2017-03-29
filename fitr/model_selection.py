@@ -75,7 +75,7 @@ class ModelSelectionResult(object):
         ax.set_title(plot_title)
 
         if save_figure is True:
-            plt.savefig(filename)
+            plt.savefig(filename, bbox_inches='tight')
 
         if show_figure is True:
             plt.show()
@@ -273,7 +273,7 @@ class BMS(object):
 
         # Perform sampling in blocks
         blk = np.ceil(nsamples*K*8/(2**28))
-        blk = np.floor(nsamples/blk * np.ones(blk))
+        blk = np.floor(nsamples/blk * np.ones(int(blk)))
         blk[-1] = nsamples - np.sum(blk[:-1])
 
         xp = np.zeros(K)
