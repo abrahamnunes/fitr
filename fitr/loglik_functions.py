@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Log-likelihood functions for each task.
 """

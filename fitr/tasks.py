@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 """
 Classes representing each task
 """
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 class SyntheticData(object):
     """
@@ -15,6 +18,7 @@ class SyntheticData(object):
     plot_cumreward :
         Plots the cumulative reward over time for each subject
     """
+
     def __init__(self):
         self.data = {}
         self.params = None
@@ -29,7 +33,7 @@ class SyntheticData(object):
             nparams = np.shape(self.params)[1]
             fig, ax = plt.subplots(1, nparams, figsize=(15, 5))
             for i in range(0, nparams):
-                ax[i].scatter(self.params[:,i], creward, c='k', alpha=alpha)
+                ax[i].scatter(self.params[:, i], creward, c='k', alpha=alpha)
 
             plt.show()
         else:
@@ -50,12 +54,11 @@ class SyntheticData(object):
         plt.show()
 
 
-
-#===============================================================================
+#=========================================================================
 #
 #   SIMPLE BANDIT TASK
 #
-#===============================================================================
+#=========================================================================
 
 class bandit(object):
     """
@@ -76,6 +79,7 @@ class bandit(object):
         Runs the task on simulated subjects
 
     """
+
     def __init__(self, narms=2, rewards=[1, 0], rprob='stochastic', rprob_sd=0.025, rprob_bounds=[0.2, 0.8]):
         self.narms = narms
         self.rewards = rewards
@@ -91,7 +95,7 @@ class bandit(object):
                 print('Reward probabilities must all lie between 0 and 1')
                 return
 
-            self.rprob=rprob
+            self.rprob = rprob
 
     def simulate(self, ntrials, params):
 
@@ -100,18 +104,19 @@ class bandit(object):
         # Initialize reward paths
         path_max = self.rprob_bounds[0]
         path_min = self.rprob_bounds[1]
-        path_sd  = self.rprob_sd
+        path_sd = self.rprob_sd
 
         results = SyntheticData()
         results.params = params
 
         for i in range(0, nsubjects):
-            paths = np.random.uniform(path_min, path_max, size=[ntrials+1, 2])
+            paths = np.random.uniform(
+                path_min, path_max, size=[ntrials + 1, 2])
 
             # initialize subject-level value table
-            Q  = np.zeros(2)
-            lr = params[i,0]
-            cr = params[i,1]
+            Q = np.zeros(2)
+            lr = params[i, 0]
+            cr = params[i, 1]
 
             results.data[i] = {'S': np.zeros(ntrials),
                                'A': np.zeros(ntrials),
@@ -119,12 +124,12 @@ class bandit(object):
                                'RPE': np.zeros(ntrials)}
 
             for t in range(0, ntrials):
-                a = action(cr*Q)
+                a = action(cr * Q)
                 r = reward(a, paths[t, :])
 
                 # learn
                 rpe = r - Q[a]
-                Q[a] = Q[a] + lr*rpe
+                Q[a] = Q[a] + lr * rpe
 
                 # store values
                 results.data[i]['S'][t] = 0
@@ -134,15 +139,17 @@ class bandit(object):
 
                 # update reward probabilities
                 rand_step = np.random.normal(0, path_sd, size=2)
-                paths[t+1, :] = np.maximum(np.minimum(paths[t,:] + rand_step, path_max), path_min)
+                paths[
+                    t + 1, :] = np.maximum(np.minimum(paths[t, :] + rand_step, path_max), path_min)
 
         return results
 
-#===============================================================================
+#=========================================================================
 #
 #   TWO-STEP TASK
 #
-#===============================================================================
+#=========================================================================
+
 
 class twostep(object):
     """
@@ -162,8 +169,9 @@ class twostep(object):
     ----------
     [1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
     """
+
     def __init__(self, ptrans=0.7, rewards=[1, 0]):
-        self.ptrans = np.array([1-ptrans, ptrans])
+        self.ptrans = np.array([1 - ptrans, ptrans])
 
     def simulate(self, ntrials, params):
 
@@ -172,19 +180,19 @@ class twostep(object):
         results = SyntheticData()
         results.params = params
 
-        #initialize reward paths
+        # initialize reward paths
         path_max = 0.8
         path_min = 0.2
-        path_sd  = 0.025
-
+        path_sd = 0.025
 
         for i in range(nsubjects):
             # Initialize paths within subjects
-            paths = np.random.uniform(path_min, path_max, size=[ntrials+1, 4])
+            paths = np.random.uniform(
+                path_min, path_max, size=[ntrials + 1, 4])
 
-            lr = params[i,0]
-            cr = params[i,1]
-            w  = params[i,2]
+            lr = params[i, 0]
+            cr = params[i, 1]
+            w = params[i, 2]
 
             results.data[i] = {
                 'S': np.zeros([ntrials, 2]),
@@ -192,56 +200,59 @@ class twostep(object):
                 'R': np.zeros(ntrials)
             }
 
-            Q   = np.zeros([3, 2])
+            Q = np.zeros([3, 2])
             Qmb = np.zeros([3, 2])
             Qmf = np.zeros([3, 2])
 
             for t in range(ntrials):
                 s1 = int(0)
-                a1 = int(action(cr*Q[s1,:]))
+                a1 = int(action(cr * Q[s1, :]))
 
                 s2 = int(np.random.binomial(1, p=self.ptrans[a1]) + 1)
-                a2 = int(action(cr*Q[s2,:]))
+                a2 = int(action(cr * Q[s2, :]))
 
-                rprob = paths[t,:]
+                rprob = paths[t, :]
                 rprob = np.reshape(rprob, (2, 2))
-                r = np.random.binomial(1, p=rprob[s2-1, a2])
+                r = np.random.binomial(1, p=rprob[s2 - 1, a2])
 
                 # Update model-free values
-                Qmf[s2, a2] = Qmf[s2, a2] + lr*(r - Qmf[s2, a2])
-                Qmf[s1, a1] = Qmf[s1, a1] + lr*(Qmf[s2, a2]-Qmf[s1, a1])
+                Qmf[s2, a2] = Qmf[s2, a2] + lr * (r - Qmf[s2, a2])
+                Qmf[s1, a1] = Qmf[s1, a1] + lr * (Qmf[s2, a2] - Qmf[s1, a1])
 
                 # Update model based values
-                Qmb[0, a1] = self.ptrans[1]*np.max(Qmf[1,:]) + self.ptrans[0]*np.max(Qmf[2,:])
-                Qmb[0, a2] = self.ptrans[1]*np.max(Qmf[2,:]) + self.ptrans[0]*np.max(Qmf[1,:])
+                Qmb[0, a1] = self.ptrans[1] * \
+                    np.max(Qmf[1, :]) + self.ptrans[0] * np.max(Qmf[2, :])
+                Qmb[0, a2] = self.ptrans[1] * \
+                    np.max(Qmf[2, :]) + self.ptrans[0] * np.max(Qmf[1, :])
 
                 # Linear combination of MF and MB
-                Q = w*Qmb + (1-w)*Qmf
+                Q = w * Qmb + (1 - w) * Qmf
 
                 # Store data
-                results.data[i]['S'][t,0] = s1
-                results.data[i]['S'][t,1] = s2
-                results.data[i]['A'][t,0] = a1
-                results.data[i]['A'][t,1] = a2
-                results.data[i]['R'][t]   = r
+                results.data[i]['S'][t, 0] = s1
+                results.data[i]['S'][t, 1] = s2
+                results.data[i]['A'][t, 0] = a1
+                results.data[i]['A'][t, 1] = a2
+                results.data[i]['R'][t] = r
 
                 # Update reward probabilities
                 rand_step = np.random.normal(0, path_sd, size=4)
-                paths[t+1, :] = np.maximum(np.minimum(paths[t,:] + rand_step, path_max), path_min)
+                paths[
+                    t + 1, :] = np.maximum(np.minimum(paths[t, :] + rand_step, path_max), path_min)
 
         return results
 
 
-
-#===============================================================================
+#=========================================================================
 #
 #   UTILITY FUNCTIONS
 #
-#===============================================================================
+#=========================================================================
 
 def action(x):
-    p = np.exp(x)/np.sum(np.exp(x))
+    p = np.exp(x) / np.sum(np.exp(x))
     return np.argmax(np.random.multinomial(1, pvals=p))
+
 
 def reward(a, paths):
     return np.random.binomial(1, p=paths[a])
