@@ -1,7 +1,15 @@
 """
 Objects representing each parameter object
 """
+import numpy as np
 import scipy.stats
+
+# ==============================================================================
+#
+#   PARAMETER OBJECTS
+#
+# ==============================================================================
+
 
 class Param(object):
     """
@@ -230,3 +238,37 @@ class Perseveration(Param):
         self.name = name
         self.rng  = rng
         self.dist = scipy.stats.norm(loc=mean, scale=sd)
+
+
+# ==============================================================================
+#
+#   SYNTHETIC GROUP
+#       Generates a synthetic group of subjects
+#
+# ==============================================================================
+
+def generate_group(params, nsubjects):
+    """
+    Creates an array of parameter values for subjects to be simulated in a task
+
+    Parameters
+    ----------
+    params : list
+        List of Param objects specifying the parameters to be generated. The first element of the list will be the first column in the resulting array
+    nsubjects : int
+        Number of subjects to simulate
+
+    Returns
+    -------
+    ndarray(shape=(nsubjects X nparams))
+        Array of parameter values for the group of synthetic subjects
+    """
+
+    nparams = len(params)
+
+    group_params = np.zeros([nsubjects, nparams])
+
+    for k in range(nparams):
+        group_params[:, k] = params[k].sample(size=nsubjects)
+
+    return group_params
