@@ -36,7 +36,7 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1] + 1)
+            s2 = int(states[t,1])
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
             r = rewards[t]
@@ -87,7 +87,7 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1]+1)
+            s2 = int(states[t,1])
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
             r = rewards[t]
@@ -145,7 +145,7 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1]+1)
+            s2 = int(states[t,1])
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
             r = rewards[t]
@@ -197,7 +197,7 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1]+1)
+            s2 = int(states[t,1])
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
             r = rewards[t]
@@ -243,7 +243,7 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1]+1)
+            s2 = int(states[t,1])
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
             r = rewards[t]
@@ -282,7 +282,7 @@ class twostep_ll(object):
         ntrials = np.shape(states)[0]
         for t in range(ntrials):
             s1 = int(states[t,0])
-            s2 = int(states[t,1]+1)
+            s2 = int(states[t,1])
             a1 = int(actions[t,0])
             a2 = int(actions[t,1])
 
