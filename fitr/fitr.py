@@ -898,8 +898,8 @@ class fitrfit(object):
         for i in range(nparams):
             maxval = np.maximum(np.max(actual[:,i]), np.max(self.params[:,i]))
             minval = np.minimum(np.min(actual[:,i]), np.min(self.params[:,i]))
-            ax[i].plot(np.linspace(minval, maxval, 100), np.linspace(minval, maxval, 100), c='k', ls='--')
             ax[i].scatter(actual[:,i], self.params[:,i])
+            ax[i].plot(np.linspace(minval, maxval, 100), np.linspace(minval, maxval, 100), c='k', ls='--')
             ax[i].set_xlabel('Actual')
             ax[i].set_ylabel('Estimate')
             ax[i].set_title(self.paramnames[i])
