@@ -97,7 +97,7 @@ class fitrmodel(object):
                             verbose=verbose)
         elif method=='MCMC':
             m = MCMC(generative_model=self.generative_model, name=self.name)
-            results = m.fit(data=data, verbose=verbose)
+            results = m.fit(data=data)
 
         return results
 
@@ -718,7 +718,6 @@ class MCMC(object):
               '     METHOD: Markov Chain Monte-Carlo\n' +
               '     ITERATIONS: ' + str(n_iterations) + '\n' +
               '     OPTIMIZATION ALGORITHM: ' + algorithm + '\n' +
-              '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
         # Instantiate a fitrfit object
