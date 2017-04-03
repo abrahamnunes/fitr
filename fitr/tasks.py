@@ -11,6 +11,15 @@ class SyntheticData(object):
     """
     Object representing synthetic data
 
+    Attributes
+    ----------
+    data : dict
+        Dictionary containing data formatted for fitr's model fitting tools (except MCMC via Stan)
+    data_mcmc : dict
+        Dictionary containing task data formatted for use with MCMC via Stan
+    params : ndarray(shape=(nsubjects X nparams))
+        Subject parameters
+
     Methods
     -------
     cumreward_param_plot :
@@ -21,6 +30,7 @@ class SyntheticData(object):
 
     def __init__(self):
         self.data = {}
+        self.data_mcmc = {}
         self.params = None
 
     def cumreward_param_plot(self, alpha=0.9):
@@ -98,6 +108,16 @@ class bandit(object):
             self.rprob = rprob
 
     def simulate(self, ntrials, params):
+        """
+        Simulates the task
+
+        Parameters
+        ----------
+        ntrials : int > 0
+            Number of trials to run
+        params : ndarray(shape=(nsubjects X nparams))
+            Parameters for each subject
+        """
 
         nsubjects = np.shape(params)[0]
 
@@ -142,9 +162,50 @@ class bandit(object):
                 paths[
                     t + 1, :] = np.maximum(np.minimum(paths[t, :] + rand_step, path_max), path_min)
 
+        # Convert standard data format into MCMC formatting
+        actions = np.zeros([ntrials, nsubjects])
+        rewards = np.zeros([ntrials, nsubjects])
+        for i in range(nsubjects):
+            actions[:, i] = results.data[i]['A'] + 1
+            rewards[:, i] = results.data[i]['R']
+
+        results.data_mcmc = {
+            'N': nsubjects,
+            'T': ntrials,
+            'A': actions.astype(int),
+            'R': rewards
+        }
+
         return results
 
 #=========================================================================
+#
+#   ORTHOGONAL GO-NOGO
+#
+#===============================================================================
+
+class ortho_gng(object):
+    """
+    Model of the orthogonalized go-nogo task from Guitart-Masip et al. (2012)
+
+    Attributes
+    ----------
+    rewards : list
+
+    References
+    ----------
+    [1] Guitart-Masip, M. et al. (2012) Go and no-go learning in reward and punishment: Interactions between affect and effect. Neuroimage 62, 154–166
+    """
+
+    def __init__(self, rewards=[1, 0, -1]):
+        self.rewards=rewards
+
+    def simulate(self, ntrials, params):
+        nsubjects = np.shape(params)[0]
+        pass
+
+
+#===============================================================================
 #
 #   TWO-STEP TASK
 #
@@ -240,8 +301,27 @@ class twostep(object):
                 paths[
                     t + 1, :] = np.maximum(np.minimum(paths[t, :] + rand_step, path_max), path_min)
 
-        return results
+        # Convert standard data format into MCMC formatting
+        step1_action = np.zeros([ntrials, nsubjects])
+        step2_state  = np.zeros([ntrials, nsubjects])
+        step2_action = np.zeros([ntrials, nsubjects])
+        rewards = np.zeros([ntrials, nsubjects])
+        for i in range(nsubjects):
+            step1_action[:, i] = results.data[i]['A'][:, 0] + 1
+            step2_state[:, i]  = results.data[i]['S'][:, 1] + 1
+            step2_action[:, i] = results.data[i]['A'][:, 1] + 1
+            rewards[:, i] = results.data[i]['R']
 
+        results.data_mcmc = {
+            'N': nsubjects,
+            'T': ntrials,
+            'S2': step2_state.astype(int),
+            'A1': step1_action.astype(int),
+            'A2': step2_action.astype(int),
+            'R': rewards
+        }
+
+        return results
 
 #=========================================================================
 #

@@ -3,7 +3,15 @@
 """
 Objects representing each parameter object
 """
+import numpy as np
 import scipy.stats
+
+# ==============================================================================
+#
+#   PARAMETER OBJECTS
+#
+# ==============================================================================
+
 
 class Param(object):
     """
@@ -15,11 +23,30 @@ class Param(object):
         Name of the parameter. To be used for plots and so forth.
     rng : {'unit', 'pos', 'neg', 'unc'}
         The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
+
+    Methods
+    -------
+    sample(size=1)
+        Samples from the parameter's distribution
+
+
     """
     def __init__(self, name=None, rng=None):
         self.name  = name
         self.range = rng
         self.dist  = None
+
+    def sample(self, size=1):
+        """
+        Samples from the parameter's distribution
+
+        Parameters
+        ----------
+        size : int
+            Number of samples to draw
+        """
+
+        return self.dist.rvs(size=size)
 
 class LearningRate(Param):
     """
@@ -181,3 +208,69 @@ class ChoiceRandomness(Param):
         self.name = name
         self.rng  = rng
         self.dist = scipy.stats.gamma(shape, scale)
+
+class Perseveration(Param):
+    """
+    An perseveration parameter object
+
+    Attributes
+    ----------
+    name : str
+        Name of the parameter. To be used for plots and so forth.
+    rng : {'unit', 'pos', 'neg', 'unc'}
+        The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
+    dist : scipy.stats.norm distribution
+
+    """
+    def __init__(self, name='Perseveration', rng='unc', mean=0., sd=1.):
+        """
+        Instantiates the Parameter
+
+        Parameters
+        ----------
+        name : str
+            Name of the parameter. To be used for plots and so forth.
+        rng : {'unit', 'pos', 'neg', 'unc'}
+            The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
+        mean : float
+            The mean of the Gaussian distribution
+        scale : float over domain [0, +Inf]
+            The standard deviation of the Gaussian distribution
+        """
+        self.name = name
+        self.rng  = rng
+        self.dist = scipy.stats.norm(loc=mean, scale=sd)
+
+
+# ==============================================================================
+#
+#   SYNTHETIC GROUP
+#       Generates a synthetic group of subjects
+#
+# ==============================================================================
+
+def generate_group(params, nsubjects):
+    """
+    Creates an array of parameter values for subjects to be simulated in a task
+
+    Parameters
+    ----------
+    params : list
+        List of Param objects specifying the parameters to be generated. The first element of the list will be the first column in the resulting array
+    nsubjects : int
+        Number of subjects to simulate
+
+    Returns
+    -------
+    ndarray(shape=(nsubjects X nparams))
+        Array of parameter values for the group of synthetic subjects
+    """
+
+    nparams = len(params)
+
+    group_params = np.zeros([nsubjects, nparams])
+
+    for k in range(nparams):
+        group_params[:, k] = params[k].sample(size=nsubjects)
+
+    return group_params
