@@ -202,7 +202,6 @@ class EM(object):
               '     EARLY STOPPING: ' + str(early_stopping) + '\n' +
               '     CONVERGENCE LIMIT: ' + str(c_limit) + '\n' +
               '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
-              '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
         convergence = False
@@ -501,7 +500,6 @@ class EmpiricalPriors(object):
               '     METHOD: Empirical Priors\n' +
               '     ITERATIONS: ' + str(n_iterations) + '\n' +
               '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
-              '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
         convergence = False
