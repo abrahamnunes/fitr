@@ -38,13 +38,13 @@ class fitrmodel(object):
     fit(data, method='EM', c_limit=0.01)
         Runs the specified model fitting algorithm with the given data.
     """
-    def __init__(self, name=None, loglik_func=None, params=None, generative_model=None):
+    def __init__(self, name='Anon Model', loglik_func=None, params=None, generative_model=None):
         self.name = name
         self.loglik_func = loglik_func
         self.generative_model = generative_model
         self.params = params
 
-    def fit(self, data, method='EM', c_limit=0.01):
+    def fit(self, data, method='EM', c_limit=0.01, verbose=True):
         """
         Runs model fitting
 
@@ -56,6 +56,8 @@ class fitrmodel(object):
             The inference algorithm to use. Note that the data formats for 'MCMC' compared to the other methods is distinct, and should correspond appropriately to the method being employed
         c_limit : float
             Limit at which convergence of log-posterior probability is determined (only for methods 'EM' and 'EmpiricalPriors')
+        verbose : bool
+            Controls amount of printed output during model fitting
 
         Returns
         -------
@@ -64,20 +66,38 @@ class fitrmodel(object):
         """
 
         if method=='EM':
-            m = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
-            results = m.fit(data=data, c_limit=c_limit)
+            m = EM(loglik_func=self.loglik_func,
+                   params=self.params,
+                   name=self.name)
+            results = m.fit(data=data,
+                            c_limit=c_limit,
+                            verbose=verbose)
         elif method=='MLE':
-            m = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
-            results = m.fit(data=data, n_iterations=1, c_limit=c_limit)
+            m = EM(loglik_func=self.loglik_func,
+                   params=self.params,
+                   name=self.name)
+            results = m.fit(data=data,
+                            n_iterations=1,
+                            c_limit=c_limit,
+                            verbose=verbose)
         elif method=='MAP0':
-            m = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
-            results = m.fit(data=data, n_iterations=2, c_limit=c_limit)
+            m = EM(loglik_func=self.loglik_func,
+                   params=self.params,
+                   name=self.name)
+            results = m.fit(data=data,
+                            n_iterations=2,
+                            c_limit=c_limit,
+                            verbose=verbose)
         elif method=='EmpiricalPriors':
-            m = EmpiricalPriors(loglik_func=self.loglik_func, params=self.params, name=self.name)
-            results = m.fit(data=data, c_limit=c_limit)
+            m = EmpiricalPriors(loglik_func=self.loglik_func,
+                                params=self.params,
+                                name=self.name)
+            results = m.fit(data=data,
+                            c_limit=c_limit,
+                            verbose=verbose)
         elif method=='MCMC':
             m = MCMC(generative_model=self.generative_model, name=self.name)
-            results = m.fit(data=data)
+            results = m.fit(data=data, verbose=verbose)
 
         return results
 
@@ -245,16 +265,23 @@ class EM(object):
 
                     if res.success is False and n_converge_fails < n_reinit:
                         n_converge_fails += 1
-                        print('     FAIL ' + str(n_converge_fails) + ': ' +
-                               str(res.message))
+
+                        if verbose is True:
+                            print('     FAIL ' + str(n_converge_fails) + ': ' +
+                                    str(res.message))
+
                     elif res.success is True:
-                        print('     SUCCESS: ' + str(res.message))
+                        if verbose is True:
+
+                            print('     SUCCESS: ' + str(res.message))
                         exitflag = res.success
                         update_params = True
                     elif n_converge_fails >= n_reinit:
-                        print('     FAIL ' + str(n_converge_fails) + ': ' +
-                                str(res.message))
-                        print('             Using best non-convergent values.')
+                        if verbose is True:
+                            print('     FAIL ' + str(n_converge_fails) + ': ' +
+                                    str(res.message))
+                            print('             Using best non-convergent values.')
+
                         exitflag = True
                         update_params = True
 
@@ -303,7 +330,9 @@ class EM(object):
                 results.ts_AIC.append(np.sum(results.AIC))
 
                 # Optimize group level hyperparameters
-                print('\nITERATION: ' + str(opt_iter) + ' | [M-STEP]\n')
+                if verbose is True:
+                    print('\nITERATION: ' + str(opt_iter) + ' | [M-STEP]\n')
+
                 self.group_level_estimate(param_est=results.params,
                                           hess_inv=results.hess_inv,
                                           dofull=dofull)
@@ -683,6 +712,14 @@ class MCMC(object):
         [1] PyStan API documentation (https://pystan.readthedocs.io)
         """
 
+        print('=============================================\n' +
+              '     MODEL: ' + self.name + '\n' +
+              '     METHOD: Markov Chain Monte-Carlo\n' +
+              '     ITERATIONS: ' + str(n_iterations) + '\n' +
+              '     OPTIMIZATION ALGORITHM: ' + algorithm + '\n' +
+              '     VERBOSE: ' + str(verbose) + '\n' +
+              '=============================================\n')
+
         # Instantiate a fitrfit object
         results = fitrfit(name=self.name,
                           method='MCMC',
@@ -856,10 +893,11 @@ class fitrfit(object):
         for i in range(nparams):
             maxval = np.maximum(np.max(actual[:,i]), np.max(self.params[:,i]))
             minval = np.minimum(np.min(actual[:,i]), np.min(self.params[:,i]))
-            ax[i].plot(np.linspace(minval, maxval, 100), np.linspace(minval, maxval, 100))
+            ax[i].plot(np.linspace(minval, maxval, 100), np.linspace(minval, maxval, 100), c='k', ls='--')
             ax[i].scatter(actual[:,i], self.params[:,i])
             ax[i].set_xlabel('Actual')
             ax[i].set_ylabel('Estimate')
+            ax[i].set_title(self.paramnames[i])
             ax[i].set_ylim([minval, maxval])
             ax[i].set_xlim([minval, maxval])
 
