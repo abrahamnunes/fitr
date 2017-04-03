@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Functions that are used across fitr modules
 """
