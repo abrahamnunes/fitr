@@ -1,11 +1,14 @@
 import numpy as np
+import pandas as pd
+import pystan
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
+from scipy.optimize import brute
 from scipy.stats import multivariate_normal as mvn
 
 from .utils import trans_UC, BIC, AIC, LME
 
-#===============================================================================
+# ==============================================================================
 #
 #   FITRMODEL
 #       The highest level object representing a task model to be fit.
@@ -13,7 +16,7 @@ from .utils import trans_UC, BIC, AIC, LME
 #        object (lower level), but this method should be the simplest for
 #        inexperienced users
 #
-#===============================================================================
+# ==============================================================================
 
 class fitrmodel(object):
     """
@@ -27,15 +30,18 @@ class fitrmodel(object):
         The log-likelihood function to be used to fit the data
     params : list
         List of reinforcement learning parameter objects from the rlparams module.
+    generative_model : GenerativeModel object
+        Object representing a generative model
 
     Methods
     -------
     fit(data, method='EM', c_limit=0.01)
         Runs the specified model fitting algorithm with the given data.
     """
-    def __init__(self, loglik_func, params, name=None):
+    def __init__(self, name=None, loglik_func=None, params=None, generative_model=None):
         self.name = name
         self.loglik_func = loglik_func
+        self.generative_model = generative_model
         self.params = params
 
     def fit(self, data, method='EM', c_limit=0.01):
@@ -46,10 +52,10 @@ class fitrmodel(object):
         ----------
         data : dict
             Behavioural data.
-        method : {'EM', 'EP'}
-            The inference algorithm to use.
+        method : {'EM', 'MLE', 'MAP0', 'EmpiricalPriors', 'MCMC'}
+            The inference algorithm to use. Note that the data formats for 'MCMC' compared to the other methods is distinct, and should correspond appropriately to the method being employed
         c_limit : float
-            Limit at which convergence of log-posterior probability is determined
+            Limit at which convergence of log-posterior probability is determined (only for methods 'EM' and 'EmpiricalPriors')
 
         Returns
         -------
@@ -58,11 +64,20 @@ class fitrmodel(object):
         """
 
         if method=='EM':
-            opt = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
-            results = opt.fit(data=data, c_limit=c_limit)
-        elif method=='EP':
-            opt = EmpiricalPriors(loglik_func=self.loglik_func, params=self.params, name=self.name)
-            results = opt.fit(data=data, c_limit=c_limit)
+            m = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
+            results = m.fit(data=data, c_limit=c_limit)
+        elif method=='MLE':
+            m = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
+            results = m.fit(data=data, n_iterations=1, c_limit=c_limit)
+        elif method=='MAP0':
+            m = EM(loglik_func=self.loglik_func, params=self.params, name=self.name)
+            results = m.fit(data=data, n_iterations=2, c_limit=c_limit)
+        elif method=='EmpiricalPriors':
+            m = EmpiricalPriors(loglik_func=self.loglik_func, params=self.params, name=self.name)
+            results = m.fit(data=data, c_limit=c_limit)
+        elif method=='MCMC':
+            m = MCMC(generative_model=self.generative_model, name=self.name)
+            results = m.fit(data=data)
 
         return results
 
@@ -70,7 +85,8 @@ class fitrmodel(object):
 #
 #   INFERENCE METHOD OBJECTS
 #       - EM: Expectation-Maximization with Laplace Approximation
-#       - MLE: Maximum Likelihood Estimate
+#       - EmpiricalPriors
+#       - MCMC: Markov-Chain Monte-Carlo
 #
 #===============================================================================
 
@@ -100,7 +116,7 @@ class EM(object):
 
     Methods
     -------
-    fit(data, n_iterations=1000, c_limit=1, opt_algorithm='BFGS')
+    fit(data, n_iterations=1000, c_limit=1, opt_algorithm='BFGS', diag=False, verbose=True)
         Run the model-fitting algorithm
     logposterior(x, states, actions, rewards)
         Computes the log-posterior probability
@@ -126,9 +142,9 @@ class EM(object):
         # Initialize prior
         self.prior = mvn
         self.mu  = np.zeros(self.nparams)
-        self.cov = np.eye(self.nparams)
+        self.cov = 0.1*np.eye(self.nparams)
 
-    def fit(self, data, n_iterations=1000, c_limit=1, opt_algorithm='BFGS', verbose=True):
+    def fit(self, data, n_iterations=1000, c_limit=1e-3, opt_algorithm='L-BFGS-B', init_grid=False, grid_reinit=True, n_grid_points=5, n_reinit=1, dofull=True, early_stopping=True, verbose=True):
         """
         Performs maximum a posteriori estimation of subject-level parameters
 
@@ -142,6 +158,18 @@ class EM(object):
             Threshold at which convergence is determined
         opt_algorithm : {'BFGS', 'L-BFGS-B'}
             Algorithm to use for optimization
+        init_grid : bool
+            Whether to initialize the optimizer using brute force grid search. If False, will sample from normal distribution with mean 0 and standard deviation 1.
+        grid_reinit : bool
+            If optimization does not converge, whether to reinitialize with values from grid search
+        n_grid_points : int
+            Number of points along each axis to evaluate during grid-search initialization (only meaningful if init_grid is True).
+        n_reinit : int
+            Number of times to reinitialize the optimizer if not converged
+        dofull : bool
+            Whether update of the full covariance matrix of the prior should be done. If False, the covariance matrix is limited to one in which the off-diagonal elements are set to zero.
+        early_stopping : bool
+            Whether to stop the EM procedure if the log-model-evidence begins decreasing (thereby reverting to the last iteration's results).
         verbose : bool
             Whether to print progress of model fitting
 
@@ -159,23 +187,34 @@ class EM(object):
                           name=self.name)
         results.set_paramnames(params=self.params)
 
+
+        if init_grid is True:
+            init_method = 'Grid Search'
+        else:
+            init_method = 'Random Initialization'
         print('=============================================\n' +
-              'MODEL: ' + self.name + '\n' +
-              'METHOD: Expectation-Maximization\n' +
-              'MAX ITERATIONS: ' + str(n_iterations) + '\n' +
-              'CONVERGENCE LIMIT: ' + str(c_limit) + '\n' +
-              'OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
-              'VERBOSE: ' + str(verbose) + '\n' +
+              '     MODEL: ' + self.name + '\n' +
+              '     METHOD: Expectation-Maximization\n' +
+              '     INITIALIZATION: ' + init_method + '\n' +
+              '     N-RESTARTS: ' + str(n_reinit) + '\n' +
+              '     GRID REINITIALIZATION: ' + str(grid_reinit) + '\n' +
+              '     MAX EM ITERATIONS: ' + str(n_iterations) + '\n' +
+              '     EARLY STOPPING: ' + str(early_stopping) + '\n' +
+              '     CONVERGENCE LIMIT: ' + str(c_limit) + '\n' +
+              '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
+              '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
         convergence = False
         opt_iter = 1
-        sum_nlogpost = 0 # Monitor total neg-log-posterior for convergence
+        sum_nlogpost = np.sum(results.nlogpost)
+        results_old = None # Keep placeholder for old results for early stopping
         while convergence == False and opt_iter < n_iterations:
             for i in range(nsubjects):
                 if verbose is True:
                     print('ITERATION: '          + str(opt_iter) +
-                          ' | [E-STEP] SUBJECT: ' + str(i+1))
+                          ' | [E-STEP] SUBJECT: ' + str(i+1) +
+                          ' | POSTERIOR LOG-LIKELIHOOD: ' + str(-np.round(np.sum(results.nlogpost), 3)))
 
                 # Extract subject-level data
                 S = data[i]['S']
@@ -185,45 +224,91 @@ class EM(object):
                 # Construct the subject's negative log-posterior function
                 _nlogpost = lambda x: -self.logposterior(x=x, states=S, actions=A, rewards=R)
 
-                # Generate initial values
-                x0 = np.random.normal(loc=0, scale=2, size=self.nparams)
+                # Run optimization until convergence succeeds
+                exitflag = False
+                n_converge_fails = 0
+                while exitflag is False:
+                    if init_grid is True:
+                        x0 = self.initialize_opt(fn=_nlogpost,
+                                                 grid=True,
+                                                 Ns=n_grid_points)
+                    else:
+                        if grid_reinit is True and n_converge_fails > 0:
+                            x0 = self.initialize_opt(fn=_nlogpost,
+                                                     grid=True,
+                                                     Ns=n_grid_points)
+                        else:
+                            x0 = self.initialize_opt()
 
-                # Optimize
-                res = minimize(_nlogpost, x0, method=opt_algorithm)
+                    # Optimize
+                    res = minimize(_nlogpost, x0, method=opt_algorithm)
 
-                # Update subject level data if logposterior improved
-                if res.fun < results.nlogpost[i]:
+                    if res.success is False and n_converge_fails < n_reinit:
+                        n_converge_fails += 1
+                        print('     FAIL ' + str(n_converge_fails) + ': ' +
+                               str(res.message))
+                    elif res.success is True:
+                        print('     SUCCESS: ' + str(res.message))
+                        exitflag = res.success
+                        update_params = True
+                    elif n_converge_fails >= n_reinit:
+                        print('     FAIL ' + str(n_converge_fails) + ': ' +
+                                str(res.message))
+                        print('             Using best non-convergent values.')
+                        exitflag = True
+                        update_params = True
+
+
+                if update_params == True:
+                    # Update subject level data if optimization converged
                     results.nlogpost[i] = res.fun
                     results.params[i,:] = res.x
 
                     if opt_algorithm=='L-BFGS-B':
-                        results.hess[:,:,i] = np.linalg.inv(res.hess_inv.todense())
+                        results.hess[:,:,i] = np.linalg.pinv(res.hess_inv.todense())
                         results.hess_inv[:,:,i] = res.hess_inv.todense()
                     elif opt_algorithm=='BFGS':
-                        results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
+                        results.hess[:,:,i] = np.linalg.pinv(res.hess_inv)
                         results.hess_inv[:,:,i] = res.hess_inv
 
-                    results.nloglik[i]  = self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
+                    results.nloglik[i]  = -self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
                     results.LME[i] = LME(-res.fun, self.nparams, results.hess[:,:,i])
-                    results.AIC[i] = AIC(self.nparams, results.nloglik[i])
-                    results.BIC[i] = BIC(results.nloglik[i], self.nparams, len(data[0]['A']))
+                    results.AIC[i] = AIC(self.nparams, -results.nloglik[i])
+                    results.BIC[i] = BIC(-results.nloglik[i], self.nparams, len(data[0]['A']))
 
             # If the group level posterior probability has converged, stop
             if np.abs(np.sum(results.nlogpost) - sum_nlogpost) < c_limit:
                 convergence = True
+
+                # Add total LME, BIC, and AIC to results list
+                results.ts_LME.append(np.sum(results.LME))
+                results.ts_nLL.append(np.sum(results.nloglik))
+                results.ts_BIC.append(np.sum(results.BIC))
+                results.ts_AIC.append(np.sum(results.AIC))
+            elif opt_iter > 1 and np.sum(results.LME) < results_old.ts_LME[-1] and early_stopping is True:
+                # If the log-model-evidence is DECREASING, then stop
+                #   and return the results from the last iteration
+                convergence = True
+
+                results = results_old
+
             else:
                 # Update the running model log-posterior probability
                 sum_nlogpost = np.sum(results.nlogpost)
 
                 # Add total LME, BIC, and AIC to results list
                 results.ts_LME.append(np.sum(results.LME))
+                results.ts_nLL.append(np.sum(results.nloglik))
                 results.ts_BIC.append(np.sum(results.BIC))
                 results.ts_AIC.append(np.sum(results.AIC))
 
                 # Optimize group level hyperparameters
                 print('\nITERATION: ' + str(opt_iter) + ' | [M-STEP]\n')
                 self.group_level_estimate(param_est=results.params,
-                                          hess_inv=results.hess_inv)
+                                          hess_inv=results.hess_inv,
+                                          dofull=dofull)
+
+                results_old = results
                 opt_iter += 1
 
         # Transform data to constrained space
@@ -231,6 +316,9 @@ class EM(object):
             results.params[i,:] = trans_UC(results.params[i,:], self.param_rng)
 
         print('\n MODEL FITTING COMPLETED \n')
+
+        # Generate summary table in results
+        results.summary_table()
 
         return results
 
@@ -259,7 +347,7 @@ class EM(object):
 
         return lp
 
-    def group_level_estimate(self, param_est, hess_inv):
+    def group_level_estimate(self, param_est, hess_inv, dofull):
         """
         Updates the group-level hyperparameters
 
@@ -269,16 +357,76 @@ class EM(object):
             Current parameter estimates for each subject
         hess_inv : ndarray(shape=(nparams, nparams, nsubjects))
             Inverse Hessian matrix estimate for each subject from the iteration with highest log-posterior probability
+        dofull : bool
+            Whether update of the full covariance matrix of the prior should be done. If False, the covariance matrix is limited to one in which the off-diagonal elements are set to zero.
+
+        References
+        ----------
+        [1] Quentin Huys' `emfit.m` code at https://bitbucket.org/fpetzschner/cpc2016/src
         """
         nsubjects = np.shape(param_est)[0]
 
-        self.mu = np.mean(param_est, axis=0)
-        self.cov = np.zeros([self.nparams, self.nparams])
+        converged = False
+        while converged is False:
+            mu_old = self.mu
+            self.mu = np.mean(param_est, axis=0)
+            #self.mu = np.mean(param_est, axis=0)
+            #self.cov = np.zeros([self.nparams, self.nparams])
+            cov_new = np.zeros([self.nparams]*2)
+            for i in range(nsubjects):
+                cov_new = cov_new + (np.outer(param_est[i,:], param_est[i,:]) +  hess_inv[:, :, i]) - np.outer(self.mu, self.mu)
+            cov_new = cov_new/(nsubjects-1)
 
-        for i in range(nsubjects):
-            self.cov = self.cov + (np.outer(param_est[i,:], param_est[i,:]) + hess_inv[:, :, i]) - np.outer(self.mu, self.mu)
+            if np.linalg.det(cov_new) < 0:
+                print('     Negative determinant: Prior covariance not updated')
+            else:
+                self.cov = cov_new
 
-        self.cov = self.cov/nsubjects
+            if dofull is False:
+                self.cov = self.cov * np.eye(self.nparams)
+
+            if np.linalg.norm(self.mu-mu_old) < 1e6:
+                converged = True
+                print( '     M-STEP CONVERGED \n')
+
+    def initialize_opt(self, fn=None, grid=False, Ns=None):
+        """
+        Returns initial values for the optimization
+
+        Parameters
+        ----------
+        fn : function
+            Function over which grid search takes place
+        grid : bool
+            Whether to return initialization values from grid search
+        Ns : int
+            Number of points per axis over which to evaluate during grid search
+
+        Returns
+        -------
+        x0 : ndarray
+            1 X N vector of initial values for each parameter
+
+        """
+        if grid is False:
+            # Generate initial values
+            x0 = np.random.normal(loc=0, scale=1, size=self.nparams)
+        else:
+            param_ranges = ()
+            for k in range(self.nparams):
+                param_ranges = param_ranges + ((-3, 3),)
+            res_brute = brute(fn,
+                              param_ranges,
+                              Ns=Ns,
+                              full_output=True)
+            if res_brute[0] is not None:
+                x0 = res_brute[0]
+
+            else:
+                print('     Grid Initialization returned None.')
+                x0 = np.random.normal(loc=0, scale=1, size=self.nparams)
+
+        return x0
 
 # EMPIRICAL PRIORS METHOD
 class EmpiricalPriors(object):
@@ -317,7 +465,7 @@ class EmpiricalPriors(object):
         for i in range(self.nparams):
             self.param_rng.append(params[i].rng)
 
-    def fit(self, data, n_iterations=1000, c_limit=0.1, opt_algorithm='L-BFGS-B', verbose=True):
+    def fit(self, data, n_iterations=1000, c_limit=1e-3, opt_algorithm='L-BFGS-B', verbose=True):
         """
         Runs the maximum a posterior model-fitting with empirical priors.
 
@@ -349,11 +497,11 @@ class EmpiricalPriors(object):
         results.set_paramnames(params=self.params)
 
         print('=============================================\n' +
-              'MODEL: ' + self.name + '\n' +
-              'METHOD: Empirical Priors\n' +
-              'ITERATIONS: ' + str(n_iterations) + '\n' +
-              'OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
-              'VERBOSE: ' + str(verbose) + '\n' +
+              '     MODEL: ' + self.name + '\n' +
+              '     METHOD: Empirical Priors\n' +
+              '     ITERATIONS: ' + str(n_iterations) + '\n' +
+              '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
+              '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
         convergence = False
@@ -363,7 +511,7 @@ class EmpiricalPriors(object):
             for i in range(nsubjects):
                 if verbose is True:
                     print('ITERATION: '          + str(opt_iter) +
-                          ' | [E-STEP] SUBJECT: ' + str(i+1))
+                          ' | SUBJECT: ' + str(i+1))
 
                 # Extract subject-level data
                 S = data[i]['S']
@@ -373,14 +521,6 @@ class EmpiricalPriors(object):
                 # Construct the subject's negative log-posterior function
                 _nlogpost = lambda x: -self.logposterior(x=x, states=S, actions=A, rewards=R)
 
-                # Generate initial values
-                x0 = np.zeros(self.nparams)
-                isfin = False
-                while isfin is False:
-                    for k in range(self.nparams):
-                        x0[k] = self.params[k].dist.rvs()
-                    lp = _nlogpost(x0)
-                    isfin = np.isfinite(lp)
 
                 # Create bounds
                 bounds = ()
@@ -394,12 +534,32 @@ class EmpiricalPriors(object):
                     elif self.params[k].rng == 'unc':
                         bounds = bounds + ((-1000, 1000),)
 
+                # Run optimization until convergence succeeds
+                exitflag = False
+                n_converge_fails = 0
                 np.seterr(divide='ignore', invalid='ignore')
-                # Optimize
-                if opt_algorithm == 'L-BFGS-B':
-                    res = minimize(_nlogpost, x0, bounds=bounds, method=opt_algorithm)
-                elif opt_algorithm == 'BFGS':
-                    res = minimize(_nlogpost, x0, method=opt_algorithm)
+                while exitflag is False:
+                    # Generate initial values
+                    x0 = np.zeros(self.nparams)
+                    isfin = False
+                    while isfin is False:
+                        for k in range(self.nparams):
+                            x0[k] = self.params[k].sample()
+                        lp = _nlogpost(x0)
+                        isfin = np.isfinite(lp)
+
+                    # Optimize
+                    if opt_algorithm == 'L-BFGS-B':
+                        res = minimize(_nlogpost, x0, bounds=bounds, method=opt_algorithm)
+                    elif opt_algorithm == 'BFGS':
+                        res = minimize(_nlogpost, x0, method=opt_algorithm)
+
+                    if res.success is False:
+                        n_converge_fails += 1
+                        print('     Failed to converge ' +
+                                str(n_converge_fails) + ' times.')
+
+                    exitflag = res.success
 
                 # Update subject level data if logposterior improved
                 if res.fun < results.nlogpost[i]:
@@ -413,7 +573,7 @@ class EmpiricalPriors(object):
                         results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
                         results.hess_inv[:,:,i] = res.hess_inv
 
-                    results.nloglik[i]  = self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
+                    results.nloglik[i]  = -self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
                     results.LME[i] = LME(-res.fun, self.nparams, results.hess[:,:,i])
                     results.AIC[i] = AIC(self.nparams, results.nloglik[i])
                     results.BIC[i] = BIC(results.nloglik[i], self.nparams, len(data[0]['A']))
@@ -427,12 +587,16 @@ class EmpiricalPriors(object):
 
                 # Add total LME, BIC, and AIC to results list
                 results.ts_LME.append(np.sum(results.LME))
+                results.ts_nLL.append(np.sum(results.nloglik))
                 results.ts_BIC.append(np.sum(results.BIC))
                 results.ts_AIC.append(np.sum(results.AIC))
 
                 opt_iter += 1
 
         print('\n MODEL FITTING COMPLETED \n')
+
+        # Generate summary table in results
+        results.summary_table()
 
         return results
 
@@ -463,17 +627,119 @@ class EmpiricalPriors(object):
             lp = lp + self.params[i].dist.logpdf(x[i])
 
         return lp
+
+class MCMC(object):
+    """
+    Uses Markov-Chain Monte-Carlo (via PyStan) to estimate models
+
+    Parameters
+    ----------
+    name : str
+        Name of the model being fit
+    generative_model : GenerativeModel object
+    """
+    def __init__(self, generative_model=None, name='FitrMCMCModel'):
+        self.name = name
+        self.generative_model = generative_model
+
+    def fit(self, data, chains=4, n_iterations=2000, warmup=None, thin=1, seed=None, init='random', sample_file=None, algorithm='NUTS', control=None, n_jobs=-1, compile_verbose=False, sampling_verbose=False):
+        """
+        Runs the MCMC Inference procedure with Stan
+
+        Parameters
+        ----------
+        data : dict
+            Subject level data
+        chains : int > 0
+            Number of chains in sampler
+        n_iter : int
+            How many iterations each chain should run (includes warmup)
+        warmup : int > 0, iter//2 by default
+            Number of warmup iterations.
+        thin : int > 0
+            Period for saving samples
+        seed : int or np.random.RandomState, optional
+            Positive integer to initialize random number generation
+        sample_file : str
+            File name specifying where samples for all parameters and other saved quantities will be written. If None, no samples will be written
+        algorithm : {'NUTS', 'HMC', 'Fixed_param'}, optional
+            Which of Stan's algorithms to implement
+        control : dict, optional
+            Dictionary of parameters to control sampler's behaviour (see PyStan documentation for details)
+        n_jobs : int, optional
+            Sample in parallel. If -1, all CPU cores are used. If 1, no parallel computing is used
+        compile_verbose : bool
+            Whether to print output from model compilation
+        sampling_verbose : bool
+            Whether to print intermediate output from model sampling
+
+        Returns
+        -------
+        fitrfit
+            Instance containing model fitting results
+
+        References
+        ----------
+        [1] PyStan API documentation (https://pystan.readthedocs.io)
+        """
+
+        # Instantiate a fitrfit object
+        results = fitrfit(name=self.name,
+                          method='MCMC',
+                          nsubjects=data['N'],
+                          nparams=len(self.generative_model.paramnames['code']))
+
+        results.paramnames = self.generative_model.paramnames['long']
+
+        model_code = self.generative_model.model
+
+        # Compile generative model with Stan
+        sm = pystan.StanModel(model_code=model_code,
+                              verbose=compile_verbose)
+
+        # Sample from generative model
+        stanfit = sm.sampling(data=data,
+                              chains=chains,
+                              iter=n_iterations,
+                              warmup=warmup,
+                              thin=thin,
+                              seed=seed,
+                              init=init,
+                              sample_file=sample_file,
+                              verbose=sampling_verbose,
+                              algorithm=algorithm,
+                              control=control,
+                              n_jobs=n_jobs)
+
+        # Create summary dataframe
+        summary_data = stanfit.summary()['summary']
+        summary_colnames = stanfit.summary()['summary_colnames']
+        summary_rownames = stanfit.summary()['summary_rownames']
+        stan_summary = pd.DataFrame(data=summary_data,
+                                    columns=summary_colnames,
+                                    index=summary_rownames)
+
+        # Extract parameter estimates for ease of manipulation with fitrfit
+        param_codes = self.generative_model.paramnames['code']
+        param_est = stanfit.extract(pars=param_codes)
+
+        # Get expected parameter estimates (subject-level) into params array
+        param_idx = 0
+        for k in self.generative_model.paramnames['code']:
+            results.params[:, param_idx] = np.mean(param_est[k], axis=0)
+            param_idx += 1
+
+        # Populate results.stanfit dict with Stan related objects
+        results.stanfit = {
+            'stanfit' : stanfit,
+            'summary' : stan_summary
+        }
+
+        return results
+
 #
-# TODO: ADD MLE, MCMC, VB, AND GAUSSIAN PROCESSES
+# TODO: VB AND GAUSSIAN PROCESSES
 #
-#
-#class MLE(object):
-#    def __init__(self):
-#        pass
-#
-#class MCMC(object):
-#    def __init__(self):
-#        pass
 #
 #class VB(object):
 #    def __init__(self):
@@ -485,14 +751,14 @@ class EmpiricalPriors(object):
 
 #===============================================================================
 #
-#   FITRFIT
-#       Object storing the optimization data
+#   FITRFITS
+#       Objects storing the optimization data
 #
 #===============================================================================
 
 class fitrfit(object):
     """
-    Class representing the results of a fitrmodel optimization.
+    Class representing the results of a fitrmodel fitting.
 
     Attributes
     ----------
@@ -518,11 +784,21 @@ class fitrfit(object):
         Subject-level Bayesian Information Criterion
     AIC : ndarray(shape=(nsubjects))
         Subject-level Aikake Information Criterion
+    summary : DataFrame
+        Summary of means and standard deviations for each free parameter, as well as negative log-likelihood, log-model-evidence, BIC, and AIC for the model
 
     Methods
     -------
-    transform :
-        Transforms data to constrained or unconstrained space
+    set_paramnames(params) :
+        Sets names of RL parameters to the fitrfit object
+    plot_ae(actual, show_figure=True, save_figure=False, filename='actual-estimate.pdf') :
+        Plots estimated parameters against actual simulated parameters
+    plot_fit_ts(show_figure=True, save_figure=False, filename='fit-stats.pdf') :
+        Plots the evolution of log-likelihood, log-model-evidence, AIC, and BIC over optimization iterations
+    param_hist(show_figure=True, save_figure=False, filename='param-hist.pdf') :
+        Plots hitograms of parameters in the model
+    summary_table(write_csv=False, filename='summary-table.csv', delimiter=',') :
+        Writes a CSV file with summary statistics from the present model
     """
     def __init__(self, method, nsubjects, nparams, name=None):
         self.name = name
@@ -531,17 +807,22 @@ class fitrfit(object):
         self.nparams = nparams
         self.params = np.zeros([nsubjects, nparams])
         self.paramnames = []
-        self.hess = np.zeros([nparams, nparams, nsubjects])
-        self.hess_inv = np.zeros([nparams, nparams, nsubjects])
-        self.errs = np.zeros([nsubjects, nparams])
-        self.nlogpost = np.zeros(nsubjects) + 1e7
-        self.nloglik = np.zeros(nsubjects)
-        self.LME = np.zeros(nsubjects)
-        self.BIC = np.zeros(nsubjects)
-        self.AIC = np.zeros(nsubjects)
-        self.ts_LME = []
-        self.ts_BIC = []
-        self.ts_AIC = []
+
+        if method == 'MCMC':
+            self.stanfit = None
+        else:
+            self.hess = np.zeros([nparams, nparams, nsubjects])
+            self.hess_inv = np.zeros([nparams, nparams, nsubjects])
+            self.errs = np.zeros([nsubjects, nparams])
+            self.nlogpost = np.zeros(nsubjects) + 1e7
+            self.nloglik = np.zeros(nsubjects)
+            self.LME = np.zeros(nsubjects)
+            self.BIC = np.zeros(nsubjects)
+            self.AIC = np.zeros(nsubjects)
+            self.ts_LME = []
+            self.ts_nLL = []
+            self.ts_BIC = []
+            self.ts_AIC = []
 
     def set_paramnames(self, params):
         """
@@ -588,6 +869,8 @@ class fitrfit(object):
         if show_figure is True:
             plt.show()
 
+        return
+
     def plot_fit_ts(self, show_figure=True, save_figure=False, filename='fit-stats.pdf'):
         """
         Plots the log-model-evidence, BIC, and AIC over optimization iterations
@@ -602,34 +885,43 @@ class fitrfit(object):
             The file name to be output
         """
         n_opt_steps = len(self.ts_LME)
-        fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+        fig, ax = plt.subplots(1, 4, figsize=(20, 5))
 
-        #LME
-        ax[0].plot(np.arange(n_opt_steps), self.ts_LME, lw=1.5, c='k')
-        ax[0].scatter(np.arange(n_opt_steps), self.ts_LME, c='k')
+        #Log-Likelihood
+        ax[0].plot(np.arange(n_opt_steps), self.ts_nLL, lw=1.5, c='k')
+        ax[0].scatter(np.arange(n_opt_steps), self.ts_nLL, c='k')
         ax[0].set_xlabel('Optimization step')
-        ax[0].set_title('Log Model Evidence (LME)\n')
+        ax[0].set_title('Negative Log-Likelihood\n')
         ax[0].set_xlim([0, n_opt_steps])
 
-        #BIC
-        ax[1].plot(np.arange(n_opt_steps), self.ts_BIC, lw=1.5, c='k')
-        ax[1].scatter(np.arange(n_opt_steps), self.ts_BIC, c='k')
+        #LME
+        ax[1].plot(np.arange(n_opt_steps), self.ts_LME, lw=1.5, c='k')
+        ax[1].scatter(np.arange(n_opt_steps), self.ts_LME, c='k')
         ax[1].set_xlabel('Optimization step')
-        ax[1].set_title('Bayesian Information Criterion\n')
+        ax[1].set_title('Log Model Evidence (LME)\n')
         ax[1].set_xlim([0, n_opt_steps])
 
-        #AIC
-        ax[2].plot(np.arange(n_opt_steps), self.ts_AIC, lw=1.5, c='k')
-        ax[2].scatter(np.arange(n_opt_steps), self.ts_AIC, c='k')
+        #BIC
+        ax[2].plot(np.arange(n_opt_steps), self.ts_BIC, lw=1.5, c='k')
+        ax[2].scatter(np.arange(n_opt_steps), self.ts_BIC, c='k')
         ax[2].set_xlabel('Optimization step')
-        ax[2].set_title('Aikake Information Criterion\n')
+        ax[2].set_title('Bayesian Information Criterion\n')
         ax[2].set_xlim([0, n_opt_steps])
 
+        #AIC
+        ax[3].plot(np.arange(n_opt_steps), self.ts_AIC, lw=1.5, c='k')
+        ax[3].scatter(np.arange(n_opt_steps), self.ts_AIC, c='k')
+        ax[3].set_xlabel('Optimization step')
+        ax[3].set_title('Aikake Information Criterion\n')
+        ax[3].set_xlim([0, n_opt_steps])
+
         if save_figure is True:
-            plt.savefig(filename)
+            plt.savefig(filename, bbox_inches='tight')
 
         if show_figure is True:
             plt.show()
+
+        return
 
     def param_hist(self, show_figure=True, save_figure=False, filename='param-hist.pdf'):
         """
@@ -647,7 +939,7 @@ class fitrfit(object):
         """
         nparams = np.shape(self.params)[1]
 
-        fig, ax = plt.subplots(1, nparams)
+        fig, ax = plt.subplots(1, nparams, figsize=(nparams*5, 7))
         for i in range(0, nparams):
             n, bins, patches = ax[i].hist(self.params[:,i], normed=1)
             y = mvn.pdf(bins, np.mean(self.params[:,i]), np.std(self.params[:,1]))
@@ -655,7 +947,60 @@ class fitrfit(object):
             ax[i].set_title(self.paramnames[i] + '\n')
 
         if save_figure is True:
-            plt.savefig(filename)
+            plt.savefig(filename, bbox_inches='tight')
 
         if show_figure is True:
             plt.show()
+
+        return
+
+    def ae_metrics(self, actual, matches=None):
+        """
+        Computes metrics summarizing the ability of the model to fit data generated from a known model
+
+        Parameters
+        ----------
+        matches : list
+            List consisting of [rlparams object, column index in `actual`, column index in estimates]. Ensures comparisons are being made between the same parameters, particularly when the models have different numbers of free parameters.
+
+        Returns
+        -------
+        DataFrame
+            Including summary statistics of the parameter matching
+        """
+
+        # [TODO] Complete this function
+
+        pass
+
+    def summary_table(self):
+        """
+        Generates a table summarizing the model-fitting results
+        """
+
+        summary_dict = {}
+
+        pmeans = np.mean(self.params, axis=0)
+        psd = np.std(self.params, axis=0)
+
+        for i in range(self.nparams):
+            summary_dict[self.paramnames[i]] = [pmeans[i], psd[i]]
+
+        summary_dict['Neg-LL'] = [np.mean(self.nloglik),
+                                  np.std(self.nloglik)]
+
+        summary_dict['LME'] = [np.mean(self.LME),
+                               np.std(self.LME)]
+
+        summary_dict['BIC'] = [np.mean(self.BIC),
+                               np.std(self.BIC)]
+
+        summary_dict['AIC'] = [np.mean(self.AIC),
+                               np.std(self.AIC)]
+
+        index_labels = ['Mean', 'SD']
+        column_labels = self.paramnames + ['Neg-LL', 'LME', 'BIC', 'AIC']
+
+        self.summary = pd.DataFrame(summary_dict,
+                                    index=index_labels,
+                                    columns=column_labels)
