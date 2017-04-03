@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import pandas as pd
 import pystan
@@ -335,7 +336,8 @@ class EM(object):
 
                 self.group_level_estimate(param_est=results.params,
                                           hess_inv=results.hess_inv,
-                                          dofull=dofull)
+                                          dofull=dofull,
+                                          verbose=verbose)
 
                 results_old = results
                 opt_iter += 1
@@ -376,7 +378,7 @@ class EM(object):
 
         return lp
 
-    def group_level_estimate(self, param_est, hess_inv, dofull):
+    def group_level_estimate(self, param_est, hess_inv, dofull, verbose=True):
         """
         Updates the group-level hyperparameters
 
@@ -388,6 +390,8 @@ class EM(object):
             Inverse Hessian matrix estimate for each subject from the iteration with highest log-posterior probability
         dofull : bool
             Whether update of the full covariance matrix of the prior should be done. If False, the covariance matrix is limited to one in which the off-diagonal elements are set to zero.
+        verbose : bool
+            Controls degree to which results are printed
 
         References
         ----------
@@ -416,7 +420,8 @@ class EM(object):
 
             if np.linalg.norm(self.mu-mu_old) < 1e6:
                 converged = True
-                print( '     M-STEP CONVERGED \n')
+                if verbose is True:
+                    print( '     M-STEP CONVERGED \n')
 
     def initialize_opt(self, fn=None, grid=False, Ns=None):
         """
@@ -989,6 +994,42 @@ class fitrfit(object):
 
         if show_figure is True:
             plt.show()
+
+        return
+
+    def trace_plot(self, figsize=[8, 8], show_figure=True, save_figure=False, filename='fitr-mcstan-traceplot.pdf'):
+        """
+        Easy wrapper for Stan Traceplot
+
+        Parameters
+        ----------
+        figsize : array [width in inches, height in inches]
+            Controls figure size
+        show_figure : bool
+            Whether to show figure output
+        save_figure : bool
+            Whether to save the figure to disk
+        filename : str
+            The file name to be output
+
+        """
+
+        if self.method != 'MCMC':
+            print('ERROR: Traceplot can only be created for MCMC results.')
+        else:
+            # Ignore the annoying warning about tight layout
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+
+                mcplot = self.stanfit['stanfit'].traceplot()
+                mcplot.set_size_inches(figsize[0], figsize[1])
+                mcplot.set_tight_layout(tight=True)
+
+                if save_figure is True:
+                    plt.savefig(filename, bbox_inches='tight')
+
+                if show_figure is True:
+                    plt.show()
 
         return
 
