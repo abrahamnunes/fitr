@@ -454,7 +454,7 @@ class EmpiricalPriors(object):
         Computes the log-poseterior probability
 
     """
-    def __init__(self, loglik_func, params, name=None):
+    def __init__(self, loglik_func, params, name='EmpiricalPriorsModel'):
         self.name = name
         self.loglik_func = loglik_func
         self.params = params
