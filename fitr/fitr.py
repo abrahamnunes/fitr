@@ -127,7 +127,7 @@ class EM(object):
     ----------
     [1] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).
     """
-    def __init__(self, loglik_func, params, name=None):
+    def __init__(self, loglik_func, params, name='EMModel'):
         self.name = name
         self.loglik_func = loglik_func
         self.params = params
@@ -202,6 +202,7 @@ class EM(object):
               '     EARLY STOPPING: ' + str(early_stopping) + '\n' +
               '     CONVERGENCE LIMIT: ' + str(c_limit) + '\n' +
               '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
+              '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
         convergence = False
@@ -500,6 +501,7 @@ class EmpiricalPriors(object):
               '     METHOD: Empirical Priors\n' +
               '     ITERATIONS: ' + str(n_iterations) + '\n' +
               '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
+              '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
         convergence = False
