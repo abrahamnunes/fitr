@@ -1,0 +1,5 @@
+Tasks
+=====
+
+.. automodule:: tasks
+    :members:

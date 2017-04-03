@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tasks &mdash; fitr dev1 documentation</title>
+  <title>Fitr &mdash; fitr dev1 documentation</title>
   
 
   
@@ -32,6 +32,7 @@
   
     <link rel="top" title="fitr dev1 documentation" href="../../index.html"/>
         <link rel="up" title="Fitr API" href="index.html"/>
+        <link rel="next" title="Tasks" href="tasks.html"/>
         <link rel="prev" title="Fitr API" href="index.html"/> 
 
   
@@ -85,7 +86,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart/index.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Fitr API</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fitr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
 </ul>
 </li>
 </ul>
@@ -120,11 +122,11 @@
       
           <li><a href="index.html">Fitr API</a> &raquo;</li>
       
-    <li>Tasks</li>
+    <li>Fitr</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../../_sources/sections/API/tasks.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/sections/API/fitr.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -134,68 +136,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-tasks">
-<span id="tasks"></span><h1>Tasks<a class="headerlink" href="#module-tasks" title="Permalink to this headline">¶</a></h1>
-<p>Classes representing each task</p>
-<dl class="class">
-<dt id="tasks.SyntheticData">
-<em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">SyntheticData</code><a class="headerlink" href="#tasks.SyntheticData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object representing synthetic data</p>
-<dl class="docutils">
-<dt>cumreward_param_plot :</dt>
-<dd>Plots the cumulative reward against model parameters. Useful to determine the relationship between reward acquisition and model parameters for a given task.</dd>
-<dt>plot_cumreward :</dt>
-<dd>Plots the cumulative reward over time for each subject</dd>
-</dl>
-<dl class="method">
-<dt id="tasks.SyntheticData.plot_cumreward">
-<code class="descname">plot_cumreward</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tasks.SyntheticData.plot_cumreward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots cumulative reward over time for each subject</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="tasks.bandit">
-<em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">bandit</code><span class="sig-paren">(</span><em>narms=2, rewards=[1, 0], rprob='stochastic', rprob_sd=0.025, rprob_bounds=[0.2, 0.8]</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.bandit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simple one-step bandit task.</p>
-<dl class="docutils">
-<dt>narms</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">int</span><dd>Number of arms</dd>
-<dt>rewards</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">ndarray(shape=(2))</span><dd>First entry is the reward, if gained, and the second entry is the magnitude of the loss</dd>
-<dt>rprob</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">{ndarray(shape=(narms)), &#8216;stochastic&#8217;}</span><dd>Probabilty of reward for each arm of the task. One can either specify the probabilities for each arm or enter &#8216;stochastic,&#8217; which will vary the reward probability by a gaussian random walk</dd>
-</dl>
-<dl class="docutils">
-<dt>simulate(nsubjects,ntrials)</dt>
-<dd>Runs the task on simulated subjects</dd>
-</dl>
-</dd></dl>
-
-<dl class="class">
-<dt id="tasks.ortho_gng">
-<em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">ortho_gng</code><span class="sig-paren">(</span><em>rewards=[1, 0, -1]</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.ortho_gng" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model of the orthogonalized go-nogo task from Guitart-Masip et al. (2012)</p>
-<p>rewards : list</p>
-<p>[1] Guitart-Masip, M. et al. (2012) Go and no-go learning in reward and punishment: Interactions between affect and effect. Neuroimage 62, 154–166</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="tasks.twostep">
-<em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">twostep</code><span class="sig-paren">(</span><em>ptrans=0.7, rewards=[1, 0]</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.twostep" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model of the two-step task (Daw et al. 2011).</p>
-<dl class="docutils">
-<dt>ptrans</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span><dd>Probability of transitioning from state 0 to either state 1 or 2 depending on the choice made at the first step of the task.</dd>
-</dl>
-<dl class="docutils">
-<dt>simulate</dt>
-<dd>Generates synthetic data from the task.</dd>
-</dl>
-<p>[1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215</p>
-</dd></dl>
-
+  <div class="section" id="fitr">
+<h1>Fitr<a class="headerlink" href="#fitr" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -204,6 +146,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tasks.html" class="btn btn-neutral float-right" title="Tasks" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="Fitr API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
