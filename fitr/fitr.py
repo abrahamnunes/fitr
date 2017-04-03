@@ -585,8 +585,9 @@ class EmpiricalPriors(object):
 
                     if res.success is False:
                         n_converge_fails += 1
-                        print('     Failed to converge ' +
-                                str(n_converge_fails) + ' times.')
+                        if verbose is True:
+                            print('     Failed to converge ' +
+                                    str(n_converge_fails) + ' times.')
 
                     exitflag = res.success
 
