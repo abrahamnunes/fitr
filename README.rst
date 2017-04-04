@@ -29,6 +29,13 @@ Tutorials (Jupyter Notebooks) can be found in the examples folder. They include
 3. `Use MCMC with your own Stan Code <https://github.com/ComputationalPsychiatry/fitr/blob/master/examples/Use%20MCMC%20with%20your%20own%20Stan%20Code.ipynb>`_
 4. `Using Multiple Model-Fitting Routines for Same Model <https://github.com/ComputationalPsychiatry/fitr/blob/master/examples/Using%20Multiple%20Methods%20to%20fit%20Models.ipynb>`_
 
+How to Cite
+-----------
+
+If you use Fitr in your work, we would very much appreciate the citation, which can be done as follows:
+
+- Abraham Nunes, Alexander Rudiuk, & Thomas Trappenberg. (2017). Fitr: A Toolbox for Computational Psychiatry Research. Zenodo. http://doi.org/10.5281/zenodo.439989
+
 .. |Build status| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
    :target: https://travis-ci.org/ComputationalPsychiatry/fitr
 .. |Documentation Status| image:: https://readthedocs.com/projects/computationalpsychiatry-fitr/badge/?version=latest
