@@ -1,4 +1,4 @@
-fitr |Build status| |Documentation Status| |Code Coverage| |DOI|
+fitr |Build status| |Documentation Status| |Code Coverage| |Health| |DOI| 
 ==========================================
 
 Python implementation of package to fit reinforcement learning models to
@@ -40,3 +40,7 @@ If you use Fitr in your work, we would very much appreciate the citation, which 
    :target: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
 .. |DOI| image:: https://zenodo.org/badge/82499710.svg
   :target: https://zenodo.org/badge/latestdoi/82499710
+
+.. |Health| image:: https://landscape.io/github/ComputationalPsychiatry/fitr/master/landscape.svg?style=flat
+ :target: https://landscape.io/github/ComputationalPsychiatry/fitr/master
+ :alt: Code Health
