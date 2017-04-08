@@ -46,8 +46,8 @@ def test_twostep():
 	assert(np.shape(res.data_mcmc['R'])[1] == 5)
 
 def test_action():
-	assert(type(tasks.action(x=np.array([0.8, 0.2]))) == int)
+	assert(type(tasks.action(x=np.array([0.8, 0.2]))) == np.int64)
 
 def test_reward():
 	paths = np.array([0.25, 0.25, 0.25])
-	assert(type(tasks.reward(a=1, paths=paths)) == int)
+	assert(type(tasks.reward(a=1, paths=paths)) == np.int64)
