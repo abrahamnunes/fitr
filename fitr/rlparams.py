@@ -33,7 +33,7 @@ class Param(object):
     """
     def __init__(self, name=None, rng=None):
         self.name  = name
-        self.range = rng
+        self.rng = rng
         self.dist  = None
 
     def sample(self, size=1):
