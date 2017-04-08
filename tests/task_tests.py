@@ -50,4 +50,4 @@ def test_action():
 
 def test_reward():
 	paths = np.array([0.25, 0.25, 0.25])
-	assert(type(tasks.reward(a=1, paths=paths)) == np.int64)
+	assert(np.isfinite(tasks.reward(a=1, paths=paths)))
