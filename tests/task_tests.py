@@ -10,7 +10,7 @@ def test_bandit():
 	cr = fitr.rlparams.ChoiceRandomness()
 	group = fitr.rlparams.generate_group(params=[lr, cr], nsubjects=10)
 	task = tasks.bandit()
-	res = task.simulate(ntrials=10, nsubjects=10)
+	res = task.simulate(ntrials=10, params=group)
 
 	res.cumreward_param_plot()
 	res.plot_cumreward()
@@ -30,7 +30,7 @@ def test_twostep():
 	w = fitr.rlparams.MBMF_Balance()
 	group = fitr.rlparams.generate_group(params=[lr, cr, w], nsubjects=5)
 	task = tasks.twostep()
-	res = task.simulate(ntrials=5, nsubjects=5)
+	res = task.simulate(ntrials=5, params=group)
 
 	assert(len(res.params) == 3)
 	assert(len(res.data) == 5)
