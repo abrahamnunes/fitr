@@ -13,7 +13,7 @@ def test_em():
 	params = [lr, cr]
 	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
 	bandit_task = tasks.bandit()
-	res = bandit_task.simulate(ntrials==10, params=group)
+	res = bandit_task.simulate(ntrials=10, params=group)
 
 	likfun = ll.bandit_ll().lr_cr
 
