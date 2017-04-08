@@ -12,9 +12,6 @@ def test_bandit():
 	task = tasks.bandit()
 	res = task.simulate(ntrials=10, params=group)
 
-	res.cumreward_param_plot()
-	res.plot_cumreward()
-
 	assert(res.params.all() == group.all())
 	assert(len(res.data) == 10)
 	assert(res.data_mcmc['N'] == 10)
