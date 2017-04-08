@@ -15,7 +15,7 @@ def test_bandit():
 	res.cumreward_param_plot()
 	res.plot_cumreward()
 
-	assert(len(res.params) == 2)
+	assert(res.params.all() == group)
 	assert(len(res.data) == 10)
 	assert(res.data_mcmc['N'] == 10)
 	assert(res.data_mcmc['T'] == 10)
@@ -32,7 +32,7 @@ def test_twostep():
 	task = tasks.twostep()
 	res = task.simulate(ntrials=5, params=group)
 
-	assert(len(res.params) == 3)
+	assert(res.params.all() == group)
 	assert(len(res.data) == 5)
 	assert(res.data_mcmc['N'] == 5)
 	assert(res.data_mcmc['T'] == 5)
