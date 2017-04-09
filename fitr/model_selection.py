@@ -122,7 +122,10 @@ class BIC(object):
         results = ModelSelectionResult(method='BIC')
 
         for i in range(len(self.modelfits)):
-            results.BIC.append(self.modelfits[i].name)
+            results.BIC.append(np.sum(self.modelfits[i].BIC))
+
+        for i in range(len(self.modelfits)):
+            results.modelnames.append(self.modelfits[i].name)
 
         return results
 
@@ -145,7 +148,10 @@ class AIC(object):
         results = ModelSelectionResult(method='AIC')
 
         for i in range(len(self.modelfits)):
-            results.AIC.append(self.modelfits[i].name)
+            results.AIC.append(np.sum(self.modelfits[i].AIC))
+
+        for i in range(len(self.modelfits)):
+            results.modelnames.append(self.modelfits[i].name)
 
         return results
 
