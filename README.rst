@@ -1,5 +1,26 @@
-fitr |Build status| |Documentation Status| |PyPI| |Code Coverage| |Health| |DOI|
-==========================================
+.. -*- mode: rst -*-
+
+fitr |Build|_ |Documentation|_ |Codecov|_ |Health|_ |DOI|_
+==========================================================
+
+.. |Build| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
+.. _Build: https://travis-ci.org/ComputationalPsychiatry/fitr
+
+.. |Documentation| image:: https://readthedocs.com/projects/computationalpsychiatry-fitr/badge/?version=latest
+.. _Documentation: https://computationalpsychiatry-fitr.readthedocs-hosted.com/en/latest/?badge=latest
+
+.. |PyPI| image:: https://badge.fury.io/py/fitr.svg
+.. _PyPI: https://badge.fury.io/py/fitr
+
+.. |Codecov| image:: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master/graphs/badge.svg
+.. _Codecov: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
+
+.. |Health| image:: https://landscape.io/github/ComputationalPsychiatry/fitr/master/landscape.svg?style=flat
+.. _Health: https://landscape.io/github/ComputationalPsychiatry/fitr/master
+
+.. |DOI| image:: https://zenodo.org/badge/82499710.svg
+.. _DOI: https://zenodo.org/badge/latestdoi/82499710
+
 
 Python implementation of package to fit reinforcement learning models to
 behavioural data
@@ -31,19 +52,3 @@ How to Cite
 If you use Fitr in your work, we would very much appreciate the citation, which can be done as follows:
 
 - Abraham Nunes, Alexander Rudiuk, & Thomas Trappenberg. (2017). Fitr: A Toolbox for Computational Psychiatry Research. Zenodo. http://doi.org/10.5281/zenodo.439989
-
-.. |Build status| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
-   :target: https://travis-ci.org/ComputationalPsychiatry/fitr
-.. |Documentation Status| image:: https://readthedocs.com/projects/computationalpsychiatry-fitr/badge/?version=latest
-   :target: https://computationalpsychiatry-fitr.readthedocs-hosted.com/en/latest/?badge=latest
-.. |Code Coverage| image:: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master/graphs/badge.svg
-   :target: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
-.. |DOI| image:: https://zenodo.org/badge/82499710.svg
-  :target: https://zenodo.org/badge/latestdoi/82499710
-
-.. |Health| image:: https://landscape.io/github/ComputationalPsychiatry/fitr/master/landscape.svg?style=flat
- :target: https://landscape.io/github/ComputationalPsychiatry/fitr/master
- :alt: Code Health
-
- .. |PyPI| image:: https://badge.fury.io/py/fitr.svg
-     :target: https://badge.fury.io/py/fitr
