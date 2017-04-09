@@ -88,7 +88,7 @@ def test_empirical_priors():
 def test_mcmc():
 	params = [fitr.rlparams.LearningRate(),
 	 		  fitr.rlparams.ChoiceRandomness()]
-	group = generate_group(params=params, nsubjects=5)
+	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
 	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=10)
 	banditgm = gm.bandit(model='lr_cr')
 
@@ -110,7 +110,7 @@ def test_mcmc():
 def test_fitrmodels():
 	params = [fitr.rlparams.LearningRate(),
 	 		  fitr.rlparams.ChoiceRandomness()]
-	group = generate_group(params=params, nsubjects=5)
+	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
 	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=10)
 
 	banditll = ll.bandit_ll().lr_cr
