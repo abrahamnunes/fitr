@@ -66,8 +66,8 @@ def test_empirical_priors():
 
 	mfit = model.fit(data=res.data)
 
-	assert(mfit.name == 'EMModel')
-	assert(mfit.method == 'Expectation-Maximization')
+	assert(mfit.name == 'EPModel')
+	assert(mfit.method == 'Empirical Priors')
 	assert(mfit.nsubjects == 5)
 	assert(mfit.nparams == 2)
 	assert(np.shape(mfit.params) == (5, 2))
