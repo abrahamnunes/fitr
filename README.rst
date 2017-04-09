@@ -9,6 +9,9 @@ fitr |Build|_ |Documentation|_ |Codecov|_ |Health|_ |DOI|_
 .. |Documentation| image:: https://readthedocs.com/projects/computationalpsychiatry-fitr/badge/?version=latest
 .. _Documentation: https://computationalpsychiatry-fitr.readthedocs-hosted.com/en/latest/?badge=latest
 
+.. |PyPI| image:: https://badge.fury.io/py/fitr.svg
+.. _PyPI: https://badge.fury.io/py/fitr
+
 .. |Codecov| image:: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master/graphs/badge.svg
 .. _Codecov: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
 
@@ -17,6 +20,7 @@ fitr |Build|_ |Documentation|_ |Codecov|_ |Health|_ |DOI|_
 
 .. |DOI| image:: https://zenodo.org/badge/82499710.svg
 .. _DOI: https://zenodo.org/badge/latestdoi/82499710
+
 
 Python implementation of package to fit reinforcement learning models to
 behavioural data
