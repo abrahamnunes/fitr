@@ -35,8 +35,6 @@ def test_model_selections():
 	assert(len(bms_results.modelnames) == 2)
 	assert(len(bms_results.xp) == 2)
 	assert(len(bms_results.pxp) == 2)
-	assert(len(bms_results.BIC) == 2)
-	assert(len(bms_results.AIC) == 2)
 
 	assert(len(bic_results.modelnames) == 2)
 	assert(len(bic_results.BIC) == 2)
