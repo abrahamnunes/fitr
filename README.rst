@@ -1,7 +1,6 @@
 .. -*- mode: rst -*-
 
-fitr |Build|_ |Documentation|_ |Codecov|_ |Health|_ |DOI|_
-==========================================================
+|Build|_ |Documentation|_ |PyPI|_ |Codecov|_ |Health|_ |DOI|_
 
 .. |Build| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
 .. _Build: https://travis-ci.org/ComputationalPsychiatry/fitr
@@ -21,6 +20,8 @@ fitr |Build|_ |Documentation|_ |Codecov|_ |Health|_ |DOI|_
 .. |DOI| image:: https://zenodo.org/badge/82499710.svg
 .. _DOI: https://zenodo.org/badge/latestdoi/82499710
 
+fitr
+====
 
 Python implementation of package to fit reinforcement learning models to
 behavioural data
