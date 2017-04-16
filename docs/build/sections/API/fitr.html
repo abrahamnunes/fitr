@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tasks &mdash; fitr dev1 documentation</title>
+  <title>Fitr &mdash; fitr 0.0.1 documentation</title>
   
 
   
@@ -30,7 +30,10 @@
   
 
   
-    <link rel="top" title="fitr dev1 documentation" href="../../index.html"/> 
+    <link rel="top" title="fitr 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Fitr API" href="index.html"/>
+        <link rel="next" title="Model Selection" href="model_selection.html"/>
+        <link rel="prev" title="Fitr API" href="index.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -58,7 +61,7 @@
             
             
               <div class="version">
-                0.0.0
+                0.0.1
               </div>
             
           
@@ -79,10 +82,19 @@
           
             
             
-                <ul>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart/index.html">Getting Started</a></li>
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Fitr API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Fitr API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fitr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_selection.html">Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loglik_functions.html">Log-Likelihood Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generative_models.html">Generative Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rlparams.html">RLParams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -113,7 +125,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../index.html">Docs</a> &raquo;</li>
       
-    <li>Tasks</li>
+          <li><a href="index.html">Fitr API</a> &raquo;</li>
+      
+    <li>Fitr</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -127,14 +141,781 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tasks">
-<h1>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-fitr">
+<span id="fitr"></span><h1>Fitr<a class="headerlink" href="#module-fitr" title="Permalink to this headline">¶</a></h1>
+<p>Module containing model fitting objects.</p>
+<dl class="class">
+<dt id="fitr.EM">
+<em class="property">class </em><code class="descclassname">fitr.</code><code class="descname">EM</code><span class="sig-paren">(</span><em>loglik_func</em>, <em>params</em>, <em>name='EMModel'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expectation-Maximization with the Laplace Approximation</p>
+<p class="rubric">References</p>
+<p>[1] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="8%" />
+<col width="92%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Name of the model being fit. We suggest using the free parameters.</td>
+</tr>
+<tr class="row-even"><td>loglik_func</td>
+<td>(function) The log-likelihood function to be used for model fitting</td>
+</tr>
+<tr class="row-odd"><td>params</td>
+<td>(list) List of parameters from the rlparams module</td>
+</tr>
+<tr class="row-even"><td>nparams</td>
+<td>(int) Number of free parameters in the model</td>
+</tr>
+<tr class="row-odd"><td>param_rng</td>
+<td>(list) List of strings denoting the parameter ranges (see rlparams module for further details)</td>
+</tr>
+<tr class="row-even"><td>prior</td>
+<td>(scipy.stats distribution) The prior distribution over parameter estimates. Here this is fixed to a multivariate normal.</td>
+</tr>
+<tr class="row-odd"><td>mu</td>
+<td>(ndarray(shape=nparams)) The prior mean over parameters</td>
+</tr>
+<tr class="row-even"><td>cov</td>
+<td>(ndarray(shape=(nparams,nparams))) The covariance matrix for prior over parameter estimates</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="63%" />
+<col width="37%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>fit(data, n_iterations=1000, c_limit=1, opt_algorithm=&#8217;BFGS&#8217;, diag=False, verbose=True)</td>
+<td>Run the model-fitting algorithm</td>
+</tr>
+<tr class="row-even"><td>logposterior(x, states, actions, rewards)</td>
+<td>Computes the log-posterior probability</td>
+</tr>
+<tr class="row-odd"><td>group_level_estimate(param_est, hess_inv)</td>
+<td>Updates the hyperparameters of the group-level prior</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="fitr.EM.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em>, <em>n_iterations=1000</em>, <em>c_limit=0.001</em>, <em>opt_algorithm='L-BFGS-B'</em>, <em>init_grid=False</em>, <em>grid_reinit=True</em>, <em>n_grid_points=5</em>, <em>n_reinit=1</em>, <em>dofull=True</em>, <em>early_stopping=True</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EM.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs maximum a posteriori estimation of subject-level parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : dict</p>
+<blockquote>
+<div><p>Dictionary of data from all subjects.</p>
+</div></blockquote>
+<p><strong>n_iterations</strong> : int</p>
+<blockquote>
+<div><p>Maximum number of iterations to allow.</p>
+</div></blockquote>
+<p><strong>c_limit</strong> : float</p>
+<blockquote>
+<div><p>Threshold at which convergence is determined</p>
+</div></blockquote>
+<p><strong>opt_algorithm</strong> : {&#8216;BFGS&#8217;, &#8216;L-BFGS-B&#8217;}</p>
+<blockquote>
+<div><p>Algorithm to use for optimization</p>
+</div></blockquote>
+<p><strong>init_grid</strong> : bool</p>
+<blockquote>
+<div><p>Whether to initialize the optimizer using brute force grid search. If False, will sample from normal distribution with mean 0 and standard deviation 1.</p>
+</div></blockquote>
+<p><strong>grid_reinit</strong> : bool</p>
+<blockquote>
+<div><p>If optimization does not converge, whether to reinitialize with values from grid search</p>
+</div></blockquote>
+<p><strong>n_grid_points</strong> : int</p>
+<blockquote>
+<div><p>Number of points along each axis to evaluate during grid-search initialization (only meaningful if init_grid is True).</p>
+</div></blockquote>
+<p><strong>n_reinit</strong> : int</p>
+<blockquote>
+<div><p>Number of times to reinitialize the optimizer if not converged</p>
+</div></blockquote>
+<p><strong>dofull</strong> : bool</p>
+<blockquote>
+<div><p>Whether update of the full covariance matrix of the prior should be done. If False, the covariance matrix is limited to one in which the off-diagonal elements are set to zero.</p>
+</div></blockquote>
+<p><strong>early_stopping</strong> : bool</p>
+<blockquote>
+<div><p>Whether to stop the EM procedure if the log-model-evidence begins decreasing (thereby reverting to the last iteration&#8217;s results).</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool</p>
+<blockquote>
+<div><p>Whether to print progress of model fitting</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fitrfit</strong> : object</p>
+<blockquote class="last">
+<div><p>Representation of the model fitting results</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.EM.group_level_estimate">
+<code class="descname">group_level_estimate</code><span class="sig-paren">(</span><em>param_est</em>, <em>hess_inv</em>, <em>dofull</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EM.group_level_estimate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the group-level hyperparameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>param_est</strong> : ndarray(shape=(nsubjects, nparams))</p>
+<blockquote>
+<div><p>Current parameter estimates for each subject</p>
+</div></blockquote>
+<p><strong>hess_inv</strong> : ndarray(shape=(nparams, nparams, nsubjects))</p>
+<blockquote>
+<div><p>Inverse Hessian matrix estimate for each subject from the iteration with highest log-posterior probability</p>
+</div></blockquote>
+<p><strong>dofull</strong> : bool</p>
+<blockquote>
+<div><p>Whether update of the full covariance matrix of the prior should be done. If False, the covariance matrix is limited to one in which the off-diagonal elements are set to zero.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool</p>
+<blockquote class="last">
+<div><p>Controls degree to which results are printed</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>[1] Quentin Huys&#8217; <cite>emfit.m</cite> code at <a class="reference external" href="https://bitbucket.org/fpetzschner/cpc2016/src">https://bitbucket.org/fpetzschner/cpc2016/src</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.EM.initialize_opt">
+<code class="descname">initialize_opt</code><span class="sig-paren">(</span><em>fn=None</em>, <em>grid=False</em>, <em>Ns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EM.initialize_opt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns initial values for the optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fn</strong> : function</p>
+<blockquote>
+<div><p>Function over which grid search takes place</p>
+</div></blockquote>
+<p><strong>grid</strong> : bool</p>
+<blockquote>
+<div><p>Whether to return initialization values from grid search</p>
+</div></blockquote>
+<p><strong>Ns</strong> : int</p>
+<blockquote>
+<div><p>Number of points per axis over which to evaluate during grid search</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>x0</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>1 X N vector of initial values for each parameter</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.EM.logposterior">
+<code class="descname">logposterior</code><span class="sig-paren">(</span><em>x</em>, <em>states</em>, <em>actions</em>, <em>rewards</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EM.logposterior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the log-posterior probability function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray(nparams)</p>
+<blockquote>
+<div><p>Array of parameters for single subject</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote>
+<div><p>Array of states encountered by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.</p>
+</div></blockquote>
+<p><strong>actions: ndarray</strong></p>
+<blockquote>
+<div><p>Array of actions taken by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.</p>
+</div></blockquote>
+<p><strong>rewards</strong> : ndarray</p>
+<blockquote>
+<div><p>Array of rewards received by the subject. Number of rows should reflect number of trials. If there are multiple steps at which rewards are received, they should be stored in different columns, unless a custom likelihood funciton is used which does not require this.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<blockquote class="last">
+<div><p>Log-posterior probability</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fitr.EmpiricalPriors">
+<em class="property">class </em><code class="descclassname">fitr.</code><code class="descname">EmpiricalPriors</code><span class="sig-paren">(</span><em>loglik_func</em>, <em>params</em>, <em>name='EmpiricalPriorsModel'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EmpiricalPriors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inference procedure with empirical priors</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Name of the model being fit. We suggest using the free parameters.</td>
+</tr>
+<tr class="row-even"><td>loglik_func</td>
+<td>(function) The log-likelihood function to be used for model fitting</td>
+</tr>
+<tr class="row-odd"><td>params</td>
+<td>(list) List of parameters from the rlparams module</td>
+</tr>
+<tr class="row-even"><td>nparams</td>
+<td>(int) Number of free parameters in the model</td>
+</tr>
+<tr class="row-odd"><td>param_rng</td>
+<td>(list) List of strings denoting the parameter ranges (see rlparams module for further details)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="56%" />
+<col width="44%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>fit(data, n_iterations=1000, opt_algorithm=&#8217;BFGS&#8217;)</td>
+<td>Runs model-fitting algorithm</td>
+</tr>
+<tr class="row-even"><td>logposterior(x, states, actions, rewards)</td>
+<td>Computes the log-poseterior probability</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="fitr.EmpiricalPriors.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em>, <em>n_iterations=1000</em>, <em>c_limit=0.001</em>, <em>opt_algorithm='L-BFGS-B'</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EmpiricalPriors.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the maximum a posterior model-fitting with empirical priors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : dict</p>
+<blockquote>
+<div><p>Dictionary of data from all subjects.</p>
+</div></blockquote>
+<p><strong>n_iterations</strong> : int</p>
+<blockquote>
+<div><p>Maximum number of iterations to allow.</p>
+</div></blockquote>
+<p><strong>c_limit</strong> : float</p>
+<blockquote>
+<div><p>Threshold at which convergence is determined</p>
+</div></blockquote>
+<p><strong>opt_algorithm</strong> : {&#8216;L-BFGS-B&#8217;}</p>
+<blockquote>
+<div><p>Algorithm to use for optimization. Only works at present with L-BFGS-B.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool</p>
+<blockquote>
+<div><p>Whether to print progress of model fitting</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">fitrfit</p>
+<blockquote class="last">
+<div><p>Representation of the model fitting results</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.EmpiricalPriors.logposterior">
+<code class="descname">logposterior</code><span class="sig-paren">(</span><em>x</em>, <em>states</em>, <em>actions</em>, <em>rewards</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EmpiricalPriors.logposterior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the log-posterior probability function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray(nparams)</p>
+<blockquote>
+<div><p>Array of parameters for single subject</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote>
+<div><p>Array of states encountered by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.</p>
+</div></blockquote>
+<p><strong>actions: ndarray</strong></p>
+<blockquote>
+<div><p>Array of actions taken by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.</p>
+</div></blockquote>
+<p><strong>rewards</strong> : ndarray</p>
+<blockquote>
+<div><p>Array of rewards received by the subject. Number of rows should reflect number of trials. If there are multiple steps at which rewards are received, they should be stored in different columns, unless a custom likelihood funciton is used which does not require this.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<blockquote class="last">
+<div><p>Log-posterior probability</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fitr.MCMC">
+<em class="property">class </em><code class="descclassname">fitr.</code><code class="descname">MCMC</code><span class="sig-paren">(</span><em>generative_model=None</em>, <em>name='FitrMCMCModel'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.MCMC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses Markov-Chain Monte-Carlo (via PyStan) to estimate models</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Name of the model being fit</td>
+</tr>
+<tr class="row-even"><td>generative_model</td>
+<td>(GenerativeModel object)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="82%" />
+<col width="18%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>fit(self, data, chains=4, n_iterations=2000, warmup=None, thin=1, seed=None, init=&#8217;random&#8217;, sample_file=None, algorithm=&#8217;NUTS&#8217;, control=None, n_jobs=-1, compile_verbose=False, sampling_verbose=False)</td>
+<td>Runs the MCMC Inference procedure with Stan</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="fitr.MCMC.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em>, <em>chains=4</em>, <em>n_iterations=2000</em>, <em>warmup=None</em>, <em>thin=1</em>, <em>seed=None</em>, <em>init='random'</em>, <em>sample_file=None</em>, <em>algorithm='NUTS'</em>, <em>control=None</em>, <em>n_jobs=-1</em>, <em>compile_verbose=False</em>, <em>sampling_verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.MCMC.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the MCMC Inference procedure with Stan</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : dict</p>
+<blockquote>
+<div><p>Subject level data</p>
+</div></blockquote>
+<p><strong>chains</strong> : int &gt; 0</p>
+<blockquote>
+<div><p>Number of chains in sampler</p>
+</div></blockquote>
+<p><strong>n_iter</strong> : int</p>
+<blockquote>
+<div><p>How many iterations each chain should run (includes warmup)</p>
+</div></blockquote>
+<p><strong>warmup</strong> : int &gt; 0, iter//2 by default</p>
+<blockquote>
+<div><p>Number of warmup iterations.</p>
+</div></blockquote>
+<p><strong>thin</strong> : int &gt; 0</p>
+<blockquote>
+<div><p>Period for saving samples</p>
+</div></blockquote>
+<p><strong>seed</strong> : int or np.random.RandomState, optional</p>
+<blockquote>
+<div><p>Positive integer to initialize random number generation</p>
+</div></blockquote>
+<p><strong>sample_file</strong> : str</p>
+<blockquote>
+<div><p>File name specifying where samples for all parameters and other saved quantities will be written. If None, no samples will be written</p>
+</div></blockquote>
+<p><strong>algorithm</strong> : {&#8216;NUTS&#8217;, &#8216;HMC&#8217;, &#8216;Fixed_param&#8217;}, optional</p>
+<blockquote>
+<div><p>Which of Stan&#8217;s algorithms to implement</p>
+</div></blockquote>
+<p><strong>control</strong> : dict, optional</p>
+<blockquote>
+<div><p>Dictionary of parameters to control sampler&#8217;s behaviour (see PyStan documentation for details)</p>
+</div></blockquote>
+<p><strong>n_jobs</strong> : int, optional</p>
+<blockquote>
+<div><p>Sample in parallel. If -1, all CPU cores are used. If 1, no parallel computing is used</p>
+</div></blockquote>
+<p><strong>compile_verbose</strong> : bool</p>
+<blockquote>
+<div><p>Whether to print output from model compilation</p>
+</div></blockquote>
+<p><strong>sampling_verbose</strong> : bool</p>
+<blockquote>
+<div><p>Whether to print intermediate output from model sampling</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">fitrfit</p>
+<blockquote class="last">
+<div><p>Instance containing model fitting results</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>[1] PyStan API documentation (<a class="reference external" href="https://pystan.readthedocs.io">https://pystan.readthedocs.io</a>)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fitr.fitrfit">
+<em class="property">class </em><code class="descclassname">fitr.</code><code class="descname">fitrfit</code><span class="sig-paren">(</span><em>method</em>, <em>nsubjects</em>, <em>nparams</em>, <em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing the results of a fitrmodel fitting.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="95%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Model identifier. We suggest using free-parameters as identifiers</td>
+</tr>
+<tr class="row-even"><td>method</td>
+<td>(str) Method employed in optimization.</td>
+</tr>
+<tr class="row-odd"><td>nsubjects</td>
+<td>(int) Number of subjects fitted.</td>
+</tr>
+<tr class="row-even"><td>nparams</td>
+<td>(int) Number of free parameters in the fitted model.</td>
+</tr>
+<tr class="row-odd"><td>params</td>
+<td>(ndarray(shape=(nsubjects, nparams))) Array of parameter estimates</td>
+</tr>
+<tr class="row-even"><td>errs</td>
+<td>(ndarray(shape=(nsubjects, nparams))) Array of parameter estimate errors</td>
+</tr>
+<tr class="row-odd"><td>nlogpost</td>
+<td>(ndarray(shape=(nsubjects))) Subject level negative log-posterior probability</td>
+</tr>
+<tr class="row-even"><td>nloglik</td>
+<td>(float) Subject level negative log-likelihood</td>
+</tr>
+<tr class="row-odd"><td>LME</td>
+<td>(float) Log-model evidence</td>
+</tr>
+<tr class="row-even"><td>BIC</td>
+<td>(ndarray(shape=(nsubjects))) Subject-level Bayesian Information Criterion</td>
+</tr>
+<tr class="row-odd"><td>AIC</td>
+<td>(ndarray(shape=(nsubjects))) Subject-level Aikake Information Criterion</td>
+</tr>
+<tr class="row-even"><td>summary</td>
+<td>(DataFrame) Summary of means and standard deviations for each free parameter, as well as negative log-likelihood, log-model-evidence, BIC, and AIC for the model</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>set_paramnames(params) :</td>
+<td>Sets names of RL parameters to the fitrfit object</td>
+</tr>
+<tr class="row-even"><td>plot_ae(actual, show_figure=True, save_figure=False, filename=&#8217;actual-estimate.pdf&#8217;) :</td>
+<td>Plots estimated parameters against actual simulated parameters</td>
+</tr>
+<tr class="row-odd"><td>plot_fit_ts(show_figure=True, save_figure=False, filename=&#8217;fit-stats.pdf&#8217;) :</td>
+<td>Plots the evolution of log-likelihood, log-model-evidence, AIC, and BIC over optimization iterations</td>
+</tr>
+<tr class="row-even"><td>param_hist(show_figure=True, save_figure=False, filename=&#8217;param-hist.pdf&#8217;) :</td>
+<td>Plots hitograms of parameters in the model</td>
+</tr>
+<tr class="row-odd"><td>summary_table(write_csv=False, filename=&#8217;summary-table.csv&#8217;, delimiter=&#8217;,&#8217;) :</td>
+<td>Writes a CSV file with summary statistics from the present model</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="fitr.fitrfit.ae_metrics">
+<code class="descname">ae_metrics</code><span class="sig-paren">(</span><em>actual</em>, <em>matches=None</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit.ae_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes metrics summarizing the ability of the model to fit data generated from a known model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>matches</strong> : list</p>
+<blockquote>
+<div><p>List consisting of [rlparams object, column index in <cite>actual</cite>, column index in estimates]. Ensures comparisons are being made between the same parameters, particularly when the models have different numbers of free parameters.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">DataFrame</p>
+<blockquote class="last">
+<div><p>Including summary statistics of the parameter matching</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.fitrfit.param_hist">
+<code class="descname">param_hist</code><span class="sig-paren">(</span><em>show_figure=True</em>, <em>save_figure=False</em>, <em>filename='param-hist.pdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit.param_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots histograms of the parameter estimates</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>show_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to show figure output</p>
+</div></blockquote>
+<p><strong>save_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to save the figure to disk</p>
+</div></blockquote>
+<p><strong>filename</strong> : str</p>
+<blockquote class="last">
+<div><p>The file name to be output</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.fitrfit.plot_ae">
+<code class="descname">plot_ae</code><span class="sig-paren">(</span><em>actual</em>, <em>show_figure=True</em>, <em>save_figure=False</em>, <em>filename='actual-estimate.pdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit.plot_ae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots actual parameters (if provided) against estimates</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>actual</strong> : ndarray(shape=(nsubjects, nparams))</p>
+<blockquote>
+<div><p>Array of actual parameters from a simulation</p>
+</div></blockquote>
+<p><strong>show_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to show figure output</p>
+</div></blockquote>
+<p><strong>save_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to save the figure to disk</p>
+</div></blockquote>
+<p><strong>filename</strong> : str</p>
+<blockquote class="last">
+<div><p>The file name to be output</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.fitrfit.plot_fit_ts">
+<code class="descname">plot_fit_ts</code><span class="sig-paren">(</span><em>show_figure=True</em>, <em>save_figure=False</em>, <em>filename='fit-stats.pdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit.plot_fit_ts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the log-model-evidence, BIC, and AIC over optimization iterations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>show_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to show figure output</p>
+</div></blockquote>
+<p><strong>save_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to save the figure to disk</p>
+</div></blockquote>
+<p><strong>filename</strong> : str</p>
+<blockquote class="last">
+<div><p>The file name to be output</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.fitrfit.set_paramnames">
+<code class="descname">set_paramnames</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit.set_paramnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the names of the RL parameters to the fitrfit object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : list</p>
+<blockquote class="last">
+<div><p>List of parameters from the rlparams module</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.fitrfit.summary_table">
+<code class="descname">summary_table</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit.summary_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a table summarizing the model-fitting results</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fitr.fitrfit.trace_plot">
+<code class="descname">trace_plot</code><span class="sig-paren">(</span><em>figsize=[8, 8], show_figure=True, save_figure=False, filename='fitr-mcstan-traceplot.pdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrfit.trace_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Easy wrapper for Stan Traceplot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>figsize</strong> : array [width in inches, height in inches]</p>
+<blockquote>
+<div><p>Controls figure size</p>
+</div></blockquote>
+<p><strong>show_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to show figure output</p>
+</div></blockquote>
+<p><strong>save_figure</strong> : bool</p>
+<blockquote>
+<div><p>Whether to save the figure to disk</p>
+</div></blockquote>
+<p><strong>filename</strong> : str</p>
+<blockquote class="last">
+<div><p>The file name to be output</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fitr.fitrmodel">
+<em class="property">class </em><code class="descclassname">fitr.</code><code class="descname">fitrmodel</code><span class="sig-paren">(</span><em>name='Anon Model'</em>, <em>loglik_func=None</em>, <em>params=None</em>, <em>generative_model=None</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrmodel" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object representing a model to be fit to behavioural data. This should be viewed as a high level wrapper for multiple potential model fitting algorithms which themselves can be run by using their respective classes.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Name of the model. We suggest identifying model based on free parameters.</td>
+</tr>
+<tr class="row-even"><td>loglik_func</td>
+<td>(function) The log-likelihood function to be used to fit the data</td>
+</tr>
+<tr class="row-odd"><td>params</td>
+<td>(list) List of reinforcement learning parameter objects from the rlparams module.</td>
+</tr>
+<tr class="row-even"><td>generative_model</td>
+<td>(GenerativeModel object) Object representing a generative model</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="64%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>fit(data, method=&#8217;EM&#8217;, c_limit=0.01)</td>
+<td>Runs the specified model fitting algorithm with the given data.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="fitr.fitrmodel.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em>, <em>method='EM'</em>, <em>c_limit=0.01</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.fitrmodel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs model fitting</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : dict</p>
+<blockquote>
+<div><p>Behavioural data.</p>
+</div></blockquote>
+<p><strong>method</strong> : {&#8216;EM&#8217;, &#8216;MLE&#8217;, &#8216;MAP0&#8217;, &#8216;EmpiricalPriors&#8217;, &#8216;MCMC&#8217;}</p>
+<blockquote>
+<div><p>The inference algorithm to use. Note that the data formats for &#8216;MCMC&#8217; compared to the other methods is distinct, and should correspond appropriately to the method being employed</p>
+</div></blockquote>
+<p><strong>c_limit</strong> : float</p>
+<blockquote>
+<div><p>Limit at which convergence of log-posterior probability is determined (only for methods &#8216;EM&#8217; and &#8216;EmpiricalPriors&#8217;)</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool</p>
+<blockquote>
+<div><p>Controls amount of printed output during model fitting</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fitrfit</strong> : object</p>
+<blockquote class="last">
+<div><p>Representation of the model fitting results</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="model_selection.html" class="btn btn-neutral float-right" title="Model Selection" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Fitr API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -163,7 +944,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'dev1',
+            VERSION:'0.0.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
