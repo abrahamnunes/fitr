@@ -24,7 +24,7 @@
 Module containing log-likelihood functions for different models (as classes).
 """
 import numpy as np
-from utils import logsumexp
+from .utils import logsumexp
 
 # ------------------------------------------------------------------------------
 #
