@@ -34,7 +34,7 @@ from scipy.optimize import minimize
 from scipy.optimize import brute
 from scipy.stats import multivariate_normal as mvn
 
-from utils import trans_UC, BIC, AIC, LME
+from .utils import trans_UC, BIC, AIC, LME
 
 # ==============================================================================
 #
@@ -704,7 +704,7 @@ class MCMC(object):
     -------
     fit(self, data, chains=4, n_iterations=2000, warmup=None, thin=1, seed=None, init='random', sample_file=None, algorithm='NUTS', control=None, n_jobs=-1, compile_verbose=False, sampling_verbose=False)
         Runs the MCMC Inference procedure with Stan
-    
+
     """
     def __init__(self, generative_model=None, name='FitrMCMCModel'):
         self.name = name
