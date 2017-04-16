@@ -86,7 +86,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Fitr API</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Fitr</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fitr</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-documentation">Module Documentation</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="model_selection.html">Model Selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="loglik_functions.html">Log-Likelihood Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generative_models.html">Generative Models</a></li>
@@ -144,12 +148,27 @@
   <div class="section" id="module-fitr">
 <span id="fitr"></span><h1>Fitr<a class="headerlink" href="#module-fitr" title="Permalink to this headline">¶</a></h1>
 <p>Module containing model fitting objects.</p>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="huys2011" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Huys2011]</a></td><td>Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="huysemcode" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[HuysEMCode]</a></td><td>Quentin Huys&#8217; <cite>emfit.m</cite> code at <a class="reference external" href="https://bitbucket.org/fpetzschner/cpc2016/src">https://bitbucket.org/fpetzschner/cpc2016/src</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-documentation">
+<h2>Module Documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="fitr.EM">
 <em class="property">class </em><code class="descclassname">fitr.</code><code class="descname">EM</code><span class="sig-paren">(</span><em>loglik_func</em>, <em>params</em>, <em>name='EMModel'</em><span class="sig-paren">)</span><a class="headerlink" href="#fitr.EM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Expectation-Maximization with the Laplace Approximation</p>
-<p class="rubric">References</p>
-<p>[1] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).</p>
+<dd><p>Expectation-Maximization with the Laplace Approximation <a class="reference internal" href="#huys2011" id="id1">[Huys2011]</a>, <a class="reference internal" href="#huysemcode" id="id2">[HuysEMCode]</a>.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -293,8 +312,6 @@
 </tr>
 </tbody>
 </table>
-<p class="rubric">References</p>
-<p>[1] Quentin Huys&#8217; <cite>emfit.m</cite> code at <a class="reference external" href="https://bitbucket.org/fpetzschner/cpc2016/src">https://bitbucket.org/fpetzschner/cpc2016/src</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -586,7 +603,12 @@
 </tbody>
 </table>
 <p class="rubric">References</p>
-<p>[1] PyStan API documentation (<a class="reference external" href="https://pystan.readthedocs.io">https://pystan.readthedocs.io</a>)</p>
+<table class="docutils citation" frame="void" id="r1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[R1]</a></td><td>PyStan API documentation (<a class="reference external" href="https://pystan.readthedocs.io">https://pystan.readthedocs.io</a>)</td></tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -901,6 +923,7 @@
 
 </dd></dl>
 
+</div>
 </div>
 
 

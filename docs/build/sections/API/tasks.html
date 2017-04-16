@@ -32,7 +32,8 @@
   
     <link rel="top" title="fitr 0.0.1 documentation" href="../../index.html"/>
         <link rel="up" title="Fitr API" href="index.html"/>
-        <link rel="next" title="Utils" href="utils.html"/> 
+        <link rel="next" title="Utils" href="utils.html"/>
+        <link rel="prev" title="RLParams" href="rlparams.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -90,7 +91,11 @@
 <li class="toctree-l2"><a class="reference internal" href="loglik_functions.html">Log-Likelihood Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generative_models.html">Generative Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rlparams.html">RLParams</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-documentation">Module Documentation</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
@@ -143,6 +148,17 @@
   <div class="section" id="module-tasks">
 <span id="tasks"></span><h1>Tasks<a class="headerlink" href="#module-tasks" title="Permalink to this headline">¶</a></h1>
 <p>Module containing code to implement tasks with simulated subjects</p>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="daw2011" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Daw2011]</a></td><td>Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-documentation">
+<h2>Module Documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="tasks.SyntheticData">
 <em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">SyntheticData</code><a class="headerlink" href="#tasks.SyntheticData" title="Permalink to this definition">¶</a></dt>
@@ -310,9 +326,7 @@
 <dl class="class">
 <dt id="tasks.twostep">
 <em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">twostep</code><span class="sig-paren">(</span><em>ptrans=0.7, rewards=[1, 0]</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.twostep" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model of the two-step task (Daw et al. 2011).</p>
-<p class="rubric">References</p>
-<p>[1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215</p>
+<dd><p>Model of the two-step task <a class="reference internal" href="#daw2011" id="id1">[Daw2011]</a>.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -365,6 +379,7 @@
 </dd></dl>
 
 </div>
+</div>
 
 
            </div>
@@ -375,6 +390,8 @@
       
         <a href="utils.html" class="btn btn-neutral float-right" title="Utils" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="rlparams.html" class="btn btn-neutral" title="RLParams" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

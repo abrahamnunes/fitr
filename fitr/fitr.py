@@ -23,6 +23,14 @@
 
 """
 Module containing model fitting objects.
+
+References
+----------
+.. [Huys2011] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).
+.. [HuysEMCode] Quentin Huys' `emfit.m` code at https://bitbucket.org/fpetzschner/cpc2016/src
+
+Module Documentation
+--------------------
 """
 
 import warnings
@@ -141,7 +149,7 @@ class fitrmodel(object):
 # EXPECTATION-MAXIMIZATION METHOD
 class EM(object):
     """
-    Expectation-Maximization with the Laplace Approximation
+    Expectation-Maximization with the Laplace Approximation [Huys2011]_, [HuysEMCode]_.
 
     Attributes
     ----------
@@ -170,10 +178,6 @@ class EM(object):
         Computes the log-posterior probability
     group_level_estimate(param_est, hess_inv)
         Updates the hyperparameters of the group-level prior
-
-    References
-    ----------
-    [1] Huys, Q. J. M., et al. (2011). Disentangling the roles of approach, activation and valence in instrumental and pavlovian responding. PLoS Computational Biology, 7(4).
     """
     def __init__(self, loglik_func, params, name='EMModel'):
         self.name = name
@@ -420,9 +424,6 @@ class EM(object):
         verbose : bool
             Controls degree to which results are printed
 
-        References
-        ----------
-        [1] Quentin Huys' `emfit.m` code at https://bitbucket.org/fpetzschner/cpc2016/src
         """
         nsubjects = np.shape(param_est)[0]
 
@@ -748,7 +749,7 @@ class MCMC(object):
 
         References
         ----------
-        [1] PyStan API documentation (https://pystan.readthedocs.io)
+        .. [1] PyStan API documentation (https://pystan.readthedocs.io)
         """
 
         print('=============================================\n' +
