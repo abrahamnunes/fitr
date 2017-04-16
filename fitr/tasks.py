@@ -21,6 +21,9 @@
 #
 # ============================================================================
 
+"""
+Module containing code to implement tasks with simulated subjects
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -40,9 +43,9 @@ class SyntheticData(object):
 
     Methods
     -------
-    cumreward_param_plot :
+    cumreward_param_plot(self, alpha=0.9)
         Plots the cumulative reward against model parameters. Useful to determine the relationship between reward acquisition and model parameters for a given task.
-    plot_cumreward :
+    plot_cumreward(self)
         Plots the cumulative reward over time for each subject
     """
 
@@ -135,6 +138,11 @@ class bandit(object):
             Number of trials to run
         params : ndarray(shape=(nsubjects X nparams))
             Parameters for each subject
+
+        Returns
+        -------
+        SyntheticData
+
         """
 
         nsubjects = np.shape(params)[0]
@@ -202,25 +210,25 @@ class bandit(object):
 #
 #===============================================================================
 
-class ortho_gng(object):
-    """
-    Model of the orthogonalized go-nogo task from Guitart-Masip et al. (2012)
-
-    Attributes
-    ----------
-    rewards : list
-
-    References
-    ----------
-    [1] Guitart-Masip, M. et al. (2012) Go and no-go learning in reward and punishment: Interactions between affect and effect. Neuroimage 62, 154–166
-    """
-
-    def __init__(self, rewards=[1, 0, -1]):
-        self.rewards=rewards
-
-    def simulate(self, ntrials, params):
-        nsubjects = np.shape(params)[0]
-        pass
+#class ortho_gng(object):
+#    """
+#    Model of the orthogonalized go-nogo task from Guitart-Masip et al. (2012)
+#
+#    Attributes
+#    ----------
+#    rewards : list
+#
+#    References
+#    ----------
+#    [1] Guitart-Masip, M. et al. (2012) Go and no-go learning in reward and punishment: Interactions between affect and effect. Neuroimage 62, 154–166
+#    """
+#
+#    def __init__(self, rewards=[1, 0, -1]):
+#        self.rewards=rewards
+#
+#    def simulate(self, ntrials, params):
+#        nsubjects = np.shape(params)[0]
+#        pass
 
 
 #===============================================================================
@@ -241,18 +249,43 @@ class twostep(object):
 
     Methods
     -------
-    simulate
+    simulate(self, ntrials, params)
         Generates synthetic data from the task.
 
     References
     ----------
     [1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
     """
-
     def __init__(self, ptrans=0.7, rewards=[1, 0]):
+        """
+        Instantiates a likelihood function object for the two-step task
+
+        Parameters
+        ----------
+        ptrans : float between 0 and 1
+            The high transition probability
+        rewards : 2 X 1 list or ndarray
+            The reward and non-reward magnitudes, respectively
+
+        """
         self.ptrans = np.array([1 - ptrans, ptrans])
 
     def simulate(self, ntrials, params):
+        """
+        Simulates the task
+
+        Parameters
+        ----------
+        ntrials : int > 0
+            Number of trials to run
+        params : ndarray(shape=(nsubjects X nparams))
+            Parameters for each subject
+
+        Returns
+        -------
+        SyntheticData
+
+        """
 
         nsubjects = np.shape(params)[0]
 
@@ -348,9 +381,49 @@ class twostep(object):
 #=========================================================================
 
 def action(x):
+    """
+    Selects an action based on state-action values
+
+    Parameters
+    ----------
+    x : ndarray
+        Array of action values (scaled by inverse softmax temperature).
+
+    Returns
+    -------
+    int
+        The index corresponding to the selected action
+
+    Notes
+    -----
+    This function computes the softmax probability for each action in the input array, and subsequently samples from a multinomial distribution parameterized by the results of the softmax computation. Finally, it returns the index where the value is equal to 1 (i.e. which action was selected).
+
+    """
     p = np.exp(x) / np.sum(np.exp(x))
     return np.argmax(np.random.multinomial(1, pvals=p))
 
 
 def reward(a, paths):
+    """
+    Samples from a probability distribution over rewards
+
+    Parameters
+    ----------
+    a : int
+        The action that was selected at the time step
+    paths : ndarray(size=(n_actions))
+        Current reward probability for each action
+
+    Returns
+    -------
+    int (1 or 0)
+        Reward
+
+    Notes
+    -----
+    This function samples from a binomial distribution with n=1 (i.e.  Bernoulli distribution) parameterized by the probability of reward for the currently selected action.
+
+    .. math:: Binomial(n=1, p=P(reward|a_t))
+
+    """
     return np.random.binomial(1, p=paths[a])

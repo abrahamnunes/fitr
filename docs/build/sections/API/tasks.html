@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tasks &mdash; fitr dev1 documentation</title>
+  <title>Tasks &mdash; fitr 0.0.1 documentation</title>
   
 
   
@@ -30,9 +30,9 @@
   
 
   
-    <link rel="top" title="fitr dev1 documentation" href="../../index.html"/>
+    <link rel="top" title="fitr 0.0.1 documentation" href="../../index.html"/>
         <link rel="up" title="Fitr API" href="index.html"/>
-        <link rel="prev" title="Fitr API" href="index.html"/> 
+        <link rel="next" title="Utils" href="utils.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.0
+                0.0.1
               </div>
             
           
@@ -82,10 +82,16 @@
             
             
                 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Fitr API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fitr.html">Fitr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_selection.html">Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loglik_functions.html">Log-Likelihood Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generative_models.html">Generative Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rlparams.html">RLParams</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -136,17 +142,44 @@
             
   <div class="section" id="module-tasks">
 <span id="tasks"></span><h1>Tasks<a class="headerlink" href="#module-tasks" title="Permalink to this headline">¶</a></h1>
-<p>Classes representing each task</p>
+<p>Module containing code to implement tasks with simulated subjects</p>
 <dl class="class">
 <dt id="tasks.SyntheticData">
 <em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">SyntheticData</code><a class="headerlink" href="#tasks.SyntheticData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object representing synthetic data</p>
-<dl class="docutils">
-<dt>cumreward_param_plot :</dt>
-<dd>Plots the cumulative reward against model parameters. Useful to determine the relationship between reward acquisition and model parameters for a given task.</dd>
-<dt>plot_cumreward :</dt>
-<dd>Plots the cumulative reward over time for each subject</dd>
-</dl>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="8%" />
+<col width="92%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>data</td>
+<td>(dict) Dictionary containing data formatted for fitr&#8217;s model fitting tools (except MCMC via Stan)</td>
+</tr>
+<tr class="row-even"><td>data_mcmc</td>
+<td>(dict) Dictionary containing task data formatted for use with MCMC via Stan</td>
+</tr>
+<tr class="row-odd"><td>params</td>
+<td>(ndarray(shape=(nsubjects X nparams))) Subject parameters</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>cumreward_param_plot(self, alpha=0.9)</td>
+<td>Plots the cumulative reward against model parameters. Useful to determine the relationship between reward acquisition and model parameters for a given task.</td>
+</tr>
+<tr class="row-even"><td>plot_cumreward(self)</td>
+<td>Plots the cumulative reward over time for each subject</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="tasks.SyntheticData.plot_cumreward">
 <code class="descname">plot_cumreward</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tasks.SyntheticData.plot_cumreward" title="Permalink to this definition">¶</a></dt>
@@ -155,45 +188,180 @@
 
 </dd></dl>
 
+<dl class="function">
+<dt id="tasks.action">
+<code class="descclassname">tasks.</code><code class="descname">action</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects an action based on state-action values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>Array of action values (scaled by inverse softmax temperature).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>The index corresponding to the selected action</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This function computes the softmax probability for each action in the input array, and subsequently samples from a multinomial distribution parameterized by the results of the softmax computation. Finally, it returns the index where the value is equal to 1 (i.e. which action was selected).</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="tasks.bandit">
 <em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">bandit</code><span class="sig-paren">(</span><em>narms=2, rewards=[1, 0], rprob='stochastic', rprob_sd=0.025, rprob_bounds=[0.2, 0.8]</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.bandit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple one-step bandit task.</p>
-<dl class="docutils">
-<dt>narms</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">int</span><dd>Number of arms</dd>
-<dt>rewards</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">ndarray(shape=(2))</span><dd>First entry is the reward, if gained, and the second entry is the magnitude of the loss</dd>
-<dt>rprob</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">{ndarray(shape=(narms)), &#8216;stochastic&#8217;}</span><dd>Probabilty of reward for each arm of the task. One can either specify the probabilities for each arm or enter &#8216;stochastic,&#8217; which will vary the reward probability by a gaussian random walk</dd>
-</dl>
-<dl class="docutils">
-<dt>simulate(nsubjects,ntrials)</dt>
-<dd>Runs the task on simulated subjects</dd>
-</dl>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="3%" />
+<col width="97%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>narms</td>
+<td>(int) Number of arms</td>
+</tr>
+<tr class="row-even"><td>rewards</td>
+<td>(ndarray(shape=(2))) First entry is the reward, if gained, and the second entry is the magnitude of the loss</td>
+</tr>
+<tr class="row-odd"><td>rprob</td>
+<td>({ndarray(shape=(narms)), &#8216;stochastic&#8217;}) Probabilty of reward for each arm of the task. One can either specify the probabilities for each arm or enter &#8216;stochastic,&#8217; which will vary the reward probability by a gaussian random walk</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>simulate(nsubjects,ntrials)</td>
+<td>Runs the task on simulated subjects</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="tasks.bandit.simulate">
+<code class="descname">simulate</code><span class="sig-paren">(</span><em>ntrials</em>, <em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.bandit.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates the task</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ntrials</strong> : int &gt; 0</p>
+<blockquote>
+<div><p>Number of trials to run</p>
+</div></blockquote>
+<p><strong>params</strong> : ndarray(shape=(nsubjects X nparams))</p>
+<blockquote>
+<div><p>Parameters for each subject</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SyntheticData</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="class">
-<dt id="tasks.ortho_gng">
-<em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">ortho_gng</code><span class="sig-paren">(</span><em>rewards=[1, 0, -1]</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.ortho_gng" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model of the orthogonalized go-nogo task from Guitart-Masip et al. (2012)</p>
-<p>rewards : list</p>
-<p>[1] Guitart-Masip, M. et al. (2012) Go and no-go learning in reward and punishment: Interactions between affect and effect. Neuroimage 62, 154–166</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tasks.reward">
+<code class="descclassname">tasks.</code><code class="descname">reward</code><span class="sig-paren">(</span><em>a</em>, <em>paths</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.reward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples from a probability distribution over rewards</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : int</p>
+<blockquote>
+<div><p>The action that was selected at the time step</p>
+</div></blockquote>
+<p><strong>paths</strong> : ndarray(size=(n_actions))</p>
+<blockquote>
+<div><p>Current reward probability for each action</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int (1 or 0)</p>
+<blockquote class="last">
+<div><p>Reward</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This function samples from a binomial distribution with n=1 (i.e.  Bernoulli distribution) parameterized by the probability of reward for the currently selected action.</p>
+<div class="math">
+\[Binomial(n=1, p=P(reward|a_t))\]</div>
 </dd></dl>
 
 <dl class="class">
 <dt id="tasks.twostep">
 <em class="property">class </em><code class="descclassname">tasks.</code><code class="descname">twostep</code><span class="sig-paren">(</span><em>ptrans=0.7, rewards=[1, 0]</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.twostep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model of the two-step task (Daw et al. 2011).</p>
-<dl class="docutils">
-<dt>ptrans</dt>
- <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span><dd>Probability of transitioning from state 0 to either state 1 or 2 depending on the choice made at the first step of the task.</dd>
-</dl>
-<dl class="docutils">
-<dt>simulate</dt>
-<dd>Generates synthetic data from the task.</dd>
-</dl>
+<p class="rubric">References</p>
 <p>[1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="96%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>ptrans</td>
+<td>(ndarray) Probability of transitioning from state 0 to either state 1 or 2 depending on the choice made at the first step of the task.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>simulate(self, ntrials, params)</td>
+<td>Generates synthetic data from the task.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="tasks.twostep.simulate">
+<code class="descname">simulate</code><span class="sig-paren">(</span><em>ntrials</em>, <em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#tasks.twostep.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates the task</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ntrials</strong> : int &gt; 0</p>
+<blockquote>
+<div><p>Number of trials to run</p>
+</div></blockquote>
+<p><strong>params</strong> : ndarray(shape=(nsubjects X nparams))</p>
+<blockquote>
+<div><p>Parameters for each subject</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SyntheticData</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -205,8 +373,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utils" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="index.html" class="btn btn-neutral" title="Fitr API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -237,7 +405,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'dev1',
+            VERSION:'0.0.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

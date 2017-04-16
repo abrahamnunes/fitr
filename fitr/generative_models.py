@@ -21,6 +21,10 @@
 #
 # ============================================================================
 
+"""
+Module containing generative models (in the Stan language) for model fitting.
+"""
+
 class GenerativeModel(object):
     """
     Base class for generative models
@@ -43,7 +47,30 @@ class GenerativeModel(object):
 # ------------------------------------------------------------------------------
 
 class twostep(GenerativeModel):
+    """
+    Generative models for the two-step task [1].
+
+    Attributes
+    ----------
+    paramnames : dict
+        Dictionary containing 'long' names of the parameters, and 'code' names that reference how the parameter is labeled in the model code
+    model : str
+        Stan code for the model
+
+    References
+    ----------
+    [1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
+    """
     def __init__(self, model='lr_cr_w'):
+        """
+        Instantiates a generative model for the two step task
+
+        Parameters
+        ----------
+        model : {'lr_cr_w', 'lr_cr_et_w', 'lr_cr_et_w_p', 'lr_cr_w_p'}
+                Specifies which generative model the user wishes to fit, where
+                'lr' is a learning rate, 'cr' is choice randomness, 'et' is an eligibility trace, 'w' is the MB/MF balance, and 'p' is the perseveration parameter
+        """
 
         if model == 'lr_cr_w':
             self.paramnames = {
@@ -465,6 +492,16 @@ class twostep(GenerativeModel):
 # ------------------------------------------------------------------------------
 
 class bandit(GenerativeModel):
+    """
+    Generative models for the bandit task
+
+    Attributes
+    ----------
+    paramnames : dict
+                 Dictionary containing 'long' names of the parameters, and 'code' names that reference how the parameter is labeled in the model code
+    model : str
+            Stan code for the model
+    """
     def __init__(self, model='lr_cr'):
 
         if model == 'lr_cr':

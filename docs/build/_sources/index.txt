@@ -3,20 +3,32 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to fitr's documentation!
-================================
+Fitr: A toolbox for Computational Psychiatry Research
+=====================================================
 
-Contents:
+Fitr is a Python package to fit reinforcement learning models to
+behavioural data.
+
+Contents
+--------
 
 .. toctree::
    :maxdepth: 1
 
-   sections/quickstart/index
+   sections/installation/index
    sections/tutorial/index
    sections/API/index
 
+What we're working on
+---------------------
+
+* Adding new tasks and new models
+* Writing more tutorials
+* Improving existing model-fitting algorithms
+* Adding new model-fitting algorithms (Variational Bayes)
+
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

@@ -22,8 +22,9 @@
 # ============================================================================
 
 """
-Objects representing each parameter object
+Module containing commonly used reinforcement learning parameter objects.
 """
+
 import numpy as np
 import scipy.stats
 
@@ -50,7 +51,6 @@ class Param(object):
     sample(size=1)
         Samples from the parameter's distribution
 
-
     """
     def __init__(self, name=None, rng=None):
         self.name  = name
@@ -65,6 +65,11 @@ class Param(object):
         ----------
         size : int
             Number of samples to draw
+
+        Returns
+        -------
+        ndarray
+
         """
 
         return self.dist.rvs(size=size)
@@ -80,6 +85,11 @@ class LearningRate(Param):
     rng : {'unit', 'pos', 'neg', 'unc'}
         The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
     dist : scipy.stats.beta distribution
+
+    Methods
+    -------
+    sample(size=1)
+        Samples from the parameter's distribution
 
     """
     def __init__(self, name='Learning Rate', rng='unit', shape_alpha=1.1, shape_beta=1.1):
@@ -113,6 +123,11 @@ class RewardSensitivity(Param):
         The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
     dist : scipy.stats.beta distribution
 
+    Methods
+    -------
+    sample(size=1)
+        Samples from the parameter's distribution
+
     """
     def __init__(self, name='Reward Sensitivity', rng='unit', shape_alpha=1.1, shape_beta=1.1):
         """
@@ -145,6 +160,11 @@ class EligibilityTrace(Param):
         The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
     dist : scipy.stats.beta distribution
 
+    Methods
+    -------
+    sample(size=1)
+        Samples from the parameter's distribution
+
     """
     def __init__(self, name='Eligibility Trace', rng='unit', shape_alpha=1.1, shape_beta=1.1):
         """
@@ -176,6 +196,11 @@ class MBMF_Balance(Param):
     rng : {'unit', 'pos', 'neg', 'unc'}
         The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
     dist : scipy.stats.beta distribution
+
+    Methods
+    -------
+    sample(size=1)
+        Samples from the parameter's distribution
 
     """
     def __init__(self, name='Model-Based Control Weight', rng='unit', shape_alpha=1.1, shape_beta=1.1):
@@ -210,6 +235,11 @@ class ChoiceRandomness(Param):
         The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
     dist : scipy.stats.gamma distribution
 
+    Methods
+    -------
+    sample(size=1)
+        Samples from the parameter's distribution
+
     """
     def __init__(self, name='Choice Randomness', rng='pos', shape=5., scale=1.):
         """
@@ -241,6 +271,11 @@ class Perseveration(Param):
     rng : {'unit', 'pos', 'neg', 'unc'}
         The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
     dist : scipy.stats.norm distribution
+
+    Methods
+    -------
+    sample(size=1)
+        Samples from the parameter's distribution
 
     """
     def __init__(self, name='Perseveration', rng='unc', mean=0., sd=1.):

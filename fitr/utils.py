@@ -22,7 +22,7 @@
 # ============================================================================
 
 """
-Functions that are used across fitr modules
+Module containing functions that are used across Fitr modules
 """
 import numpy as np
 

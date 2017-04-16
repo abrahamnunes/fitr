@@ -20,22 +20,47 @@
 #    Email: nunes@dal.ca
 #
 # ============================================================================
-
 """
-Log-likelihood functions for each task.
+Module containing log-likelihood functions for different models (as classes).
 """
-
 import numpy as np
-from .utils import logsumexp
+from utils import logsumexp
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
 #   TWO-STEP TASK
 #       Log-likelihood functions for various models of the two-step task
 #
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 class twostep_ll(object):
+    """
+    Likelihood functions for the two-step task [1]
+
+    Attributes
+    ----------
+    ptrans : ndarray
+        Transition probabilities for the two step task.
+
+    Methods
+    -------
+    lr_cr_w(self, params, states, actions, rewards)
+        Model with learning rate, choice randomness, and MB/MF weight
+    lr_cr_w_p(self, params, states, actions, rewards)
+        Model with learning rate, choice randomness, MB/MF weight, and perseveration parameter
+    lr_cr_et_w_p(self, params, states, actions, rewards)
+        Model with learning rate, choice randomness, eligibility trace, MB/MF weight, and perseveration parameter
+    lr_cr_et_w(self, params, states, actions, rewards)
+        Model with learning rate, choice randomness, and MB/MF weight
+    lr2_cr3(self, params, states, actions, rewards)
+        Model with learning rates for step 1 and 2, choice randomness for both MB and MF, as well as a choice randomness parameter for second step
+    dummy(self, params, states, actions, rewards)
+        Model with only a choice randomness, and no learning.
+
+    References
+    ----------
+    [1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
+    """
     def __init__(self, ptrans=0.7, rewards=[1, 0]):
         self.ptrans = np.array([1-ptrans, ptrans])
 
@@ -321,6 +346,27 @@ class twostep_ll(object):
 #-------------------------------------------------------------------------------
 
 class bandit_ll(object):
+    """
+    Log-likelihood function for the bandit task.
+
+    Attributes
+    ----------
+    narms : int > 0
+        Number of arms in the bandit task
+
+    Methods
+    -------
+    lr_cr(self, params, states, actions, rewards)
+        Model with learning rate, and choice randomness
+    lr_cr_rs(self, params, states, actions, rewards)
+        Model with learning rate, choice randomness, and reward sensitivity
+    lrp_lrn_cr(self, params, states, actions, rewards)
+        Model with learning rate for positive RPE, learning rate for negative RPE, and a choice randomness parameter
+    lrp_lrn_cr_rs(self, params, states, actions, rewards)
+        Model with learning rate for positive RPE, learning rate for negative RPE, a choice randomness parameter, and reward sensitivity parameter
+    dummy(self, params, states, actions, rewards)
+        Model with no learning
+    """
     def __init__(self, narms=2):
         self.narms=narms
 

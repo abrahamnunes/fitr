@@ -49,6 +49,11 @@ class ModelSelectionResult(object):
     AIC : ndarray
         Aikake information criterion measures for each model
 
+    Methods
+    -------
+    plot(self, statistic, show_figure=True, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10))
+        Plots the results of model selection (bars)
+
     """
     def __init__(self, method):
         self.modelnames = []
@@ -70,6 +75,20 @@ class ModelSelectionResult(object):
             self.AIC = []
 
     def plot(self, statistic, show_figure=True, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10)):
+        """
+        Plots the results of model selection (bars)
+
+        Parameters
+        ----------
+        statistic : {'pxp', 'xp', 'BIC', 'AIC'}
+            Which statistic is desired for the bar plot
+        show_figure : bool
+        save_figure : bool
+        filename : str
+            The desired filename for the plot (must end in appropriate extension)
+        figsize : tuple, default (10, 10)
+
+        """
         if statistic=='pxp':
             bar_height = self.pxp
             plot_title = 'Protected Exceedance Probabilities'
@@ -111,6 +130,11 @@ class BIC(object):
     ----------
     modelfits : list
         List of fitrfit objects from completed model fitting
+
+    Methods
+    -------
+    run(self)
+        Runs model comparison by Bayesian Information Criterion
     """
     def __init__(self, model_fits):
         self.modelfits = model_fits
@@ -137,6 +161,12 @@ class AIC(object):
     ----------
     modelfits : list
         List of fitrfit objects from completed model fitting
+
+    Methods
+    -------
+    run(self)
+        Runs model comparison by Aikake Information Criterion
+
     """
     def __init__(self, model_fits):
         self.modelfits = model_fits
@@ -172,11 +202,16 @@ class BMS(object):
 
     Methods
     -------
-    run
-        Runs the Bayesian model selection algorithm
-    dirichlet_exceedance
+    run(self)
+        Runs model comparison by Bayesian Model Selection
+    dirichlet_exceedance(self, alpha)
         Computes exceedance probabilities for a Dirichlet distribution
-
+    BOR(self, L, posterior, priors, C=None)
+        Computes Bayes Omnibus Risk (BOR)
+    FE(self, L, posterior, priors)
+        Derives free energy for current approximate posterior distribution
+    FE_null(self, L, options):
+        Derives the free energy of the 'null' hypothesis
 
     References
     ----------
@@ -285,11 +320,11 @@ class BMS(object):
 
         Parameters
         ----------
-        alpha :
+        alpha : float [0-1]
 
         Returns
         -------
-        xp :
+        xp
             Exceedance probabilities
 
         References
@@ -331,14 +366,14 @@ class BMS(object):
 
         Parameters
         ----------
-        L :
-        posterior:
-        priors:
-        C:
+        L
+        posterior
+        priors
+        C
 
         Returns
         -------
-        bor :
+        bor
             Bayesian omnibus risk
 
         References
@@ -372,18 +407,19 @@ class BMS(object):
 
         Parameters
         ----------
-        L :
-        posterior :
-        priors :
+        L
+            Log model-evidence
+        posterior : dict
+        priors : dict
 
         Returns
         -------
-        F :
+        F
             Free energy of the current posterior
 
         References
         ----------
-        [1] Rigoux L., Daunizeau J. _VBA Toolbox_
+        [1] Rigoux L., Daunizeau J. VBA Toolbox
         """
         nmodels, nsubjects = np.shape(L)
         a0 = np.sum(posterior['a'])
@@ -414,14 +450,15 @@ class BMS(object):
 
         Parameters
         ----------
-        L :
-        options :
+        L
+            Log model evidence
+        options : dict
 
         Returns
         -------
-        F0m :
+        F0m
             Evidence for the null (i.e. equal probabilities) over models
-        F0f :
+        F0f
             Evidence for the null (i.e. equal probabilities) over families
 
         References
