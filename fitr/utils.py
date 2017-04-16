@@ -23,23 +23,74 @@
 
 """
 Module containing functions that are used across Fitr modules
+
+References
+----------
+.. [Akam2015] Akam, T. et al. (2015) Simple Plans or Sophisticated Habits? State, Transition and Learning Interactions in the Two-Step Task. PLoS Comput. Biol. 11, 1–25
+
+Module Documentation
+--------------------
 """
 import numpy as np
 
 def softmax(x):
+    """
+    Computes numerically stable softmax
+
+    Parameters
+    ----------
+    x : ndarray(shape=(nactions))
+
+    Returns
+    -------
+    ndarray(shape=(nactions))
+        Softmax probabilities for each action
+
+    """
     xmax = np.max(x)
     return np.exp(x-xmax)/np.sum(np.exp(x-xmax))
 
 def logsumexp(x):
     """
     Numerically stable logsumexp.
+
+    Parameters
+    ----------
+    x : ndarray(shape=(nactions))
+
+    Returns
+    -------
+    float
+
+    Notes
+    -----
+    The numerically stable log-sum-exp is computed as follows:
+
+    .. math:: \max X + \log \sum_X e^{X - \max X}
     """
     xmax = np.max(x)
     y = xmax + np.log(np.sum(np.exp(x-xmax)))
     return y
 
 def trans_UC(values_U, rng):
-    'Transform parameters from unconstrained to constrained space.'
+    """
+    Transforms parameters from unconstrained to constrained space
+
+    Parameters
+    ----------
+    values_U : ndarray
+        Parameter values
+    rng : {'unit', 'pos', 'half', 'all_unc'}
+        The constrained range of the parameter
+
+    Returns
+    -------
+    ndarray(shape=(nparams))
+
+    Notes
+    -----
+    This code was taken from that published along with [Akam2015]_.
+    """
     if rng[0] == 'all_unc':
         return values_U
     values_T = []
@@ -63,17 +114,56 @@ def trans_UC(values_U, rng):
 def BIC(loglik, nparams, nsteps):
     """
     Calculates Bayesian information criterion
+
+    Parameters
+    ----------
+    loglik : float or ndarray(dtype=float)
+        Log-likelihood
+    nparams : int
+        Number of parameters in the model
+    nsteps : int
+        Number of time steps in the task
+
+    Returns
+    -------
+    float or ndarray(dtype=float)
+
     """
     return nparams*np.log(nsteps) - 2*loglik
 
 def AIC(nparams, loglik):
     """
     Calculates Aikake information criterion
+
+    Parameters
+    ----------
+    nparams : int
+        Number of parameters in the model
+    loglik : float or ndarray(dtype=float)
+        Log-likelihood
+
+    Returns
+    -------
+    float or ndarray(dtype=float)
+
     """
     return 2*nparams - 2*loglik
 
 def LME(logpost, nparams, hessian):
     """
     Calculates log-model-evidence (LME)
+
+    Parameters
+    ----------
+    logpost : float or ndarray(dtype=float)
+        Log-posterior probability
+    nparams : int
+        Number of parameters in the model
+    hessian : ndarray(size=(nparams, nparams))
+        Hessian computed from parameter optimization
+
+    Returns
+    -------
+    float or ndarray(dtype=float)
     """
     return logpost + (nparams/2)*np.log(2*np.pi)-np.log(np.linalg.det(hessian))/2

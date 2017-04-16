@@ -23,6 +23,13 @@
 
 """
 Module containing code to implement tasks with simulated subjects
+
+References
+----------
+.. [Daw2011] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
+
+Module Documentation
+--------------------
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -240,7 +247,7 @@ class bandit(object):
 
 class twostep(object):
     """
-    Model of the two-step task (Daw et al. 2011).
+    Model of the two-step task [Daw2011]_.
 
     Attributes
     ----------
@@ -252,9 +259,6 @@ class twostep(object):
     simulate(self, ntrials, params)
         Generates synthetic data from the task.
 
-    References
-    ----------
-    [1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
     """
     def __init__(self, ptrans=0.7, rewards=[1, 0]):
         """

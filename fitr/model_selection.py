@@ -23,6 +23,15 @@
 
 """
 Functions for model selection/comparison.
+
+References
+----------
+.. [RigouxVBA] Rigoux L., Daunizeau J. VBA Toolbox
+.. [RigouxBMS] Rigoux, L. et al. (2014) Neuroimage 84, 971–985
+.. [GershmanMfit] Samuel Gershman's mfit package (on GitHub)
+
+Module Documentation 
+--------------------
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -187,7 +196,7 @@ class AIC(object):
 
 class BMS(object):
     """
-    Bayesian model selection
+    Bayesian model selection [RigouxBMS]_.
 
     Attributes
     ----------
@@ -212,11 +221,6 @@ class BMS(object):
         Derives free energy for current approximate posterior distribution
     FE_null(self, L, options):
         Derives the free energy of the 'null' hypothesis
-
-    References
-    ----------
-    [1] Rigoux, L. et al. (2014) Neuroimage 84, 971–985
-    [2] Samuel Gershman's _mfit_ package (on GitHub)
     """
     def __init__(self, model_fits, c_limit=10e-100):
         self.modelfits = model_fits
@@ -327,9 +331,9 @@ class BMS(object):
         xp
             Exceedance probabilities
 
-        References
-        ----------
-        [1] Samuel Gershman's _mfit_ package (on GitHub)
+        Notes
+        -----
+        Implemented as in [GershmanMfit]_.
         """
 
         nsamples = 1e6
@@ -376,9 +380,10 @@ class BMS(object):
         bor
             Bayesian omnibus risk
 
-        References
-        ----------
-        [1] Samuel Gershman's _mfit_ package (on GitHub)
+        Notes
+        -----
+        As in [GershmanMfit]_.
+
         """
 
         if C is None:
@@ -403,7 +408,7 @@ class BMS(object):
 
     def FE(self, L, posterior, priors):
         """
-        Derives free energy for current approximate posterior distribution
+        Derives free energy for current approximate posterior distribution [RigouxVBA]_.
 
         Parameters
         ----------
@@ -416,10 +421,6 @@ class BMS(object):
         -------
         F
             Free energy of the current posterior
-
-        References
-        ----------
-        [1] Rigoux L., Daunizeau J. VBA Toolbox
         """
         nmodels, nsubjects = np.shape(L)
         a0 = np.sum(posterior['a'])
@@ -460,10 +461,6 @@ class BMS(object):
             Evidence for the null (i.e. equal probabilities) over models
         F0f
             Evidence for the null (i.e. equal probabilities) over families
-
-        References
-        ----------
-        [1] Rigoux L., Daunizeau J. _VBA Toolbox_
         """
         nmodels, nsubjects = np.shape(L)
         if options['families'] is True:

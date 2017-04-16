@@ -23,6 +23,13 @@
 
 """
 Module containing generative models (in the Stan language) for model fitting.
+
+References
+----------
+.. [Daw2011] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
+
+Module Documentation
+--------------------
 """
 
 class GenerativeModel(object):
@@ -48,7 +55,7 @@ class GenerativeModel(object):
 
 class twostep(GenerativeModel):
     """
-    Generative models for the two-step task [1].
+    Generative models for the two-step task [Daw2011]_.
 
     Attributes
     ----------
@@ -56,10 +63,6 @@ class twostep(GenerativeModel):
         Dictionary containing 'long' names of the parameters, and 'code' names that reference how the parameter is labeled in the model code
     model : str
         Stan code for the model
-
-    References
-    ----------
-    [1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
     """
     def __init__(self, model='lr_cr_w'):
         """

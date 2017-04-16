@@ -23,6 +23,9 @@
 
 """
 Module containing commonly used reinforcement learning parameter objects.
+
+Module Documentation
+--------------------
 """
 
 import numpy as np

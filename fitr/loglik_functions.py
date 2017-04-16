@@ -22,6 +22,13 @@
 # ============================================================================
 """
 Module containing log-likelihood functions for different models (as classes).
+
+References
+----------
+.. [Daw2011] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
+
+Module Documentation
+--------------------
 """
 import numpy as np
 from .utils import logsumexp
@@ -35,7 +42,7 @@ from .utils import logsumexp
 
 class twostep_ll(object):
     """
-    Likelihood functions for the two-step task [1]
+    Likelihood functions for the two-step task [Daw2011]_.
 
     Attributes
     ----------
@@ -56,10 +63,6 @@ class twostep_ll(object):
         Model with learning rates for step 1 and 2, choice randomness for both MB and MF, as well as a choice randomness parameter for second step
     dummy(self, params, states, actions, rewards)
         Model with only a choice randomness, and no learning.
-
-    References
-    ----------
-    [1] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
     """
     def __init__(self, ptrans=0.7, rewards=[1, 0]):
         self.ptrans = np.array([1-ptrans, ptrans])
