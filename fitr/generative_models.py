@@ -274,7 +274,7 @@ class twostep(GenerativeModel):
                           'Choice Randomness',
                           'Model-Based Weight',
                           'Perseveration'],
-                'code' : ['lr', 'cr', 'w', 'p']
+                'code' : ['lr', 'cr', 'w', 'persev']
             }
             self.model = """
                 data {
@@ -383,7 +383,7 @@ class twostep(GenerativeModel):
                           'Eligibility Trace',
                           'Model-Based Weight',
                           'Perseveration'],
-                'code' : ['lr', 'cr', 'et', 'w', 'p']
+                'code' : ['lr', 'cr', 'et', 'w', 'persev']
             }
             self.model = """
                 data {
