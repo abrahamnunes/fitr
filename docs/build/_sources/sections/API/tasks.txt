@@ -1,5 +1,0 @@
-Tasks
-=====
-
-.. automodule:: tasks
-    :members:

@@ -42,7 +42,7 @@ from scipy.optimize import minimize
 from scipy.optimize import brute
 from scipy.stats import multivariate_normal as mvn
 
-from .utils import trans_UC, BIC, AIC, LME
+from utils import trans_UC, BIC, AIC, LME
 
 # ==============================================================================
 #

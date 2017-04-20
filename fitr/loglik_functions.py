@@ -31,7 +31,7 @@ Module Documentation
 --------------------
 """
 import numpy as np
-from .utils import logsumexp
+from utils import logsumexp
 
 # ------------------------------------------------------------------------------
 #
