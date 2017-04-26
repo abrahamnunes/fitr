@@ -1,12 +1,9 @@
 .. -*- mode: rst -*-
 
-|Build|_ |Documentation|_ |PyPI|_ |Codecov|_ |Health|_ |DOI|_
+|Build|_ |PyPI|_ |Codecov|_ |Health|_ |DOI|_
 
 .. |Build| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
 .. _Build: https://travis-ci.org/ComputationalPsychiatry/fitr
-
-.. |Documentation| image:: https://readthedocs.com/projects/computationalpsychiatry-fitr/badge/?version=latest
-.. _Documentation: https://computationalpsychiatry-fitr.readthedocs-hosted.com/en/latest/?badge=latest
 
 .. |PyPI| image:: https://badge.fury.io/py/fitr.svg
 .. _PyPI: https://badge.fury.io/py/fitr
@@ -36,6 +33,11 @@ The current PyPI release of Fitr can be installed as follows::
 If you want the latest version on the GitHub master branch, install as follows::
 
     pip install git+https://github.com/ComputationalPsychiatry/fitr.git
+
+Documentation
+-------------
+
+`Fitr documentation <https://computationalpsychiatry.github.io/fitr/>`_ is hosted on GitHub Pages.
 
 Tutorials
 ---------
