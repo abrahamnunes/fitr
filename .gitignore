@@ -63,6 +63,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/build/
 
 # PyBuilder
 target/
@@ -92,3 +93,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+#sensitive info
+.pypirc
