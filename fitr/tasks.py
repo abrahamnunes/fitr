@@ -164,10 +164,10 @@ class bandit(object):
 
         for i in range(0, nsubjects):
             paths = np.random.uniform(
-                path_min, path_max, size=[ntrials + 1, 2])
+                path_min, path_max, size=[ntrials + 1, self.narms])
 
             # initialize subject-level value table
-            Q = np.zeros(2)
+            Q = np.zeros(self.narms)
             lr = params[i, 0]
             cr = params[i, 1]
 
@@ -191,7 +191,7 @@ class bandit(object):
                 results.data[i]['RPE'][t] = rpe
 
                 # update reward probabilities
-                rand_step = np.random.normal(0, path_sd, size=2)
+                rand_step = np.random.normal(0, path_sd, size=self.narms)
                 paths[
                     t + 1, :] = np.maximum(np.minimum(paths[t, :] + rand_step, path_max), path_min)
 
