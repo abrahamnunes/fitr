@@ -77,6 +77,72 @@ class Param(object):
 
         return self.dist.rvs(size=size)
 
+    def convert_meansd(self, mean, sd, dist):
+        """
+        Converts mean and standard deviation to other distribution parameters.
+
+        Parameters
+        ----------
+        mean : float
+            Mean value for distribution (must lie within region of support)
+        sd : float
+            Standard deviation for distribution
+        dist : {'beta', 'gamma'}
+            Target distribution
+
+        Notes
+        -----
+        Currently, only the gamma and beta distributions are supported for this function.
+
+        The Beta distribution has two shape parameters :math:`\lbrace \alpha, \beta \rbrace > 0`. Using the mean :math:`\mu` and the standard deviation :math:`\sigma`, the :math:`\alpha` parameter can be calculated as
+
+        .. math::
+
+            \alpha = (\frac{1-\mu}{\sigma^2} - \frac{1}{\mu})\mu^2,
+
+        and the :math:`\beta` parameter as
+
+        .. math::
+
+            \beta = \alpha (\frac{1}{\mu} - 1).
+
+        Note that for the Beta distribution to be defined this way, the following constraint must hold for the mean, :math:`0 < \mu < 1, and the following for the variance, :math:`0 < \sigma^2 \leq \mu - \mu^2`
+
+        For the Gamma distribution, we have a shape parameter :math:`\kappa > 0` and a scale parameter :math:`\theta`. These can be calculated using the mean :math:`\mu` and standard deviation :math:`\sigma` as
+
+        .. math::
+
+            \theta = \frac{\sigma^2}{\mu},
+
+        and
+
+        .. math::
+
+            \kappa = \frac{\mu^2}{\sigma^2}
+        """
+
+        if sd <= 0:
+            raise ValueError('Standard deviation must be greater than 0.')
+        else:
+            if dist == 'beta':
+                if mean <= 0 or mean >= 1:
+                    raise ValueError('Mean for beta distribution must lie between 0 and 1.')
+                elif sd**2 >= (mean - mean**2):
+                    raise ValueError('Standard deviation must be greater than zero, but less than (mean - mean^2).')
+                else:
+                    shape_alpha =((1-mean)/(sd**2) - 1/mean)*mean**2
+                    shape_beta = shape_alpha*(1/mean - 1)
+                    self.dist = scipy.stats.beta(shape_alpha, shape_beta)
+            elif dist == 'gamma':
+                if mean <= 0:
+                    raise ValueError('Mean for gamma distribution must be greater than 0.')
+                else:
+                    shape_kappa = mean**2/sd**2
+                    shape_theta = sd**2/mean
+                    self.dist = scipy.stats.gamma(shape_kappa, shape_theta)
+            else:
+                raise ValueError('Only beta and gamma distributions are supported. Please see documentation for details.')
+
 class LearningRate(Param):
     """
     A learning rate object.
@@ -95,7 +161,7 @@ class LearningRate(Param):
         Samples from the parameter's distribution
 
     """
-    def __init__(self, name='Learning Rate', rng='unit', shape_alpha=1.1, shape_beta=1.1):
+    def __init__(self, name='Learning Rate', rng='unit', mean=0.5, sd=0.27):
         """
         Instantiates the Parameter
 
@@ -105,14 +171,15 @@ class LearningRate(Param):
             Name of the parameter. To be used for plots and so forth.
         rng : {'unit', 'pos', 'neg', 'unc'}
             The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
-        shape_alpha : float over domain [0, +Inf]
-            The alpha parameter of the beta distribution
-        shape_beta : float over domain [0, +Inf]
-            The beta parameter of the beta distribution
+        mean : float on interval (0, 1)
+            Mean of the distribution
+        sd : float on interval (0, +Inf)
+            Standard deviation of the distribution
         """
         self.name = name
         self.rng  = rng
-        self.dist = scipy.stats.beta(shape_alpha, shape_beta)
+
+        self.convert_meansd(mean=mean, sd=sd, dist='beta')
 
 class RewardSensitivity(Param):
     """
@@ -132,7 +199,7 @@ class RewardSensitivity(Param):
         Samples from the parameter's distribution
 
     """
-    def __init__(self, name='Reward Sensitivity', rng='unit', shape_alpha=1.1, shape_beta=1.1):
+    def __init__(self, name='Reward Sensitivity', rng='unit', mean=0.5, sd=0.27):
         """
         Instantiates the Parameter
 
@@ -142,14 +209,15 @@ class RewardSensitivity(Param):
             Name of the parameter. To be used for plots and so forth.
         rng : {'unit', 'pos', 'neg', 'unc'}
             The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
-        shape_alpha : float over domain [0, +Inf]
-            The alpha parameter of the beta distribution
-        shape_beta : float over domain [0, +Inf]
-            The beta parameter of the beta distribution
+        mean : float on interval (0, 1)
+            Mean of the distribution
+        sd : float on interval (0, +Inf)
+            Standard deviation of the distribution
         """
         self.name = name
         self.rng  = rng
-        self.dist = scipy.stats.beta(shape_alpha, shape_beta)
+
+        self.convert_meansd(mean=mean, sd=sd, dist='beta')
 
 class EligibilityTrace(Param):
     """
@@ -169,7 +237,7 @@ class EligibilityTrace(Param):
         Samples from the parameter's distribution
 
     """
-    def __init__(self, name='Eligibility Trace', rng='unit', shape_alpha=1.1, shape_beta=1.1):
+    def __init__(self, name='Eligibility Trace', rng='unit', mean=0.5, sd=0.27):
         """
         Instantiates the Parameter
 
@@ -179,14 +247,15 @@ class EligibilityTrace(Param):
             Name of the parameter. To be used for plots and so forth.
         rng : {'unit', 'pos', 'neg', 'unc'}
             The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
-        shape_alpha : float over domain [0, +Inf]
-            The alpha parameter of the beta distribution
-        shape_beta : float over domain [0, +Inf]
-            The beta parameter of the beta distribution
+        mean : float on interval (0, 1)
+            Mean of the distribution
+        sd : float on interval (0, +Inf)
+            Standard deviation of the distribution
         """
         self.name = name
         self.rng  = rng
-        self.dist = scipy.stats.beta(shape_alpha, shape_beta)
+
+        self.convert_meansd(mean=mean, sd=sd, dist='beta')
 
 class MBMF_Balance(Param):
     """
@@ -206,7 +275,7 @@ class MBMF_Balance(Param):
         Samples from the parameter's distribution
 
     """
-    def __init__(self, name='Model-Based Control Weight', rng='unit', shape_alpha=1.1, shape_beta=1.1):
+    def __init__(self, name='Model-Based Control Weight', rng='unit', mean=0.5, sd=0.27):
         """
         Instantiates the Parameter
 
@@ -216,15 +285,15 @@ class MBMF_Balance(Param):
             Name of the parameter. To be used for plots and so forth.
         rng : {'unit', 'pos', 'neg', 'unc'}
             The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
-        shape_alpha : float over domain [0, +Inf]
-            The alpha parameter of the beta distribution
-        shape_beta : float over domain [0, +Inf]
-            The beta parameter of the beta distribution
+        mean : float on interval (0, 1)
+            Mean of the distribution
+        sd : float on interval (0, +Inf)
+            Standard deviation of the distribution
         """
-
         self.name = name
         self.rng  = rng
-        self.dist = scipy.stats.beta(shape_alpha, shape_beta)
+
+        self.convert_meansd(mean=mean, sd=sd, dist='beta')
 
 class ChoiceRandomness(Param):
     """
@@ -244,7 +313,7 @@ class ChoiceRandomness(Param):
         Samples from the parameter's distribution
 
     """
-    def __init__(self, name='Choice Randomness', rng='pos', shape=5., scale=1.):
+    def __init__(self, name='Choice Randomness', rng='pos', mean=4, sd=1):
         """
         Instantiates the Parameter
 
@@ -254,14 +323,15 @@ class ChoiceRandomness(Param):
             Name of the parameter. To be used for plots and so forth.
         rng : {'unit', 'pos', 'neg', 'unc'}
             The domain over which the parameter lies (unit=[0,1], pos=[0,+Inf], neg=[-Inf,0], unc=[-Inf, +Inf])
-        shape : float over domain [0, +Inf]
-            The shape parameter of the gamma distribution
-        scale : float over domain [0, +Inf]
-            The scale parameter of the gamma distribution
+        mean : float on interval (0, +Inf)
+            Mean of the distribution
+        sd : float on interval (0, +Inf)
+            Standard deviation of the distribution
         """
         self.name = name
         self.rng  = rng
-        self.dist = scipy.stats.gamma(shape, scale)
+
+        self.convert_meansd(mean=mean, sd=sd, dist='gamma')
 
 class Perseveration(Param):
     """
@@ -299,7 +369,6 @@ class Perseveration(Param):
         self.name = name
         self.rng  = rng
         self.dist = scipy.stats.norm(loc=mean, scale=sd)
-
 
 # ==============================================================================
 #
