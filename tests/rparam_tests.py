@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import pytest
 import fitr
 import numpy as np
 import scipy
@@ -27,3 +27,19 @@ def test_paramsampling():
 	assert(np.size(w.sample(size=nsubj)) == nsubj)
 	assert(np.size(cr.sample(size=nsubj)) == nsubj)
 	assert(np.size(ps.sample(size=nsubj)) == nsubj)
+
+# Test that param specification errors run well
+def test_paramspec_errors():
+	prm = fitr.rlparams.LearningRate()
+	with pytest.raises(Exception):
+		fitr.rlparams.LearningRate(mean=0.5, sd=-1)
+		fitr.rlparams.LearningRate(mean=0.5, sd=0)
+		fitr.rlparams.LearningRate(mean=-0.5, sd=0.1)
+		fitr.rlparams.LearningRate(mean=0, sd=0.1)
+		fitr.rlparams.LearningRate(mean=1, sd=0.1)
+		fitr.rlparams.LearningRate(mean=1.5, sd=0.1)
+		fitr.rlparams.LearningRate(mean=0.4, sd=0.49)
+		fitr.rlparams.ChoiceRandomness(mean=-1, sd=2)
+		fitr.rlparams.ChoiceRandomness(mean=0, sd=2)
+
+		prm.convert_meansd(mean=0.5, sd=0.1, dist='normal')

@@ -6,6 +6,7 @@ import fitr.twostep as task
 def test_param_plot_pdf():
     LearningRate(mean=0.5, sd=0.2).plot_pdf(show_figure=False)
     ChoiceRandomness(mean=4.5, sd=2).plot_pdf(show_figure=False)
+    Perseveration().plot_pdf(show_figure=False)
 
     with pytest.raises(Exception):
         LearningRate().plot_pdf(xlim=[1, 0], show_figure=False)
