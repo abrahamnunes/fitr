@@ -27,10 +27,19 @@ def test_em():
 	assert(model.loglik_func == likfun)
 
 	mfit = model.fit(data=res.data)
+	mfit2 = model.fit(data=res.data,
+					  opt_algorithm='BFGS',
+					  init_grid=True,
+					  grid_reinit=True,
+					  n_grid_points=5,
+					  n_reinit=1,
+					  dofull=False,
+					  early_stopping=False,
+					  verbose=False)
 
-	mfit.plot_ae(actual=res.params)
-	mfit.plot_fit_ts()
-	mfit.param_hist()
+	mfit.plot_ae(actual=res.params, show_figure=False)
+	mfit.plot_fit_ts(show_figure=False)
+	mfit.param_hist(show_figure=False)
 
 	assert(mfit.name == 'EMModel')
 	assert(mfit.method == 'Expectation-Maximization')
@@ -71,6 +80,9 @@ def test_empirical_priors():
 	assert(model.loglik_func == likfun)
 
 	mfit = model.fit(data=res.data)
+	mfit2 = model.fit(data=res.data,
+					  opt_algorithm='BFGS',
+					  verbose=False)
 
 	assert(mfit.name == 'EPModel')
 	assert(mfit.method == 'Empirical Priors')
@@ -112,7 +124,7 @@ def test_mcmc():
 	assert(model.generative_model == banditgm)
 
 	lrcr = model.fit(data=taskresults.data_mcmc, n_iterations=10)
-	lrcr.trace_plot()
+	lrcr.trace_plot(show_figure=False)
 
 	assert(lrcr.name == 'FitrMCMCModel')
 	assert(lrcr.method == 'MCMC')
