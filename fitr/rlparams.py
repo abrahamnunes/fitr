@@ -169,16 +169,27 @@ class Param(object):
                 ub = 1
             if self.rng == 'pos':
                 lb = 0
-                ub = self.dist.mean() + 4*self.dist.std()
+                ub = self.dist.mean() + 6*self.dist.std()
             if self.rng == 'neg':
-                lb = self.dist.mean() - 4*self.dist.std()
+                lb = self.dist.mean() - 6*self.dist.std()
                 ub = 0
             if self.rng == 'unc':
-                lb = self.dist.mean() - 4*self.dist.std()
-                ub = self.dist.mean() + 4*self.dist.std()
+                lb = self.dist.mean() - 6*self.dist.std()
+                ub = self.dist.mean() + 6*self.dist.std()
         else:
             lb = xlim[0]
             ub = xlim[1]
+            if lb > ub:
+                raise ValueError('Lower bound must be lower than upper bound on plotting range.')
+            if self.rng == 'unit':
+                if lb < 0 or ub > 1 or ub < 0:
+                    raise ValueError('Plotting range for parameters on the unit interval must have bounds between 0 and 1')
+            elif self.rng == 'pos':
+                if lb < 0 or ub < 0:
+                    raise ValueError('Bounds of plotting range for a parameter on positive real line must both be >=0.')
+            elif self.rng == 'neg':
+                if lb > 0 or ub > 0:
+                    raise ValueError('Bounds of plotting range for a parameter on negative real line must both be <=0.')
 
         X = np.linspace(lb, ub, 200)
 
