@@ -170,9 +170,6 @@ class Param(object):
             if self.rng == 'pos':
                 lb = 0
                 ub = self.dist.mean() + 6*self.dist.std()
-            if self.rng == 'neg':
-                lb = self.dist.mean() - 6*self.dist.std()
-                ub = 0
             if self.rng == 'unc':
                 lb = self.dist.mean() - 6*self.dist.std()
                 ub = self.dist.mean() + 6*self.dist.std()
