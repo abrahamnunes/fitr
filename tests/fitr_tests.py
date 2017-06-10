@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import fitr
-from fitr import tasks
+import fitr.twostep as task
 from fitr import generative_models as gm
 from fitr import loglik_functions as ll
 import numpy as np
 import scipy
 
 def test_em():
+	ntrials=10
+    nsubjects=5
+
+    res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
-	params = [lr, cr]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	bandit_task = tasks.bandit()
-	res = bandit_task.simulate(ntrials=10, params=group)
-
-	likfun = ll.bandit_ll().lr_cr
+	likfun = task.lr_cr_mf().loglikelihood
 
 	model = fitr.fitr.EM(loglik_func=likfun,
-						 params=params,
+						 params=[lr, cr],
 						 name='EMModel')
 
 	assert(model.name == 'EMModel')
@@ -47,17 +47,18 @@ def test_em():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_empirical_priors():
+	ntrials=10
+    nsubjects=5
+
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
-	params = [lr, cr]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	bandit_task = tasks.bandit()
-	res = bandit_task.simulate(ntrials=10, params=group)
 
-	likfun = ll.bandit_ll().lr_cr
+	res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
+	likfun = task.lr_cr_mf().loglikelihood
 
 	model = fitr.fitr.EmpiricalPriors(loglik_func=likfun,
-						 			  params=params,
+						 			  params=[lr, cr],
 						 		  	  name='EPModel')
 
 	assert(model.name == 'EPModel')
@@ -86,10 +87,18 @@ def test_empirical_priors():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_mcmc():
-	params = [fitr.rlparams.LearningRate(),
-	 		  fitr.rlparams.ChoiceRandomness()]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=10)
+	nsubjects = 5
+	ntrials = 10
+
+	lr = fitr.rlparams.LearningRate()
+	cr = fitr.rlparams.ChoiceRandomness()
+	params = [lr, cr]
+
+	group = np.zeros([nsubjects, 2])
+	group[:, 0] = lr.sample(size=nsubjects)
+	group[:, 1] = cr.sample(size=nsubjects)
+
+	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 	banditgm = gm.bandit(model='lr_cr')
 
 	model = fitr.MCMC(generative_model=banditgm)
@@ -108,10 +117,19 @@ def test_mcmc():
 	assert(type(lrcr.stanfit) == dict)
 
 def test_fitrmodels():
-	params = [fitr.rlparams.LearningRate(),
-	 		  fitr.rlparams.ChoiceRandomness()]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=10)
+
+	nsubjects = 5
+	ntrials = 10
+
+	lr = fitr.rlparams.LearningRate()
+	cr = fitr.rlparams.ChoiceRandomness()
+	params = [lr, cr]
+
+	group = np.zeros([nsubjects, 2])
+	group[:, 0] = lr.sample(size=nsubjects)
+	group[:, 1] = cr.sample(size=nsubjects)
+
+	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 
 	banditll = ll.bandit_ll().lr_cr
 	banditgm = gm.bandit(model='lr_cr')
