@@ -30,7 +30,7 @@ References
 .. [RigouxBMS] Rigoux, L. et al. (2014) Neuroimage 84, 971–985
 .. [GershmanMfit] Samuel Gershman's mfit package (on GitHub)
 
-Module Documentation 
+Module Documentation
 --------------------
 """
 import numpy as np
