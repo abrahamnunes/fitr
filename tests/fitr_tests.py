@@ -28,6 +28,10 @@ def test_em():
 
 	mfit = model.fit(data=res.data)
 
+	mfit.plot_ae(actual=res.params)
+	mfit.plot_fit_ts()
+	mfit.param_hist()
+
 	assert(mfit.name == 'EMModel')
 	assert(mfit.method == 'Expectation-Maximization')
 	assert(mfit.nsubjects == 5)
@@ -108,6 +112,7 @@ def test_mcmc():
 	assert(model.generative_model == banditgm)
 
 	lrcr = model.fit(data=taskresults.data_mcmc, n_iterations=10)
+	lrcr.trace_plot()
 
 	assert(lrcr.name == 'FitrMCMCModel')
 	assert(lrcr.method == 'MCMC')
