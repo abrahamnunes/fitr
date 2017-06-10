@@ -184,9 +184,6 @@ class Param(object):
             elif self.rng == 'pos':
                 if lb < 0 or ub < 0:
                     raise ValueError('Bounds of plotting range for a parameter on positive real line must both be >=0.')
-            elif self.rng == 'neg':
-                if lb > 0 or ub > 0:
-                    raise ValueError('Bounds of plotting range for a parameter on negative real line must both be <=0.')
 
         X = np.linspace(lb, ub, 200)
 
