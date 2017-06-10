@@ -11,6 +11,11 @@ def test_softmax():
 	assert(type(_temp) is np.ndarray)
 	assert(np.shape(_temp)[0] == 2)
 
+## Test action is returning an integer
+def test_action():
+	_temp = fitr.utils.action([0.5, 0.5])
+	assert(type(_temp) is int)
+
 # Test logsumexp is of type numpy.float64
 # Test that results are the same as the scipy method
 def test_logsumexp():
