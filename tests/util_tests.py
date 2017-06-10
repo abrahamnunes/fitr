@@ -35,3 +35,17 @@ def test_aic():
 def test_lme():
 	_testhess = np.array([[1, 0.7],[0.6, 1]])
 	assert(np.isfinite(fitr.utils.LME(-10, 2, _testhess)))
+
+# Test trans_UC
+def test_trans_UC():
+	y = fitr.utils.trans_UC(values_U = [-17, 10],
+							rng = ['all_unc'])
+	assert(y == [-17, 10])
+
+	y = fitr.utils.trans_UC(values_U = [-17],
+							rng = ['half'])
+	assert(0 < y[0] < 0.5)
+
+	y = fitr.utils.trans_UC(values_U = [-17],
+							rng = ['unc'])
+	assert(y[0] == -17)
