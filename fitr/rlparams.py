@@ -30,6 +30,7 @@ Module Documentation
 
 import numpy as np
 import scipy.stats
+import matplotlib.pyplot as plt
 
 # ==============================================================================
 #
@@ -142,6 +143,53 @@ class Param(object):
                     self.dist = scipy.stats.gamma(a=shape_kappa, scale=shape_theta)
             else:
                 raise ValueError('Only beta and gamma distributions are supported. Please see documentation for details.')
+
+    def plot_pdf(self, xlim=None, figsize=None, show_figure=True, save_figure=False, filename='parameter-pdf.pdf'):
+        """
+        Plots the probability density function of this parameter
+
+        Parameters
+        ----------
+        xlim : (optional) list of lower and upper bounds of x axis
+        figsize : (optional) list defining plot dimensions
+        show_figure : bool
+            Whether to show the figure on function call
+        save_figure : bool
+            Whether to save the figure at function call
+        filename : str
+            The name of the file at which to save the figure
+
+        """
+        if figsize is None:
+            figsize = (5, 5)
+
+        if xlim is None:
+            if self.rng == 'unit':
+                lb = 0
+                ub = 1
+            if self.rng == 'pos':
+                lb = 0
+                ub = self.dist.mean() + 4*self.dist.std()
+            if self.rng == 'unc':
+                lb = self.dist.mean() - 4*self.dist.std()
+                ub = self.dist.mean() + 4*self.dist.std()
+        else:
+            lb = xlim[0]
+            ub = xlim[1]
+
+        X = np.linspace(lb, ub, 200)
+
+        fig, ax = plt.subplots(figsize=figsize)
+        ax.plot(X, self.dist.pdf(X), c='k')
+        ax.set_xlabel(self.name + ' Value')
+        ax.set_title(self.name + ' PDF')
+
+        if save_figure is True:
+            plt.savefig(filename, bbox_inches='tight')
+
+        if show_figure is True:
+            plt.show()
+
 
 class LearningRate(Param):
     """
