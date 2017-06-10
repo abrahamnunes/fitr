@@ -19,9 +19,9 @@ def test_action():
 # Test logsumexp is of type numpy.float64
 # Test that results are the same as the scipy method
 def test_logsumexp():
-    _temp = fitr.utils.logsumexp([0.1, 0.2, 100, 200, 500])
-    assert(type(_temp) is np.float64)
-    assert(round(_temp) == round(scipy.misc.logsumexp([0.1, 0.2, 100, 200, 500])))
+	_temp = fitr.utils.logsumexp([0.1, 0.2, 100, 200, 500])
+	assert(type(_temp) is np.float64)
+	assert(round(_temp) == round(scipy.misc.logsumexp([0.1, 0.2, 100, 200, 500])))
 
 # Test that BIC is finite
 def test_bic():
