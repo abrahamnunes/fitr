@@ -27,15 +27,15 @@ def test_em():
 	assert(model.loglik_func == likfun)
 
 	mfit = model.fit(data=res.data)
-	mfit2 = model.fit(data=res.data,
-					  opt_algorithm='BFGS',
-					  init_grid=True,
-					  grid_reinit=True,
-					  n_grid_points=5,
-					  n_reinit=1,
-					  dofull=False,
-					  early_stopping=False,
-					  verbose=False)
+	#mfit2 = model.fit(data=res.data,
+	#				  opt_algorithm='BFGS',
+	#				  init_grid=True,
+	#				  grid_reinit=True,
+	#				  n_grid_points=5,
+	#				  n_reinit=1,
+	#				  dofull=False,
+	#				  early_stopping=False,
+	#				  verbose=False)
 
 	mfit.plot_ae(actual=res.params, show_figure=False)
 	mfit.plot_fit_ts(show_figure=False)
@@ -80,9 +80,9 @@ def test_empirical_priors():
 	assert(model.loglik_func == likfun)
 
 	mfit = model.fit(data=res.data)
-	mfit2 = model.fit(data=res.data,
-					  opt_algorithm='BFGS',
-					  verbose=False)
+	#mfit2 = model.fit(data=res.data,
+	#				  opt_algorithm='BFGS',
+	#				  verbose=False)
 
 	assert(mfit.name == 'EPModel')
 	assert(mfit.method == 'Empirical Priors')

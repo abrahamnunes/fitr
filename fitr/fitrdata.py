@@ -107,7 +107,19 @@ class SyntheticData(object):
 
 
 
-    def cumreward_param_plot(self, alpha=0.9):
+    def cumreward_param_plot(self, alpha=0.9, show_figure=True, save_figure=False, filename='cumreward-param-plot-sim.pdf'):
+        """
+        Plots parameter values against cumulative reward
+
+        Parameters
+        ----------
+        show_figure : bool
+            Whether to show the figure
+        save_figure : bool
+            Whether to save the figure to disk
+        filename : str
+            The name of the file to which to save the figure
+        """
         if self.params is not None:
             nsubjects = np.shape(self.params)[0]
             creward = np.zeros(nsubjects)
@@ -122,13 +134,29 @@ class SyntheticData(object):
                 ax[i].set_ylabel('Total Reward')
 
             plt.suptitle('Cumulative Reward vs. Parameters')
-            plt.show()
+
+            if save_figure is True:
+                plt.savefig(filename, bbox_inches='tight')
+
+            if show_figure is True:
+                plt.show()
         else:
             print('ERROR: There are no parameters assigned')
             return
 
-    def plot_cumreward(self):
-        """ Plots cumulative reward over time for each subject"""
+    def plot_cumreward(self, show_figure=True, save_figure=False, filename='cumreward-plot-sim.pdf'):
+        """
+        Plots cumulative reward over time for each subject
+
+        Parameters
+        ----------
+        show_figure : bool
+            Whether to show the figure
+        save_figure : bool
+            Whether to save the figure to disk
+        filename : str
+            The name of the file to which to save the figure
+        """
         nsubjects = len(self.data)
         fig, ax = plt.subplots(1, 1)
         for i in range(nsubjects):
@@ -138,4 +166,9 @@ class SyntheticData(object):
         ax.set_title('Cumulative Reward by Subject\n')
         ax.set_xlabel('Trial')
         ax.set_ylabel('Reward')
-        plt.show()
+
+        if save_figure is True:
+            plt.savefig(filename, bbox_inches='tight')
+
+        if show_figure is True:
+            plt.show()

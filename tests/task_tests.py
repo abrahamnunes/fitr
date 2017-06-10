@@ -32,7 +32,11 @@ def test_twostep_lr_cr_mf():
 	ntrials = 10
 
 	res = twostep.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
-
+	LL = twostep.lr_cr_mf().loglikelihood(params=res.params[0],
+										  states=res.data[0]['S'],
+										  actions=res.data[0]['A'],
+										  rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
 	assert(len(res.data) == nsubjects)
 	assert(res.data_mcmc['N'] == nsubjects)
 	assert(res.data_mcmc['T'] == ntrials)
@@ -46,7 +50,11 @@ def test_twostep_lr_cr_rs_mf():
 	ntrials = 10
 
 	res = twostep.lr_cr_rs_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
-
+	LL = twostep.lr_cr_rs_mf().loglikelihood(params=res.params[0],
+										  	 states=res.data[0]['S'],
+										  	 actions=res.data[0]['A'],
+										  	 rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
 	assert(len(res.data) == nsubjects)
 	assert(res.data_mcmc['N'] == nsubjects)
 	assert(res.data_mcmc['T'] == ntrials)
@@ -60,7 +68,11 @@ def test_twostep_lr_cr_et_mf():
 	ntrials = 10
 
 	res = twostep.lr_cr_et_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
-
+	LL = twostep.lr_cr_et_mf().loglikelihood(params=res.params[0],
+											 states=res.data[0]['S'],
+											 actions=res.data[0]['A'],
+											 rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
 	assert(len(res.data) == nsubjects)
 	assert(res.data_mcmc['N'] == nsubjects)
 	assert(res.data_mcmc['T'] == ntrials)
@@ -103,6 +115,11 @@ def test_twostep_lr_cr_rs_p_mf():
 
 	res = twostep.lr_cr_rs_p_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
 
+	LL = twostep.lr_cr_rs_p_mf().loglikelihood(params=res.params[0],
+										  	   states=res.data[0]['S'],
+										  	   actions=res.data[0]['A'],
+										  	   rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
 	assert(len(res.data) == nsubjects)
 	assert(res.data_mcmc['N'] == nsubjects)
 	assert(res.data_mcmc['T'] == ntrials)
