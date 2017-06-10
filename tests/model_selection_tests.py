@@ -19,8 +19,8 @@ def test_model_selections():
 	group = np.zeros([nsubjects, 2])
 	group[:, 0] = lr.sample(size=nsubjects)
 	group[:, 1] = cr.sample(size=nsubjects)
-	
-	res = bandit_task.simulate(ntrials=ntrials, params=group)
+
+	res = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 
 	m1 = fitr.fitr.EM(loglik_func=ll.bandit_ll().lr_cr,
 						 	params=params)

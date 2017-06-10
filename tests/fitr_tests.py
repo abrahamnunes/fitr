@@ -2,6 +2,7 @@
 
 import fitr
 import fitr.twostep as task
+from fitr import tasks
 from fitr import generative_models as gm
 from fitr import loglik_functions as ll
 import numpy as np

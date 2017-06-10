@@ -384,7 +384,7 @@ class lr_cr_rs_mf(object):
         """
 
         # Generate group of subjects
-        params = np.zeros([nsubjects, 4])
+        params = np.zeros([nsubjects, 3])
         params[:, 0] = self.LR.sample(size=nsubjects)
         params[:, 1] = self.CR.sample(size=nsubjects)
         params[:, 2] = self.RS.sample(size=nsubjects)
@@ -1675,7 +1675,7 @@ class lr_cr_rs_et_p_mf(object):
         """
 
         # Generate group of subjects
-        params = np.zeros([nsubjects, 4])
+        params = np.zeros([nsubjects, 5])
         params[:, 0] = self.LR.sample(size=nsubjects)
         params[:, 1] = self.CR.sample(size=nsubjects)
         params[:, 2] = self.RS.sample(size=nsubjects)
