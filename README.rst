@@ -36,6 +36,11 @@ If you want the latest version on the GitHub master branch, install as follows::
 
 Currently, we build and test on Linux and OSX. As such, we cannot guarantee performance on Windows.
 
+News
+----
+
+As of June 10, 2017, we are no longer developing in Python2. While you can still install fitr within Python2, please note that it may be unstable, since unit tests will only be performed for Python3.
+
 Documentation
 -------------
 
