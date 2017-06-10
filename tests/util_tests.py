@@ -43,6 +43,14 @@ def test_trans_UC():
 	assert(y == [-17, 10])
 
 	y = fitr.utils.trans_UC(values_U = [-17],
+							rng = ['unit'])
+	assert(0 < y[0] < 1)
+
+	y = fitr.utils.trans_UC(values_U = [17],
+							rng = ['pos'])
+	assert(0 < y[0])
+
+	y = fitr.utils.trans_UC(values_U = [-17],
 							rng = ['half'])
 	assert(0 < y[0] < 0.5)
 
