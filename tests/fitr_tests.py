@@ -10,7 +10,7 @@ import scipy
 
 def test_em():
 	ntrials = 10
-	nsubjects = 5
+	nsubjects = 10
 
 	res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
 
@@ -49,7 +49,7 @@ def test_em():
 
 def test_empirical_priors():
 	ntrials = 10
-	nsubjects = 5
+	nsubjects = 10
 
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
@@ -88,7 +88,7 @@ def test_empirical_priors():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_mcmc():
-	nsubjects = 5
+	nsubjects = 10
 	ntrials = 10
 
 	lr = fitr.rlparams.LearningRate()
@@ -118,7 +118,7 @@ def test_mcmc():
 	assert(type(lrcr.stanfit) == dict)
 
 def test_fitrmodels():
-	nsubjects = 5
+	nsubjects = 10
 	ntrials = 10
 
 	lr = fitr.rlparams.LearningRate()
