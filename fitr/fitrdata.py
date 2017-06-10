@@ -42,9 +42,12 @@ class SyntheticData(object):
         Dictionary containing task data formatted for use with MCMC via Stan
     params : ndarray(shape=(nsubjects X nparams))
         Subject parameters
+    groupnames : list
+        Strings representing names of groups whose data are represented
 
     Methods
     -------
+    append_group(self, data=SyntheticData)
     cumreward_param_plot(self, alpha=0.9)
         Plots the cumulative reward against model parameters. Useful to determine the relationship between reward acquisition and model parameters for a given task.
     plot_cumreward(self)
@@ -56,6 +59,53 @@ class SyntheticData(object):
         self.data_mcmc = {}
         self.params = None
         self.paramnames = None
+
+    def append_group(self, data, which='all'):
+        """
+        Appends data from other groups to the SyntheticData object
+
+        Parameters
+        ----------
+        data  : SyntheticData object
+        all : {'all', 'opt', 'mcmc'}
+            Whether to append all data, optimization data only, or MCMC data
+        """
+
+        # Parameters
+        param_dim_bool = (np.shape(self.params)[1] != np.shape(data.params)[1])
+        paramname_bool = (self.paramnames != data.paramnames)
+        if param_dim_bool or paramname_bool:
+            raise ValueError('There must be same number of parameters in both group models.')
+
+        self.params = np.vstack((self.params, data.params))
+
+        # Optimization data
+        if which == 'all' or which == 'opt':
+            n_current = len(self.data)
+            n_new = len(data.data)
+
+            new_idx = 0
+            for i in range(n_current, n_current + n_new):
+                self.data[i] = data.data[new_idx]
+                new_idx += 1
+
+        # MCMC data
+        if which == 'all' or which == 'mcmc':
+
+            if self.data_mcmc.keys() != data.data_mcmc.keys():
+                raise ValueError('Keys in MCMC data must match.')
+            for key in self.data_mcmc.keys():
+                if key == 'N':
+                    self.data_mcmc['N'] = self.data_mcmc['N'] + data.data_mcmc['N']
+                elif key == 'T':
+                    if self.data_mcmc['T'] != data.data_mcmc['T']:
+                        raise ValueError('There must be equal number of trials in each group.')
+                elif key == 'G':
+                    self.data_mcmc[key] = np.hstack((self.data_mcmc[key], data.data_mcmc[key]))
+                else:
+                    self.data_mcmc[key] = np.hstack((self.data_mcmc[key], data.data_mcmc[key]))
+
+
 
     def cumreward_param_plot(self, alpha=0.9):
         if self.params is not None:
