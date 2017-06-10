@@ -30,8 +30,16 @@ References
 Module Documentation
 --------------------
 """
+import warnings
+
 import numpy as np
 from .utils import logsumexp
+
+# Warn user of the deprecated module
+warnings.warn(
+    "The loglik_functions module is deprecated, and will be removed in future releases. Please use similar capacities task-specific modules",
+    DeprecationWarning
+)
 
 # ------------------------------------------------------------------------------
 #

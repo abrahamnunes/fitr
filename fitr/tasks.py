@@ -31,8 +31,15 @@ References
 Module Documentation
 --------------------
 """
+import warnings
 import numpy as np
 from .fitrdata import SyntheticData
+
+# Warn user of the deprecated modules
+warnings.warn(
+    "The generative_models module is deprecated, and will be removed in future releases. Please use similar capacities task-specific modules",
+    DeprecationWarning
+)
 
 #=========================================================================
 #
