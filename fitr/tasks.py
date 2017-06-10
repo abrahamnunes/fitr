@@ -32,7 +32,7 @@ Module Documentation
 --------------------
 """
 import numpy as np
-from .utils import SyntheticData
+from .fitrdata import SyntheticData
 
 #=========================================================================
 #
