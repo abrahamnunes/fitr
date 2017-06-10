@@ -9,12 +9,18 @@ import numpy as np
 import scipy
 
 def test_model_selections():
+	nsubjects = 5
+	ntrials = 10
+
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
 	params = [lr, cr]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	bandit_task = tasks.bandit()
-	res = bandit_task.simulate(ntrials=10, params=group)
+
+	group = np.zeros([nsubjects, 2])
+	group[:, 0] = lr.sample(size=nsubjects)
+	group[:, 1] = cr.sample(size=nsubjects)
+
+	res = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 
 	m1 = fitr.fitr.EM(loglik_func=ll.bandit_ll().lr_cr,
 						 	params=params)

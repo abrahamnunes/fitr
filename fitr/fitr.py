@@ -1031,13 +1031,13 @@ class fitrfit(object):
 
         return
 
-    def trace_plot(self, figsize=[8, 8], show_figure=True, save_figure=False, filename='fitr-mcstan-traceplot.pdf'):
+    def trace_plot(self, figsize=None, show_figure=True, save_figure=False, filename='fitr-mcstan-traceplot.pdf'):
         """
         Easy wrapper for Stan Traceplot
 
         Parameters
         ----------
-        figsize : array [width in inches, height in inches]
+        figsize : (optional) list [width in inches, height in inches]
             Controls figure size
         show_figure : bool
             Whether to show figure output
@@ -1047,6 +1047,8 @@ class fitrfit(object):
             The file name to be output
 
         """
+        if figsize is None:
+            figsize = [8, 8]
 
         if self.method != 'MCMC':
             print('ERROR: Traceplot can only be created for MCMC results.')

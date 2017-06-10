@@ -2,49 +2,142 @@
 
 import fitr
 from fitr import tasks
+import fitr.twostep as twostep
 import numpy as np
 import scipy
 
 def test_bandit():
+	nsubjects = 5
+	ntrials = 10
+
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
-	group = fitr.rlparams.generate_group(params=[lr, cr], nsubjects=10)
+
+	group = np.zeros([nsubjects, 2])
+	group[:, 0] = lr.sample(size=nsubjects)
+	group[:, 1] = cr.sample(size=nsubjects)
+
 	task = tasks.bandit()
-	res = task.simulate(ntrials=10, params=group)
+	res = task.simulate(ntrials=ntrials, params=group)
 
 	assert(res.params.all() == group.all())
-	assert(len(res.data) == 10)
-	assert(res.data_mcmc['N'] == 10)
-	assert(res.data_mcmc['T'] == 10)
-	assert(np.shape(res.data_mcmc['A'])[0] == 10)
-	assert(np.shape(res.data_mcmc['A'])[1] == 10)
-	assert(np.shape(res.data_mcmc['R'])[0] == 10)
-	assert(np.shape(res.data_mcmc['R'])[1] == 10)
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))
 
-def test_twostep():
-	lr = fitr.rlparams.LearningRate()
-	cr = fitr.rlparams.ChoiceRandomness()
-	w = fitr.rlparams.MBMF_Balance()
-	group = fitr.rlparams.generate_group(params=[lr, cr, w], nsubjects=5)
-	task = tasks.twostep()
-	res = task.simulate(ntrials=5, params=group)
+def test_twostep_lr_cr_mf():
+	nsubjects = 5
+	ntrials = 10
 
-	assert(res.params.all() == group.all())
-	assert(len(res.data) == 5)
-	assert(res.data_mcmc['N'] == 5)
-	assert(res.data_mcmc['T'] == 5)
-	assert(np.shape(res.data_mcmc['A1'])[0] == 5)
-	assert(np.shape(res.data_mcmc['A1'])[1] == 5)
-	assert(np.shape(res.data_mcmc['A2'])[0] == 5)
-	assert(np.shape(res.data_mcmc['A2'])[1] == 5)
-	assert(np.shape(res.data_mcmc['S2'])[0] == 5)
-	assert(np.shape(res.data_mcmc['S2'])[1] == 5)
-	assert(np.shape(res.data_mcmc['R'])[0] == 5)
-	assert(np.shape(res.data_mcmc['R'])[1] == 5)
+	res = twostep.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+	LL = twostep.lr_cr_mf().loglikelihood(params=res.params[0],
+										  states=res.data[0]['S'],
+										  actions=res.data[0]['A'],
+										  rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A1']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['A2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['S2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))
 
-def test_action():
-	assert(type(tasks.action(x=np.array([0.8, 0.2]))) == np.int64)
+def test_twostep_lr_cr_rs_mf():
+	nsubjects = 5
+	ntrials = 10
 
-def test_reward():
-	paths = np.array([0.25, 0.25, 0.25])
-	assert(np.isfinite(tasks.reward(a=1, paths=paths)))
+	res = twostep.lr_cr_rs_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+	LL = twostep.lr_cr_rs_mf().loglikelihood(params=res.params[0],
+										  	 states=res.data[0]['S'],
+										  	 actions=res.data[0]['A'],
+										  	 rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A1']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['A2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['S2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))
+
+def test_twostep_lr_cr_et_mf():
+	nsubjects = 5
+	ntrials = 10
+
+	res = twostep.lr_cr_et_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+	LL = twostep.lr_cr_et_mf().loglikelihood(params=res.params[0],
+											 states=res.data[0]['S'],
+											 actions=res.data[0]['A'],
+											 rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A1']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['A2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['S2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))
+
+def test_twostep_lr_cr_p_mf():
+	nsubjects = 5
+	ntrials = 10
+
+	res = twostep.lr_cr_p_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A1']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['A2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['S2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))
+
+def test_twostep_lr_cr_et_p_mf():
+	nsubjects = 5
+	ntrials = 10
+
+	res = twostep.lr_cr_et_p_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A1']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['A2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['S2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))
+
+def test_twostep_lr_cr_rs_p_mf():
+	nsubjects = 5
+	ntrials = 10
+
+	res = twostep.lr_cr_rs_p_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
+	LL = twostep.lr_cr_rs_p_mf().loglikelihood(params=res.params[0],
+										  	   states=res.data[0]['S'],
+										  	   actions=res.data[0]['A'],
+										  	   rewards=res.data[0]['R'])
+	assert(type(LL) is np.float64)
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A1']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['A2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['S2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))
+
+def test_twostep_lr_cr_rs_et_p_mf():
+	nsubjects = 5
+	ntrials = 10
+
+	res = twostep.lr_cr_rs_et_p_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
+	assert(len(res.data) == nsubjects)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
+	assert(np.shape(res.data_mcmc['A1']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['A2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['S2']) == (ntrials, nsubjects))
+	assert(np.shape(res.data_mcmc['R']) == (ntrials, nsubjects))

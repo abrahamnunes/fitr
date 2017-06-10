@@ -1,6 +1,6 @@
 .. -*- mode: rst -*-
 
-|Build|_ |PyPI|_ |Codecov|_ |Health|_ |DOI|_
+|PyPI|_ |Build|_ |Health|_ |Codecov|_ |PyV|_ |DOI|_
 
 .. |Build| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
 .. _Build: https://travis-ci.org/ComputationalPsychiatry/fitr
@@ -13,6 +13,9 @@
 
 .. |Health| image:: https://landscape.io/github/ComputationalPsychiatry/fitr/master/landscape.svg?style=flat
 .. _Health: https://landscape.io/github/ComputationalPsychiatry/fitr/master
+
+.. |PyV| image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
+.. _PyV: https://badge.fury.io/py/fitr
 
 .. |DOI| image:: https://zenodo.org/badge/82499710.svg
 .. _DOI: https://zenodo.org/badge/latestdoi/82499710

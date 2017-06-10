@@ -50,6 +50,28 @@ def softmax(x):
     xmax = np.max(x)
     return np.exp(x-xmax)/np.sum(np.exp(x-xmax))
 
+def action(x):
+    """
+    Selects an action based on state-action values
+
+    Parameters
+    ----------
+    x : ndarray
+        Array of action values (scaled by inverse softmax temperature).
+
+    Returns
+    -------
+    int
+        The index corresponding to the selected action
+
+    Notes
+    -----
+    This function computes the softmax probability for each action in the input array, and subsequently samples from a multinomial distribution parameterized by the results of the softmax computation. Finally, it returns the index where the value is equal to 1 (i.e. which action was selected).
+
+    """
+    p = np.exp(x) / np.sum(np.exp(x))
+    return np.argmax(np.random.multinomial(1, pvals=p))
+
 def logsumexp(x):
     """
     Numerically stable logsumexp.

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import fitr
+import fitr.twostep as task
 from fitr import tasks
 from fitr import generative_models as gm
 from fitr import loglik_functions as ll
@@ -8,24 +9,38 @@ import numpy as np
 import scipy
 
 def test_em():
+	ntrials = 10
+	nsubjects = 5
+
+	res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
-	params = [lr, cr]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	bandit_task = tasks.bandit()
-	res = bandit_task.simulate(ntrials=10, params=group)
-
-	likfun = ll.bandit_ll().lr_cr
+	likfun = task.lr_cr_mf().loglikelihood
 
 	model = fitr.fitr.EM(loglik_func=likfun,
-						 params=params,
+						 params=[lr, cr],
 						 name='EMModel')
 
 	assert(model.name == 'EMModel')
 	assert(len(model.params) == 2)
 	assert(model.loglik_func == likfun)
 
-	mfit = model.fit(data=res.data)
+	mfit = model.fit(data=res.data,
+					 early_stopping=False)
+	mfit2 = model.fit(data=res.data,
+					  opt_algorithm='BFGS',
+					  init_grid=True,
+					  grid_reinit=True,
+					  n_grid_points=5,
+					  n_reinit=1,
+					  dofull=False,
+					  early_stopping=True,
+					  verbose=False)
+
+	mfit.plot_ae(actual=res.params, show_figure=False)
+	mfit.plot_fit_ts(show_figure=False)
+	mfit.param_hist(show_figure=False)
 
 	assert(mfit.name == 'EMModel')
 	assert(mfit.method == 'Expectation-Maximization')
@@ -47,17 +62,18 @@ def test_em():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_empirical_priors():
+	ntrials = 10
+	nsubjects = 5
+
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
-	params = [lr, cr]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	bandit_task = tasks.bandit()
-	res = bandit_task.simulate(ntrials=10, params=group)
 
-	likfun = ll.bandit_ll().lr_cr
+	res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
+	likfun = task.lr_cr_mf().loglikelihood
 
 	model = fitr.fitr.EmpiricalPriors(loglik_func=likfun,
-						 			  params=params,
+						 			  params=[lr, cr],
 						 		  	  name='EPModel')
 
 	assert(model.name == 'EPModel')
@@ -65,6 +81,9 @@ def test_empirical_priors():
 	assert(model.loglik_func == likfun)
 
 	mfit = model.fit(data=res.data)
+	mfit2 = model.fit(data=res.data,
+					  opt_algorithm='BFGS',
+					  verbose=False)
 
 	assert(mfit.name == 'EPModel')
 	assert(mfit.method == 'Empirical Priors')
@@ -86,10 +105,18 @@ def test_empirical_priors():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_mcmc():
-	params = [fitr.rlparams.LearningRate(),
-	 		  fitr.rlparams.ChoiceRandomness()]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=10)
+	nsubjects = 5
+	ntrials = 10
+
+	lr = fitr.rlparams.LearningRate()
+	cr = fitr.rlparams.ChoiceRandomness()
+	params = [lr, cr]
+
+	group = np.zeros([nsubjects, 2])
+	group[:, 0] = lr.sample(size=nsubjects)
+	group[:, 1] = cr.sample(size=nsubjects)
+
+	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 	banditgm = gm.bandit(model='lr_cr')
 
 	model = fitr.MCMC(generative_model=banditgm)
@@ -98,6 +125,7 @@ def test_mcmc():
 	assert(model.generative_model == banditgm)
 
 	lrcr = model.fit(data=taskresults.data_mcmc, n_iterations=10)
+	lrcr.trace_plot(show_figure=False)
 
 	assert(lrcr.name == 'FitrMCMCModel')
 	assert(lrcr.method == 'MCMC')
@@ -108,18 +136,26 @@ def test_mcmc():
 	assert(type(lrcr.stanfit) == dict)
 
 def test_fitrmodels():
-	params = [fitr.rlparams.LearningRate(),
-	 		  fitr.rlparams.ChoiceRandomness()]
-	group = fitr.rlparams.generate_group(params=params, nsubjects=5)
-	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=10)
+	nsubjects = 5
+	ntrials = 10
+
+	lr = fitr.rlparams.LearningRate()
+	cr = fitr.rlparams.ChoiceRandomness()
+	params = [lr, cr]
+
+	group = np.zeros([nsubjects, 2])
+	group[:, 0] = lr.sample(size=nsubjects)
+	group[:, 1] = cr.sample(size=nsubjects)
+
+	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 
 	banditll = ll.bandit_ll().lr_cr
 	banditgm = gm.bandit(model='lr_cr')
 
 	model = fitr.fitrmodel(name='My 2-Armed Bandit Model',
-                       	   loglik_func=banditll,
-                       	   params=params,
-                       	   generative_model=banditgm)
+	                   	   loglik_func=banditll,
+	                   	   params=params,
+	                   	   generative_model=banditgm)
 
 	emfit = model.fit(data=taskresults.data,
 					  method='EM',

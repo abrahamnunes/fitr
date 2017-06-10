@@ -32,6 +32,14 @@ Module Documentation
 --------------------
 """
 
+import warnings
+
+# Warn user of the deprecated modules
+warnings.warn(
+    "The generative_models module is deprecated, and will be removed in future releases. Please use similar capacities task-specific modules",
+    DeprecationWarning
+)
+
 class GenerativeModel(object):
     """
     Base class for generative models
