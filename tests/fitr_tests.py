@@ -8,10 +8,10 @@ import numpy as np
 import scipy
 
 def test_em():
-	ntrials=10
-    nsubjects=5
+	ntrials = 10
+	nsubjects = 5
 
-    res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+	res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
 
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
@@ -47,8 +47,8 @@ def test_em():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_empirical_priors():
-	ntrials=10
-    nsubjects=5
+	ntrials = 10
+	nsubjects = 5
 
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
@@ -117,7 +117,6 @@ def test_mcmc():
 	assert(type(lrcr.stanfit) == dict)
 
 def test_fitrmodels():
-
 	nsubjects = 5
 	ntrials = 10
 
@@ -135,9 +134,9 @@ def test_fitrmodels():
 	banditgm = gm.bandit(model='lr_cr')
 
 	model = fitr.fitrmodel(name='My 2-Armed Bandit Model',
-                       	   loglik_func=banditll,
-                       	   params=params,
-                       	   generative_model=banditgm)
+	                   	   loglik_func=banditll,
+	                   	   params=params,
+	                   	   generative_model=banditgm)
 
 	emfit = model.fit(data=taskresults.data,
 					  method='EM',
