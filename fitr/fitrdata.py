@@ -75,7 +75,7 @@ class SyntheticData(object):
 
         return np.shape(self.params)[1]
 
-    def get_nubjects(self):
+    def get_nsubjects(self):
         """
         Finds the number of subjects in the data
 
