@@ -153,7 +153,7 @@ class SyntheticData(object):
                 creward[i] = np.sum(self.data[i]['R'])
 
             nparams = np.shape(self.params)[1]
-            fig, ax = plt.subplots(1, nparams, figsize=(15, 5))
+            fig, ax = plt.subplots(1, nparams, figsize=(5*nparams, 5))
             for i in range(0, nparams):
                 ax[i].scatter(self.params[:, i], creward, c='k', alpha=alpha)
                 ax[i].set_xlabel(self.paramnames[i])
