@@ -48,6 +48,10 @@ class SyntheticData(object):
     Methods
     -------
     append_group(self, data=SyntheticData)
+    get_nparams(self)
+        Returns the number of parameters in the data
+    get_nsubjects(self)
+        Returns the number of subjects in the data
     cumreward_param_plot(self, alpha=0.9)
         Plots the cumulative reward against model parameters. Useful to determine the relationship between reward acquisition and model parameters for a given task.
     plot_cumreward(self)
@@ -59,6 +63,28 @@ class SyntheticData(object):
         self.data_mcmc = {}
         self.params = None
         self.paramnames = None
+
+    def get_nparams(self):
+        """
+        Finds the number of parameters in the model
+
+        Returns
+        -------
+        int
+        """
+
+        return np.shape(self.params)[1]
+
+    def get_nsubjects(self):
+        """
+        Finds the number of subjects in the data
+
+        Returns
+        -------
+        int
+        """
+
+        return np.shape(self.params)[0]
 
     def append_group(self, data, which='all'):
         """
@@ -127,7 +153,7 @@ class SyntheticData(object):
                 creward[i] = np.sum(self.data[i]['R'])
 
             nparams = np.shape(self.params)[1]
-            fig, ax = plt.subplots(1, nparams, figsize=(15, 5))
+            fig, ax = plt.subplots(1, nparams, figsize=(5*nparams, 5))
             for i in range(0, nparams):
                 ax[i].scatter(self.params[:, i], creward, c='k', alpha=alpha)
                 ax[i].set_xlabel(self.paramnames[i])

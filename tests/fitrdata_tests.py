@@ -21,6 +21,7 @@ def test_syntheticdata():
                                        group_id='EDO')
 
     group1_data.append_group(data=group2_data)
+
     assert(len(group1_data.data) == nsubjects*2)
     assert(group1_data.data_mcmc['T'] == ntrials)
     assert(group1_data.data_mcmc['N'] == nsubjects*2)
@@ -29,3 +30,10 @@ def test_syntheticdata():
     assert(np.shape(group1_data.data_mcmc['A2']) == (ntrials, nsubjects*2))
     assert(np.shape(group1_data.data_mcmc['R']) == (ntrials, nsubjects*2))
     assert(np.size(group1_data.data_mcmc['G']) == nsubjects*2)
+
+    # Test the get_nparams and get_nsubjects methods
+    n_params = group1_data.get_nparams()
+    n_subj   = group1_data.get_nsubjects()
+
+    assert(n_params == 2)
+    assert(n_subj == nsubjects*2)
