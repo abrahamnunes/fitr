@@ -36,4 +36,4 @@ def test_syntheticdata():
     n_subj   = group1_data.get_nsubjects()
 
     assert(n_params == 2)
-    assert(n_subjects == nsubjects*2)
+    assert(n_subj == nsubjects*2)
