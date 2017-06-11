@@ -14,6 +14,7 @@ As of this version, development and testing will be done exclusively in Python 3
 New Features
 ------------
 
+- ``metrics`` module
 - ``twostep`` module adds various models for the two-step task. Replaces ``tasks.twostep`` class
 - Reinforcement learning parameters in module ``rlparams`` can now be initialized using desired mean and standard deviations. This should allow easier simulation of synthetic data from various tasks.
 - Added ``rlparams.Param.plot_pdf`` function to plot the probability density function of synthetic parameters
