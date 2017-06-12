@@ -2,8 +2,15 @@ import numpy as np
 
 from fitr.models import twostep
 from fitr.metrics import parameter_distance
+from fitr.unsupervised import Embedding
 from fitr.unsupervised import TSNE
 from fitr.unsupervised import AffinityPropagation
+from fitr.unsupervised import Cluster
+
+def test_embedding():
+    emb = Embedding()
+    assert(emb.algorithm is None)
+    assert(emb.embedding is None)
 
 def test_tsne():
     nsubjects = 20
@@ -35,3 +42,14 @@ def test_affinity_propagation():
     ap.fit(data=D)
     ap.performance(group_labels=group_labels)
     ap.results
+
+    ap2 = AffinityPropagation()
+    ap2.fit(data=D)
+    ap2.performance()
+    ap2.results
+
+def test_cluster():
+    c = Cluster()
+    assert(c.algorithm is None)
+    assert(c.clusters is None)
+    assert(c.results is None)

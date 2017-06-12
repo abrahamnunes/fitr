@@ -118,7 +118,7 @@ class AffinityPropagation(Cluster):
         group_labels : (optional) ndarray(shape=nsubjects)
             Labels for subject groups
         """
-        n_samples = len(group_labels)
+        n_samples = len(self.algorithm.labels_)
 
         if group_labels is None:
             truelab = np.zeros(n_samples)
