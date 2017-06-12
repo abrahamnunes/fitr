@@ -112,11 +112,11 @@ class Embedding(object):
                        mode="expand",
                        borderaxespad=0.)
 
-        if show_figure is True:
-            plt.show()
-
         if save_figure is True:
             plt.savefig(figname, bbox_inches='tight')
+
+        if show_figure is True:
+            plt.show()
 
 class TSNE(Embedding):
     """
