@@ -1,12 +1,38 @@
 # -*- coding: utf-8 -*-
 
 import fitr
-import fitr.twostep as task
 from fitr import tasks
+from fitr.models import twostep as task
 from fitr import generative_models as gm
 from fitr import loglik_functions as ll
 import numpy as np
 import scipy
+
+def test_old_ll():
+	ntrials=10
+	nsubjects=5
+	lr = fitr.rlparams.LearningRate()
+	cr = fitr.rlparams.ChoiceRandomness()
+	params = [lr, cr]
+
+	group = np.zeros([nsubjects, 2])
+	group[:, 0] = lr.sample(size=nsubjects)
+	group[:, 1] = cr.sample(size=nsubjects)
+
+	res = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
+
+	L = ll.bandit_ll().lrp_lrn_cr(params=np.array([0.5, 0.5, 4]),
+						     	  states=res.data[0]['S'],
+							 	  actions=res.data[0]['A'],
+							 	  rewards=res.data[0]['R'])
+	assert(np.isfinite(L))
+
+	L = ll.bandit_ll().dummy(params=np.array([4]),
+					     	 states=res.data[0]['S'],
+							 actions=res.data[0]['A'],
+							 rewards=res.data[0]['R'])
+	assert(np.isfinite(L))
+
 
 def test_em():
 	ntrials = 10

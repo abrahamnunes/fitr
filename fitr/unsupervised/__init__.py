@@ -20,30 +20,17 @@
 #    Email: nunes@dal.ca
 #
 # ============================================================================
+"""
+The :mod:`fitr.unsupervised` module includes functions for clustering and embedding
+"""
 
-from .fitr import fitrmodel
-from .fitr import EM
-from .fitr import EmpiricalPriors
-from .fitr import MCMC
-from .fitr import fitrfit
+from .cluster import Cluster
+from .cluster import AffinityPropagation
 
-from .rlparams import *
+from .embedding import Embedding
+from .embedding import TSNE
 
-from .loglik_functions import *
-from .generative_models import *
-from .model_selection import *
-from .tasks import *
-from .utils import *
-
-
-__all__ = ['fitrmodel',
-           'EM',
-           'EmpiricalPriors',
-           'MCMC',
-           'fitrfit',
-           'rlparams',
-           'loglik_functions',
-           'generative_models',
-           'model_selection',
-           'tasks',
-           'utils']
+__all__ = ['Cluster',
+           'AffinityPropagation',
+           'Embedding'
+           'TSNE']

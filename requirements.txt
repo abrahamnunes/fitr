@@ -3,3 +3,4 @@ scipy
 matplotlib
 pystan==2.14.0.0
 pandas
+scikit-learn

@@ -20,30 +20,19 @@
 #    Email: nunes@dal.ca
 #
 # ============================================================================
+"""
+The :mod:`fitr.metrics` module includes model evaluation metrics, distance computations
+"""
 
-from .fitr import fitrmodel
-from .fitr import EM
-from .fitr import EmpiricalPriors
-from .fitr import MCMC
-from .fitr import fitrfit
+from .model_evaluation import BIC
+from .model_evaluation import AIC
+from .model_evaluation import LME
 
-from .rlparams import *
+from .distance import parameter_distance
+from .distance import likelihood_distance
 
-from .loglik_functions import *
-from .generative_models import *
-from .model_selection import *
-from .tasks import *
-from .utils import *
-
-
-__all__ = ['fitrmodel',
-           'EM',
-           'EmpiricalPriors',
-           'MCMC',
-           'fitrfit',
-           'rlparams',
-           'loglik_functions',
-           'generative_models',
-           'model_selection',
-           'tasks',
-           'utils']
+__all__ = ['BIC',
+           'AIC',
+           'LME',
+           'parameter_distance',
+           'likelihood_distance']

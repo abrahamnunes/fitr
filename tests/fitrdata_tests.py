@@ -2,7 +2,7 @@
 
 import fitr
 from fitr.rlparams import *
-import fitr.twostep as task
+from fitr.models import twostep as task
 import numpy as np
 import scipy
 

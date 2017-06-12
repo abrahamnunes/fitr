@@ -42,7 +42,8 @@ from scipy.optimize import minimize
 from scipy.optimize import brute
 from scipy.stats import multivariate_normal as mvn
 
-from .utils import trans_UC, BIC, AIC, LME
+from .utils import trans_UC
+from .metrics import BIC, AIC, LME
 
 # ==============================================================================
 #
@@ -928,7 +929,7 @@ class fitrfit(object):
             The file name to be output
         """
         nparams = np.shape(self.params)[1]
-        fig, ax = plt.subplots(1, nparams)
+        fig, ax = plt.subplots(1, nparams, figsize=(nparams*5, 5))
         for i in range(nparams):
             maxval = np.maximum(np.max(actual[:,i]), np.max(self.params[:,i]))
             minval = np.minimum(np.min(actual[:,i]), np.min(self.params[:,i]))

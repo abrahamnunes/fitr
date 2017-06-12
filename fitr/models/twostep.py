@@ -32,9 +32,9 @@ Module Documentation
 --------------------
 """
 
-from .rlparams import *
-from .fitrdata import SyntheticData
-from .utils import action, logsumexp
+from ..rlparams import *
+from ..fitrdata import SyntheticData
+from ..utils import action, logsumexp
 
 class lr_cr_mf(object):
     """
