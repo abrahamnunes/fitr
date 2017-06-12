@@ -14,10 +14,38 @@ As of this version, development and testing will be done exclusively in Python 3
 New Features
 ------------
 
-- ``metrics`` module
+Summary
+.......
+
+- ``metrics``, ``models``, ``plotting``, ``unsupervised`` subpackages
 - ``twostep`` module adds various models for the two-step task. Replaces ``tasks.twostep`` class
 - Reinforcement learning parameters in module ``rlparams`` can now be initialized using desired mean and standard deviations. This should allow easier simulation of synthetic data from various tasks.
 - Added ``rlparams.Param.plot_pdf`` function to plot the probability density function of synthetic parameters
+
+Metrics Subpackage
+..................
+
+- Model evaluation functions like ``BIC``, ``AIC``, and ``LME`` are now here
+- A new ``distance`` module which contains distance metrics
+    - ``parameter_distance``
+    - ``likelihood_distance``
+
+Unsupervised Subpackage
+.......................
+
+- ``cluster`` module including ``AffinityPropagation`` algorithm
+- ``embedding`` module including ``TSNE`` algorithm
+
+Models Subpackage
+.................
+
+- A new place to keep all of the paradigm model modules
+
+Plotting Subpackage
+...................
+
+- A new place to write the plotting functions to be used across Fitr
+- ``heatmap`` function
 
 Enhancements
 ------------
