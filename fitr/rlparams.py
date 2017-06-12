@@ -198,7 +198,6 @@ class Param(object):
         if show_figure is True:
             plt.show()
 
-
 class LearningRate(Param):
     """
     A learning rate object.
