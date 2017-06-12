@@ -139,34 +139,6 @@ class bandit_ll(object):
 
         return loglik
 
-    def lrp_lrn_cr_rs(params, states, actions, rewards):
-        """
-        Likelihood function containing parameters (A) positive learning rate, (B) negative learning rate, (c) choice randomness, and (D) reward sensitivity
-        """
-        lrp = params[0]
-        lrn = params[1]
-        cr  = params[2]
-        rs  = params[3]
-
-        ntrials = len(actions)
-        Q = np.zeros(self.narms)
-        loglik = 0
-
-        for t in range(0, ntrials):
-            a = int(actions[t])
-            r = rewards[t]
-            loglik = loglik + cr*Q[a] - logsumexp(cr*Q)
-
-            rpe = rs*r-Q[a]
-            if rpe >=0:
-                lr = lrp
-            else:
-                lr = lrn
-
-            Q[a] = Q[a] + lr*rpe
-
-        return loglik
-
     def dummy(self, params, states, actions, rewards):
         """
         Likelihood function without any learning
