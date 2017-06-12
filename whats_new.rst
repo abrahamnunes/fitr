@@ -46,6 +46,7 @@ Plotting Subpackage
 
 - A new place to write the plotting functions to be used across Fitr
 - ``heatmap`` function
+- ``distance_hist`` and ``distance_scatter`` functions
 
 Enhancements
 ------------
@@ -55,6 +56,8 @@ Enhancements
 
 Bug Fixes
 ---------
+
+- Fixed problem with automatic sizing of ``fitrfit.plot_ae()``
 
 Deprecations
 ------------
