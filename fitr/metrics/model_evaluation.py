@@ -1,4 +1,9 @@
-
+# -*- coding: utf-8 -*-
+# Fitr. A package for fitting reinforcement learning models to behavioural data
+# Copyright (C) 2017 Abraham Nunes
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
@@ -15,9 +20,8 @@
 #    Email: nunes@dal.ca
 #
 # ============================================================================
-
 """
-Metrics used by various Fitr modules
+Metrics used during model evaluation and model comparison
 
 Module Documentation
 --------------------
