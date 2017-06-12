@@ -65,7 +65,7 @@ def test_em():
 					  verbose=False)
 
 	mfit.plot_ae(actual=res.params)
-	mfit.plot_fit_ts(s)
+	mfit.plot_fit_ts()
 	mfit.param_hist()
 
 	assert(mfit.name == 'EMModel')
