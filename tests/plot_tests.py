@@ -37,7 +37,11 @@ def test_distance_plots():
 
     group_labels = np.zeros(nsubjects)
     group_labels[10:] = 1
-    heatmap(param_dist, show_figure=False)
+    heatmap(param_dist,
+            title='Heatmap',
+            xlab='X',
+            ylab='Y',
+            show_figure=False)
     distance_scatter(param_dist,
                      ll_dist,
                      group_labels=group_labels,
