@@ -64,9 +64,9 @@ def test_em():
 					  early_stopping=True,
 					  verbose=False)
 
-	mfit.plot_ae(actual=res.params, show_figure=False)
-	mfit.plot_fit_ts(show_figure=False)
-	mfit.param_hist(show_figure=False)
+	mfit.plot_ae(actual=res.params)
+	mfit.plot_fit_ts(s)
+	mfit.param_hist()
 
 	assert(mfit.name == 'EMModel')
 	assert(mfit.method == 'Expectation-Maximization')
@@ -151,7 +151,7 @@ def test_mcmc():
 	assert(model.generative_model == banditgm)
 
 	lrcr = model.fit(data=taskresults.data_mcmc, n_iterations=10)
-	lrcr.trace_plot(show_figure=False)
+	lrcr.trace_plot()
 
 	assert(lrcr.name == 'FitrMCMCModel')
 	assert(lrcr.method == 'MCMC')

@@ -60,7 +60,7 @@ class ModelSelectionResult(object):
 
     Methods
     -------
-    plot(self, statistic, show_figure=True, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10))
+    plot(self, statistic, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10))
         Plots the results of model selection (bars)
 
     """
@@ -83,7 +83,7 @@ class ModelSelectionResult(object):
             self.BIC = []
             self.AIC = []
 
-    def plot(self, statistic, show_figure=True, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10)):
+    def plot(self, statistic, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10)):
         """
         Plots the results of model selection (bars)
 
@@ -91,8 +91,8 @@ class ModelSelectionResult(object):
         ----------
         statistic : {'pxp', 'xp', 'BIC', 'AIC'}
             Which statistic is desired for the bar plot
-        show_figure : bool
         save_figure : bool
+            Whether to save the figure
         filename : str
             The desired filename for the plot (must end in appropriate extension)
         figsize : tuple, default (10, 10)
@@ -128,8 +128,7 @@ class ModelSelectionResult(object):
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
 
-        if show_figure is True:
-            plt.show()
+        return ax
 
 class BIC(object):
     """

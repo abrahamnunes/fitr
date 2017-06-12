@@ -35,14 +35,14 @@ def test_model_selections():
 
 	models = [fit1, fit2]
 	bms_results = model_selection.BMS(model_fits=models, c_limit=1e-10).run()
-	bms_results.plot(statistic='pxp', show_figure=False)
-	bms_results.plot(statistic='xp', show_figure=False)
+	bms_results.plot(statistic='pxp')
+	bms_results.plot(statistic='xp')
 
 	bic_results = model_selection.BIC(model_fits=models).run()
-	bic_results.plot(statistic='BIC', show_figure=False)
+	bic_results.plot(statistic='BIC')
 
 	aic_results = model_selection.AIC(model_fits=models).run()
-	aic_results.plot(statistic='AIC', show_figure=False)
+	aic_results.plot(statistic='AIC')
 
 	assert(len(bms_results.modelnames) == 2)
 	assert(len(bms_results.xp) == 2)

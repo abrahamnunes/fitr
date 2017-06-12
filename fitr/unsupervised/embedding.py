@@ -46,7 +46,7 @@ class Embedding(object):
     -------
     embed(self, data)
         Runs the embedding
-    plot(self, group_labels=None, legend=True, figsize=None, show_figure=True, save_figure=False, figname='embedding.pdf')
+    plot(self, group_labels=None, legend=True, figsize=None, save_figure=False, figname='embedding.pdf')
         Plots the embedding
     """
     def __init__(self):
@@ -56,7 +56,7 @@ class Embedding(object):
     def embed(self, data):
         self.embedding = self.algorithm.fit_transform(data)
 
-    def plot(self, group_labels=None, legend=True, figsize=None, show_figure=True, save_figure=False, figname='embedding.pdf'):
+    def plot(self, group_labels=None, legend=True, figsize=None, save_figure=False, figname='embedding.pdf'):
         """
         Plots the embedding. Currently only works for 2-component plots
 
@@ -68,8 +68,6 @@ class Embedding(object):
             Whether to plot a legend
         figsize : (optional) list [width in inches, height in inches]
             Controls figure size
-        show_figure : bool
-            Whether to show figure output
         save_figure : bool
             Whether to save the figure to disk
         filename : str
@@ -115,8 +113,7 @@ class Embedding(object):
         if save_figure is True:
             plt.savefig(figname, bbox_inches='tight')
 
-        if show_figure is True:
-            plt.show()
+        return ax
 
 class TSNE(Embedding):
     """

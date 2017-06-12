@@ -144,7 +144,7 @@ class Param(object):
             else:
                 raise ValueError('Only beta and gamma distributions are supported. Please see documentation for details.')
 
-    def plot_pdf(self, xlim=None, figsize=None, show_figure=True, save_figure=False, filename='parameter-pdf.pdf'):
+    def plot_pdf(self, xlim=None, figsize=None, save_figure=False, filename='parameter-pdf.pdf'):
         """
         Plots the probability density function of this parameter
 
@@ -152,8 +152,6 @@ class Param(object):
         ----------
         xlim : (optional) list of lower and upper bounds of x axis
         figsize : (optional) list defining plot dimensions
-        show_figure : bool
-            Whether to show the figure on function call
         save_figure : bool
             Whether to save the figure at function call
         filename : str
@@ -195,8 +193,7 @@ class Param(object):
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
 
-        if show_figure is True:
-            plt.show()
+        return ax
 
 class LearningRate(Param):
     """

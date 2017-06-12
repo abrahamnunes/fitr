@@ -29,7 +29,7 @@ Module Documentation
 import numpy as np
 import matplotlib.pyplot as plt
 
-def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', alpha=0.5, show_figure=True, save_figure=False, figsize=None, figname='distance-scatter.pdf'):
+def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', alpha=0.5, save_figure=False, figsize=None, figname='distance-scatter.pdf'):
     """
     Creates a scatterplot between two distance metrics, demonstrating group separation, if any.
 
@@ -42,8 +42,6 @@ def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', alpha=0.5, show_
         Y-axis label
     alpha : float on interval (0, 1)
         Transparency of scatterplot points
-    show_figure : bool
-        Whether to show the plot
     save_figure : bool
         Whether to save the figure
     figsize : (optional) list
@@ -95,11 +93,10 @@ def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', alpha=0.5, show_
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    if show_figure is True:
-        plt.show()
+    return ax
 
 
-def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5, show_figure=True, save_figure=False, figsize=None, figname='distance-hist.pdf'):
+def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5, save_figure=False, figsize=None, figname='distance-hist.pdf'):
     """
     Creates a histogram of within- and between-group distances.
 
@@ -115,8 +112,6 @@ def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5
         Whether the histogram should be normalized
     alpha : float on interval (0, 1)
         Transparency of scatterplot points
-    show_figure : bool
-        Whether to show the plot
     save_figure : bool
         Whether to save the figure
     figsize : (optional) list
@@ -162,5 +157,4 @@ def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    if show_figure is True:
-        plt.show()
+    return ax

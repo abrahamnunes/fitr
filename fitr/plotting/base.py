@@ -28,7 +28,7 @@ Module Documentation
 """
 import matplotlib.pyplot as plt
 
-def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, interpolation='none', show_figure=True, save_figure=False, figsize=None, figname='heat.pdf'):
+def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, interpolation='none', save_figure=False, figsize=None, figname='heat.pdf'):
     """
     Plots a heatmap based on an input matrix
 
@@ -44,8 +44,6 @@ def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, interpolation='non
         Whether to show ticks and ticklabels
     interpolation : str
         Matplotlib interpolation method for image
-    show_figure : bool
-        Whether to show the figure
     save_figure : bool
         Whether to save the figure
     figsize : (optional) list
@@ -79,5 +77,4 @@ def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, interpolation='non
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    if show_figure is True:
-        plt.show()
+    return ax
