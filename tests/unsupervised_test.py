@@ -12,7 +12,7 @@ def test_embedding():
     assert(emb.algorithm is None)
     assert(emb.embedding is None)
 
-def test_tsne():
+def test_tsne(tmpdir):
     nsubjects = 20
     ntrials = 10
 
@@ -26,7 +26,11 @@ def test_tsne():
 
     assert(np.shape(tsne.embedding) == (nsubjects, 2))
 
-    tsne.plot(group_labels=group_labels, show_figure=False)
+    _file = tmpdir.join('output.pdf')
+    tsne.plot(group_labels=group_labels,
+              show_figure=False,
+              save_figure=True,
+              figname=_file.strpath)
     tsne.plot(show_figure=False)
 
 def test_affinity_propagation():

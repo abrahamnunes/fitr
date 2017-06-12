@@ -27,7 +27,7 @@ def test_synthetic_data_plots():
     group.plot_cumreward(show_figure=False)
     group.cumreward_param_plot(show_figure=False)
 
-def test_distance_plots():
+def test_distance_plots(tmpdir):
     nsubjects = 20
     res = task.lr_cr_mf().simulate(ntrials=20, nsubjects=nsubjects)
     param_dist = parameter_distance(params=res.params)
@@ -37,13 +37,30 @@ def test_distance_plots():
 
     group_labels = np.zeros(nsubjects)
     group_labels[10:] = 1
+
+    _file = tmpdir.join('output.pdf')
     heatmap(param_dist,
             title='Heatmap',
             xlab='X',
             ylab='Y',
-            show_figure=False)
+            interpolation='none',
+            show_figure=False,
+            save_figure=True,
+            figname=_file.strpath)
+
+    _file = tmpdir.join('output.pdf')
     distance_scatter(param_dist,
                      ll_dist,
                      group_labels=group_labels,
-                     show_figure=False)
-    distance_hist(param_dist, group_labels=group_labels, show_figure=False)
+                     show_figure=False,
+                     alpha=0.5,
+                     save_figure=True,
+                     figname=_file.strpath)
+
+    _file = tmpdir.join('output.pdf')
+    distance_hist(param_dist,
+                  group_labels=group_labels,
+                  show_figure=False,
+                  alpha=0.5,
+                  save_figure=True,
+                  figname=_file.strpath)
