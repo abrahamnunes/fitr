@@ -868,11 +868,11 @@ class fitrfit(object):
     -------
     set_paramnames(params) :
         Sets names of RL parameters to the fitrfit object
-    plot_ae(actual, show_figure=True, save_figure=False, filename='actual-estimate.pdf') :
+    plot_ae(actual, save_figure=False, filename='actual-estimate.pdf') :
         Plots estimated parameters against actual simulated parameters
-    plot_fit_ts(show_figure=True, save_figure=False, filename='fit-stats.pdf') :
+    plot_fit_ts(save_figure=False, filename='fit-stats.pdf') :
         Plots the evolution of log-likelihood, log-model-evidence, AIC, and BIC over optimization iterations
-    param_hist(show_figure=True, save_figure=False, filename='param-hist.pdf') :
+    param_hist(save_figure=False, filename='param-hist.pdf') :
         Plots hitograms of parameters in the model
     summary_table(write_csv=False, filename='summary-table.csv', delimiter=',') :
         Writes a CSV file with summary statistics from the present model
@@ -913,7 +913,7 @@ class fitrfit(object):
         for i in range(len(params)):
             self.paramnames.append(params[i].name)
 
-    def plot_ae(self, actual, show_figure=True, save_figure=False, filename='actual-estimate.pdf'):
+    def plot_ae(self, actual, save_figure=False, filename='actual-estimate.pdf'):
         """
         Plots actual parameters (if provided) against estimates
 
@@ -921,8 +921,6 @@ class fitrfit(object):
         ----------
         actual : ndarray(shape=(nsubjects, nparams))
             Array of actual parameters from a simulation
-        show_figure : bool
-            Whether to show figure output
         save_figure : bool
             Whether to save the figure to disk
         filename : str
@@ -944,19 +942,14 @@ class fitrfit(object):
         if save_figure is True:
             plt.savefig(filename)
 
-        if show_figure is True:
-            plt.show()
+        return ax
 
-        return
-
-    def plot_fit_ts(self, show_figure=True, save_figure=False, filename='fit-stats.pdf'):
+    def plot_fit_ts(self, save_figure=False, filename='fit-stats.pdf'):
         """
         Plots the log-model-evidence, BIC, and AIC over optimization iterations
 
         Parameters
         ----------
-        show_figure : bool
-            Whether to show figure output
         save_figure : bool
             Whether to save the figure to disk
         filename : str
@@ -996,19 +989,14 @@ class fitrfit(object):
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
 
-        if show_figure is True:
-            plt.show()
+        return ax
 
-        return
-
-    def param_hist(self, show_figure=True, save_figure=False, filename='param-hist.pdf'):
+    def param_hist(self, save_figure=False, filename='param-hist.pdf'):
         """
         Plots histograms of the parameter estimates
 
         Parameters
         ----------
-        show_figure : bool
-            Whether to show figure output
         save_figure : bool
             Whether to save the figure to disk
         filename : str
@@ -1027,12 +1015,9 @@ class fitrfit(object):
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
 
-        if show_figure is True:
-            plt.show()
+        return ax
 
-        return
-
-    def trace_plot(self, figsize=None, show_figure=True, save_figure=False, filename='fitr-mcstan-traceplot.pdf'):
+    def trace_plot(self, figsize=None, save_figure=False, filename='fitr-mcstan-traceplot.pdf'):
         """
         Easy wrapper for Stan Traceplot
 
@@ -1040,8 +1025,6 @@ class fitrfit(object):
         ----------
         figsize : (optional) list [width in inches, height in inches]
             Controls figure size
-        show_figure : bool
-            Whether to show figure output
         save_figure : bool
             Whether to save the figure to disk
         filename : str
@@ -1065,10 +1048,7 @@ class fitrfit(object):
                 if save_figure is True:
                     plt.savefig(filename, bbox_inches='tight')
 
-                if show_figure is True:
-                    plt.show()
-
-        return
+        return mcplot
 
     def ae_metrics(self, actual, matches=None):
         """

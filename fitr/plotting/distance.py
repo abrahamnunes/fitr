@@ -29,7 +29,7 @@ Module Documentation
 import numpy as np
 import matplotlib.pyplot as plt
 
-def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', show_figure=True, save_figure=False, figsize=None, figname='distance-scatter.pdf'):
+def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', alpha=0.5, save_figure=False, figsize=None, figname='distance-scatter.pdf'):
     """
     Creates a scatterplot between two distance metrics, demonstrating group separation, if any.
 
@@ -40,8 +40,8 @@ def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', show_figure=True
         X-axis label
     ylab : str
         Y-axis label
-    show_figure : bool
-        Whether to show the plot
+    alpha : float on interval (0, 1)
+        Transparency of scatterplot points
     save_figure : bool
         Whether to save the figure
     figsize : (optional) list
@@ -55,7 +55,7 @@ def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', show_figure=True
     fig, ax = plt.subplots(figsize=figsize)
 
     if group_labels is None:
-        ax.scatter(X.flatten(), Y.flatten(), c='b')
+        ax.scatter(X.flatten(), Y.flatten(), c='b', alpha=alpha)
     else:
         unique_labels = np.unique(group_labels)
 
@@ -72,10 +72,12 @@ def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', show_figure=True
         ax.scatter(x[group_colour == 0],
                    y[group_colour == 0],
                    c='r',
+                   alpha=alpha,
                    label='Out Group')
         ax.scatter(x[group_colour == 1],
                    y[group_colour == 1],
                    c='b',
+                   alpha=alpha,
                    label='In Group')
 
         plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),
@@ -91,11 +93,10 @@ def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', show_figure=True
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    if show_figure is True:
-        plt.show()
+    return ax
 
 
-def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, show_figure=True, save_figure=False, figsize=None, figname='distance-hist.pdf'):
+def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5, save_figure=False, figsize=None, figname='distance-hist.pdf'):
     """
     Creates a histogram of within- and between-group distances.
 
@@ -109,8 +110,8 @@ def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, show_figu
         Y-axis label
     normed : 0 or 1 (default=1)
         Whether the histogram should be normalized
-    show_figure : bool
-        Whether to show the plot
+    alpha : float on interval (0, 1)
+        Transparency of scatterplot points
     save_figure : bool
         Whether to save the figure
     figsize : (optional) list
@@ -139,13 +140,13 @@ def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, show_figu
             facecolor='r',
             edgecolor='k',
             label='Out Group',
-            alpha=0.4)
+            alpha=alpha)
     ax.hist(x[group_colour == 1],
             normed=normed,
             facecolor='b',
             edgecolor='k',
             label='In Group',
-            alpha=0.4)
+            alpha=alpha)
 
     plt.legend()
 
@@ -156,5 +157,4 @@ def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, show_figu
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    if show_figure is True:
-        plt.show()
+    return ax

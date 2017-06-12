@@ -28,7 +28,7 @@ Module Documentation
 """
 import matplotlib.pyplot as plt
 
-def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, show_figure=True, save_figure=False, figsize=None, figname='heat.pdf'):
+def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, interpolation='none', save_figure=False, figsize=None, figname='heat.pdf'):
     """
     Plots a heatmap based on an input matrix
 
@@ -40,11 +40,10 @@ def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, show_figure=True, 
         y-axis label
     title : (optional) str
         Plot title
-    xticks : bool (default True)
-        Whether to show x-ticks/xticklabels
-
-    show_figure : bool
-        Whether to show the figure
+    ticks : bool (default True)
+        Whether to show ticks and ticklabels
+    interpolation : str
+        Matplotlib interpolation method for image
     save_figure : bool
         Whether to save the figure
     figsize : (optional) list
@@ -55,7 +54,7 @@ def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, show_figure=True, 
         figsize = [5, 5]
 
     fig, ax = plt.subplots(figsize=figsize)
-    ax.imshow(X)
+    ax.imshow(X, interpolation=interpolation)
 
     if title is not None:
         ax.set_title(title)
@@ -78,5 +77,4 @@ def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, show_figure=True, 
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    if show_figure is True:
-        plt.show()
+    return ax

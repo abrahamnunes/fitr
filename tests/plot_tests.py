@@ -10,24 +10,23 @@ from fitr.plotting import distance_scatter
 from fitr.plotting import distance_hist
 
 def test_param_plot_pdf():
-    LearningRate(mean=0.5, sd=0.2).plot_pdf(show_figure=False)
-    ChoiceRandomness(mean=4.5, sd=2).plot_pdf(show_figure=False)
-    Perseveration().plot_pdf(show_figure=False)
+    LearningRate(mean=0.5, sd=0.2).plot_pdf()
+    ChoiceRandomness(mean=4.5, sd=2).plot_pdf()
+    Perseveration().plot_pdf()
 
     with pytest.raises(Exception):
-        LearningRate().plot_pdf(xlim=[1, 0], show_figure=False)
-        LearningRate().plot_pdf(xlim=[-1, 1], show_figure=False)
-        LearningRate().plot_pdf(xlim=[0, 2], show_figure=False)
-        ChoiceRandomness().plot_pdf(xlim=[-1, 20], show_figure=False)
-        ChoiceRandomness().plot_pdf(xlim=[1, -20], show_figure=False)
+        LearningRate().plot_pdf(xlim=[1, 0])
+        LearningRate().plot_pdf(xlim=[-1, 1])
+        LearningRate().plot_pdf(xlim=[0, 2])
+        ChoiceRandomness().plot_pdf(xlim=[-1, 20])
+        ChoiceRandomness().plot_pdf(xlim=[1, -20])
 
 def test_synthetic_data_plots():
     group = task.lr_cr_mf().simulate(ntrials=20, nsubjects=5)
+    group.plot_cumreward()
+    group.cumreward_param_plot()
 
-    group.plot_cumreward(show_figure=False)
-    group.cumreward_param_plot(show_figure=False)
-
-def test_distance_plots():
+def test_distance_plots(tmpdir):
     nsubjects = 20
     res = task.lr_cr_mf().simulate(ntrials=20, nsubjects=nsubjects)
     param_dist = parameter_distance(params=res.params)
@@ -37,13 +36,27 @@ def test_distance_plots():
 
     group_labels = np.zeros(nsubjects)
     group_labels[10:] = 1
+
+    _file = tmpdir.join('output.pdf')
     heatmap(param_dist,
             title='Heatmap',
             xlab='X',
             ylab='Y',
-            show_figure=False)
+            interpolation='none',
+            save_figure=True,
+            figname=_file.strpath)
+
+    _file = tmpdir.join('output.pdf')
     distance_scatter(param_dist,
                      ll_dist,
                      group_labels=group_labels,
-                     show_figure=False)
-    distance_hist(param_dist, group_labels=group_labels, show_figure=False)
+                     alpha=0.5,
+                     save_figure=True,
+                     figname=_file.strpath)
+
+    _file = tmpdir.join('output.pdf')
+    distance_hist(param_dist,
+                  group_labels=group_labels,
+                  alpha=0.5,
+                  save_figure=True,
+                  figname=_file.strpath)

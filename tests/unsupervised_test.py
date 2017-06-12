@@ -6,13 +6,14 @@ from fitr.unsupervised import Embedding
 from fitr.unsupervised import TSNE
 from fitr.unsupervised import AffinityPropagation
 from fitr.unsupervised import Cluster
+import matplotlib.pyplot as plt
 
 def test_embedding():
     emb = Embedding()
     assert(emb.algorithm is None)
     assert(emb.embedding is None)
 
-def test_tsne():
+def test_tsne(tmpdir):
     nsubjects = 20
     ntrials = 10
 
@@ -26,8 +27,12 @@ def test_tsne():
 
     assert(np.shape(tsne.embedding) == (nsubjects, 2))
 
-    tsne.plot(group_labels=group_labels, show_figure=False)
-    tsne.plot(show_figure=False)
+    _file = tmpdir.join('output.pdf')
+    tsne.plot(group_labels=group_labels,
+              save_figure=True,
+              figname=_file.strpath)
+    tsne.plot()
+    plt.close()
 
 def test_affinity_propagation():
     nsubjects = 20

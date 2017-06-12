@@ -133,14 +133,12 @@ class SyntheticData(object):
 
 
 
-    def cumreward_param_plot(self, alpha=0.9, show_figure=True, save_figure=False, filename='cumreward-param-plot-sim.pdf'):
+    def cumreward_param_plot(self, alpha=0.9, save_figure=False, filename='cumreward-param-plot-sim.pdf'):
         """
         Plots parameter values against cumulative reward
 
         Parameters
         ----------
-        show_figure : bool
-            Whether to show the figure
         save_figure : bool
             Whether to save the figure to disk
         filename : str
@@ -164,20 +162,18 @@ class SyntheticData(object):
             if save_figure is True:
                 plt.savefig(filename, bbox_inches='tight')
 
-            if show_figure is True:
-                plt.show()
+            return ax
+
         else:
             print('ERROR: There are no parameters assigned')
             return
 
-    def plot_cumreward(self, show_figure=True, save_figure=False, filename='cumreward-plot-sim.pdf'):
+    def plot_cumreward(self, save_figure=False, filename='cumreward-plot-sim.pdf'):
         """
         Plots cumulative reward over time for each subject
 
         Parameters
         ----------
-        show_figure : bool
-            Whether to show the figure
         save_figure : bool
             Whether to save the figure to disk
         filename : str
@@ -196,5 +192,4 @@ class SyntheticData(object):
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
 
-        if show_figure is True:
-            plt.show()
+        return ax
