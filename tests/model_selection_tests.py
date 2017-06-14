@@ -39,7 +39,7 @@ def test_model_selections():
 
 	models = [fit1, fit2]
 	bms_results = BMS(model_fits=models, c_limit=1e-10).run()
-	bms_results.plot(statistic='pxp')
+	bms_results.plot(statistic='pxp', save_figure=True)
 	bms_results.plot(statistic='xp')
 
 	bic_results = BIC(model_fits=models).run()
