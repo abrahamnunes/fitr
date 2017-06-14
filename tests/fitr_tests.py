@@ -5,6 +5,7 @@ from fitr.inference import FitModel
 from fitr.inference import EM
 from fitr.inference import EmpiricalPriors
 from fitr.inference import MCMC
+from fitr.inference import MLE
 from fitr import tasks
 from fitr.models import twostep as task
 from fitr import generative_models as gm
