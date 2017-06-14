@@ -69,9 +69,9 @@ def test_em():
 					  early_stopping=True,
 					  verbose=False)
 
-	mfit.plot_ae(actual=res.params)
-	mfit.plot_fit_ts()
-	mfit.param_hist()
+	mfit.plot_ae(actual=res.params, save_figure=True)
+	mfit.plot_fit_ts(save_figure=True)
+	mfit.param_hist(save_figure=True)
 
 	assert(mfit.name == 'EMModel')
 	assert(mfit.method == 'Expectation-Maximization')

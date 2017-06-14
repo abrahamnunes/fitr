@@ -113,7 +113,7 @@ class Embedding(object):
         if save_figure is True:
             plt.savefig(figname, bbox_inches='tight')
 
-        return ax
+        return fig
 
 class TSNE(Embedding):
     """

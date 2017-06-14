@@ -139,7 +139,7 @@ class ModelFitResult(object):
             ax[i].set_xlim([minval, maxval])
 
         if save_figure is True:
-            plt.savefig(filename)
+            plt.savefig(filename, bbox_inches='tight')
 
         return fig
 
@@ -233,19 +233,16 @@ class ModelFitResult(object):
         if figsize is None:
             figsize = [8, 8]
 
-        if self.method != 'MCMC':
-            print('ERROR: Traceplot can only be created for MCMC results.')
-        else:
-            # Ignore the annoying warning about tight layout
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
+        # Ignore the annoying warning about tight layout
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
 
-                mcplot = self.stanfit['stanfit'].traceplot()
-                mcplot.set_size_inches(figsize[0], figsize[1])
-                mcplot.set_tight_layout(tight=True)
+            mcplot = self.stanfit['stanfit'].traceplot()
+            mcplot.set_size_inches(figsize[0], figsize[1])
+            mcplot.set_tight_layout(tight=True)
 
-                if save_figure is True:
-                    plt.savefig(filename, bbox_inches='tight')
+            if save_figure is True:
+                plt.savefig(filename, bbox_inches='tight')
 
         return mcplot
 

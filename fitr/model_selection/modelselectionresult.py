@@ -112,4 +112,4 @@ class ModelSelectionResult(object):
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
 
-        return ax
+        return fig

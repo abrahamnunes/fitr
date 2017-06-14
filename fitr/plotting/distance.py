@@ -93,7 +93,7 @@ def distance_scatter(X, Y, group_labels=None, xlab='', ylab='', alpha=0.5, save_
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    return ax
+    return fig
 
 
 def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5, save_figure=False, figsize=None, figname='distance-hist.pdf'):
@@ -157,4 +157,4 @@ def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    return ax
+    return fig
