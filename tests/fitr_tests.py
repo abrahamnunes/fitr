@@ -158,7 +158,7 @@ def test_mle():
 	mfit2 = model.fit(data=res.data,
 					  opt_algorithm='BFGS',
 					  verbose=True)
-	mfit.ae_metrics()
+	mfit.ae_metrics(actual=res.params)
 
 	assert(mfit.name == 'MLModel')
 	assert(mfit.method == 'Maximum Likelihood')
