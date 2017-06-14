@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import fitr
+from fitr.inference import FitModel
+from fitr.inference import EM
+from fitr.inference import EmpiricalPriors
+from fitr.inference import MCMC
 from fitr import tasks
 from fitr.models import twostep as task
 from fitr import generative_models as gm
@@ -44,9 +48,9 @@ def test_em():
 	cr = fitr.rlparams.ChoiceRandomness()
 	likfun = task.lr_cr_mf().loglikelihood
 
-	model = fitr.fitr.EM(loglik_func=likfun,
-						 params=[lr, cr],
-						 name='EMModel')
+	model = EM(loglik_func=likfun,
+			   params=[lr, cr],
+			   name='EMModel')
 
 	assert(model.name == 'EMModel')
 	assert(len(model.params) == 2)
@@ -98,9 +102,9 @@ def test_empirical_priors():
 
 	likfun = task.lr_cr_mf().loglikelihood
 
-	model = fitr.fitr.EmpiricalPriors(loglik_func=likfun,
-						 			  params=[lr, cr],
-						 		  	  name='EPModel')
+	model = EmpiricalPriors(loglik_func=likfun,
+						 	params=[lr, cr],
+						 	name='EPModel')
 
 	assert(model.name == 'EPModel')
 	assert(len(model.params) == 2)
@@ -113,6 +117,49 @@ def test_empirical_priors():
 
 	assert(mfit.name == 'EPModel')
 	assert(mfit.method == 'Empirical Priors')
+	assert(mfit.nsubjects == 5)
+	assert(mfit.nparams == 2)
+	assert(np.shape(mfit.params) == (5, 2))
+	assert(len(mfit.paramnames) == 2)
+	assert(np.shape(mfit.hess) == (2, 2, 5))
+	assert(np.shape(mfit.hess_inv) == (2, 2, 5))
+	assert(np.shape(mfit.errs) == (5, 2))
+	assert(np.size(mfit.nlogpost) == 5)
+	assert(np.size(mfit.nloglik) == 5)
+	assert(np.size(mfit.LME) == 5)
+	assert(np.size(mfit.BIC) == 5)
+	assert(np.size(mfit.AIC) == 5)
+	assert(type(mfit.ts_LME) == list)
+	assert(type(mfit.ts_nLL) == list)
+	assert(type(mfit.ts_BIC) == list)
+	assert(type(mfit.ts_AIC) == list)
+
+def test_mle():
+	ntrials = 10
+	nsubjects = 5
+
+	lr = fitr.rlparams.LearningRate()
+	cr = fitr.rlparams.ChoiceRandomness()
+
+	res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
+
+	likfun = task.lr_cr_mf().loglikelihood
+
+	model = MLE(loglik_func=likfun,
+				params=[lr, cr],
+				name='MLModel')
+
+	assert(model.name == 'MLModel')
+	assert(len(model.params) == 2)
+	assert(model.loglik_func == likfun)
+
+	mfit = model.fit(data=res.data)
+	mfit2 = model.fit(data=res.data,
+					  opt_algorithm='BFGS',
+					  verbose=False)
+
+	assert(mfit.name == 'MLModel')
+	assert(mfit.method == 'Maximum Likelihood')
 	assert(mfit.nsubjects == 5)
 	assert(mfit.nparams == 2)
 	assert(np.shape(mfit.params) == (5, 2))
@@ -145,7 +192,7 @@ def test_mcmc():
 	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 	banditgm = gm.bandit(model='lr_cr')
 
-	model = fitr.MCMC(generative_model=banditgm)
+	model = MCMC(generative_model=banditgm)
 
 	assert(model.name == 'FitrMCMCModel')
 	assert(model.generative_model == banditgm)
@@ -178,10 +225,10 @@ def test_fitrmodels():
 	banditll = ll.bandit_ll().lr_cr
 	banditgm = gm.bandit(model='lr_cr')
 
-	model = fitr.fitrmodel(name='My 2-Armed Bandit Model',
-	                   	   loglik_func=banditll,
-	                   	   params=params,
-	                   	   generative_model=banditgm)
+	model = FitModel(name='My 2-Armed Bandit Model',
+	                 loglik_func=banditll,
+	                 params=params,
+	                 generative_model=banditgm)
 
 	emfit = model.fit(data=taskresults.data,
 					  method='EM',
@@ -193,4 +240,8 @@ def test_fitrmodels():
 
 	mcfit = model.fit(data=taskresults.data_mcmc,
 					  method='MCMC',
+					  verbose=False)
+
+	mlfit = model.fit(data=taskresults.data,
+					  method='MLE',
 					  verbose=False)

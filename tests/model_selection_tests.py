@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import fitr
+from fitr.inference import EM
+from fitr.model_selection import BIC
+from fitr.model_selection import AIC
+from fitr.model_selection import BMS
+
 from fitr import tasks
 from fitr import generative_models as gm
 from fitr import loglik_functions as ll
-from fitr import model_selection
 import numpy as np
 import scipy
 
@@ -22,26 +26,26 @@ def test_model_selections():
 
 	res = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
 
-	m1 = fitr.fitr.EM(loglik_func=ll.bandit_ll().lr_cr,
-						 	params=params)
+	m1 = EM(loglik_func=ll.bandit_ll().lr_cr,
+			params=params)
 
-	m2 = fitr.fitr.EM(loglik_func=ll.bandit_ll().lr_cr_rs,
-				 	  params=[fitr.rlparams.LearningRate(),
-					  		  fitr.rlparams.ChoiceRandomness(),
-							  fitr.rlparams.RewardSensitivity()])
+	m2 = EM(loglik_func=ll.bandit_ll().lr_cr_rs,
+			params=[fitr.rlparams.LearningRate(),
+		  		    fitr.rlparams.ChoiceRandomness(),
+				    fitr.rlparams.RewardSensitivity()])
 
 	fit1 = m1.fit(data=res.data)
 	fit2 = m2.fit(data=res.data)
 
 	models = [fit1, fit2]
-	bms_results = model_selection.BMS(model_fits=models, c_limit=1e-10).run()
+	bms_results = BMS(model_fits=models, c_limit=1e-10).run()
 	bms_results.plot(statistic='pxp')
 	bms_results.plot(statistic='xp')
 
-	bic_results = model_selection.BIC(model_fits=models).run()
+	bic_results = BIC(model_fits=models).run()
 	bic_results.plot(statistic='BIC')
 
-	aic_results = model_selection.AIC(model_fits=models).run()
+	aic_results = AIC(model_fits=models).run()
 	aic_results.plot(statistic='AIC')
 
 	assert(len(bms_results.modelnames) == 2)

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import fitr
+from fitr.models import combine_groups
 from fitr.rlparams import *
 from fitr.models import twostep as task
 import numpy as np
 import scipy
 
-def test_syntheticdata():
+def test_synthdata_and_combine():
     ntrials = 10
     nsubjects = 5
     group1_task = task.lr_cr_mf(LR=LearningRate(mean=0.3, sd=0.05),
@@ -20,20 +21,20 @@ def test_syntheticdata():
                                        nsubjects=nsubjects,
                                        group_id='EDO')
 
-    group1_data.append_group(data=group2_data)
+    pooled_data = combine_groups(x=group1_data, y=group2_data)
 
-    assert(len(group1_data.data) == nsubjects*2)
-    assert(group1_data.data_mcmc['T'] == ntrials)
-    assert(group1_data.data_mcmc['N'] == nsubjects*2)
-    assert(np.shape(group1_data.data_mcmc['S2']) == (ntrials, nsubjects*2))
-    assert(np.shape(group1_data.data_mcmc['A1']) == (ntrials, nsubjects*2))
-    assert(np.shape(group1_data.data_mcmc['A2']) == (ntrials, nsubjects*2))
-    assert(np.shape(group1_data.data_mcmc['R']) == (ntrials, nsubjects*2))
-    assert(np.size(group1_data.data_mcmc['G']) == nsubjects*2)
+    assert(len(pooled_data.data) == nsubjects*2)
+    assert(pooled_data.data_mcmc['T'] == ntrials)
+    assert(pooled_data.data_mcmc['N'] == nsubjects*2)
+    assert(np.shape(pooled_data.data_mcmc['S2']) == (ntrials, nsubjects*2))
+    assert(np.shape(pooled_data.data_mcmc['A1']) == (ntrials, nsubjects*2))
+    assert(np.shape(pooled_data.data_mcmc['A2']) == (ntrials, nsubjects*2))
+    assert(np.shape(pooled_data.data_mcmc['R']) == (ntrials, nsubjects*2))
+    assert(np.size(pooled_data.data_mcmc['G']) == nsubjects*2)
 
     # Test the get_nparams and get_nsubjects methods
-    n_params = group1_data.get_nparams()
-    n_subj   = group1_data.get_nsubjects()
+    n_params = pooled_data.get_nparams()
+    n_subj   = pooled_data.get_nsubjects()
 
     assert(n_params == 2)
     assert(n_subj == nsubjects*2)

@@ -20,12 +20,6 @@
 #    Email: nunes@dal.ca
 #
 # ============================================================================
-"""
-Module containing data objects used in fitr.
-
-Module Documentation
---------------------
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -193,3 +187,22 @@ class SyntheticData(object):
             plt.savefig(filename, bbox_inches='tight')
 
         return ax
+
+def combine_groups(x, y):
+    """
+    Combines synthetic data objects for multiple groups
+
+    Parameters
+    ----------
+    x : SyntheticData
+        Data for first simulated group
+    y : SyntheticData
+        Data for second simulated group
+
+    Returns
+    -------
+    SyntheticData
+        Combined groups
+    """
+    x.append_group(data=y)
+    return x

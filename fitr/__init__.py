@@ -21,12 +21,6 @@
 #
 # ============================================================================
 
-from .fitr import fitrmodel
-from .fitr import EM
-from .fitr import EmpiricalPriors
-from .fitr import MCMC
-from .fitr import fitrfit
-
 from .rlparams import *
 
 from .loglik_functions import *
@@ -36,12 +30,7 @@ from .tasks import *
 from .utils import *
 
 
-__all__ = ['fitrmodel',
-           'EM',
-           'EmpiricalPriors',
-           'MCMC',
-           'fitrfit',
-           'rlparams',
+__all__ = ['rlparams',
            'loglik_functions',
            'generative_models',
            'model_selection',
