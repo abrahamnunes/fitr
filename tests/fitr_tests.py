@@ -111,7 +111,7 @@ def test_empirical_priors():
 	assert(len(model.params) == 2)
 	assert(model.loglik_func == likfun)
 
-	mfit = model.fit(data=res.data, False)
+	mfit = model.fit(data=res.data, verbose=False)
 	mfit2 = model.fit(data=res.data,
 					  opt_algorithm='BFGS',
 					  verbose=True)

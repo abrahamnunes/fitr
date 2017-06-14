@@ -133,8 +133,6 @@ class EmpiricalPriors(object):
                         bounds = bounds + ((0, 1),)
                     elif self.params[k].rng == 'pos':
                         bounds = bounds + ((0,100),)
-                    elif self.params[k].rng == 'neg':
-                        bounds = bounds + ((-100, 0),)
                     elif self.params[k].rng == 'unc':
                         bounds = bounds + ((-1000, 1000),)
 
