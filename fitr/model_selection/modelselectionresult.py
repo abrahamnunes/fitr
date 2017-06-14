@@ -61,12 +61,6 @@ class ModelSelectionResult(object):
         if method=='AIC':
             self.AIC = []
 
-        if method=='All':
-            self.xp = []
-            self.pxp = []
-            self.BIC = []
-            self.AIC = []
-
     def plot(self, statistic, save_figure=False, filename='modelselection-plot.pdf', figsize=(10, 10)):
         """
         Plots the results of model selection (bars)
