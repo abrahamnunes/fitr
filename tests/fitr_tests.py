@@ -111,10 +111,10 @@ def test_empirical_priors():
 	assert(len(model.params) == 2)
 	assert(model.loglik_func == likfun)
 
-	mfit = model.fit(data=res.data)
+	mfit = model.fit(data=res.data, False)
 	mfit2 = model.fit(data=res.data,
 					  opt_algorithm='BFGS',
-					  verbose=False)
+					  verbose=True)
 
 	assert(mfit.name == 'EPModel')
 	assert(mfit.method == 'Empirical Priors')
@@ -154,10 +154,11 @@ def test_mle():
 	assert(len(model.params) == 2)
 	assert(model.loglik_func == likfun)
 
-	mfit = model.fit(data=res.data)
+	mfit = model.fit(data=res.data, verbose=False)
 	mfit2 = model.fit(data=res.data,
 					  opt_algorithm='BFGS',
-					  verbose=False)
+					  verbose=True)
+	mfit.ae_metrics()
 
 	assert(mfit.name == 'MLModel')
 	assert(mfit.method == 'Maximum Likelihood')
@@ -199,7 +200,7 @@ def test_mcmc():
 	assert(model.generative_model == banditgm)
 
 	lrcr = model.fit(data=taskresults.data_mcmc, n_iterations=10)
-	lrcr.trace_plot()
+	lrcr.trace_plot(save_figure=True)
 
 	assert(lrcr.name == 'FitrMCMCModel')
 	assert(lrcr.method == 'MCMC')
