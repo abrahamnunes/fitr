@@ -36,7 +36,7 @@ setup(name='fitr',
           'Programming Language :: Python :: 2.7'
       ],
       license='MIT',
-      packages=find_packages(exclude=['docs', 'tests']),
+      packages=find_packages(exclude=['docs', 'examples', 'tests']),
       # include_package_data=True,
       # zip_safe=False
       )
