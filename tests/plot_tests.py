@@ -6,6 +6,7 @@ from fitr.models import twostep as task
 from fitr.metrics import parameter_distance
 from fitr.metrics import likelihood_distance
 from fitr.plotting import heatmap
+from fitr.plotting import confusion_matrix
 from fitr.plotting import distance_scatter
 from fitr.plotting import distance_hist
 
@@ -60,3 +61,16 @@ def test_distance_plots(tmpdir):
                   alpha=0.5,
                   save_figure=True,
                   figname=_file.strpath)
+
+def test_confusion_matrix():
+    X = np.random.uniform(0, 1, size=(10, 10))
+    fig = confusion_matrix(X=X,
+                           classes=np.arange(10),
+                           normalize=False,
+                           round_digits = 2,
+                           title='Confusion matrix',
+                           xlabel='Predicted Label',
+                           ylabel='True Label',
+                           file_dir='tmp/',
+                           filename='figsaved.pdf',
+                           cmap=plt.cm.Blues)
