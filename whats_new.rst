@@ -17,10 +17,16 @@ New Features
 Summary
 .......
 
-- ``metrics``, ``models``, ``plotting``, ``unsupervised`` subpackages
+- ``inference``, ``metrics``, ``models``, ``model_selection``, ``plotting``, ``unsupervised`` subpackages
 - ``twostep`` module adds various models for the two-step task. Replaces ``tasks.twostep`` class
 - Reinforcement learning parameters in module ``rlparams`` can now be initialized using desired mean and standard deviations. This should allow easier simulation of synthetic data from various tasks.
 - Added ``rlparams.Param.plot_pdf`` function to plot the probability density function of synthetic parameters
+
+Inference Subpackage
+........................
+
+- The former ``fitr`` module has been turned into the subpackage ``inference``, with all constituent functions therein. Should make development a bit easier with shorter files. Also importing ``fitr.inference`` makes a bit more sense than ``fitr.fitr``, as it was before.
+- Implemented ``fitr.inference.MLE()`` class for maximum-likelihood estimation
 
 Metrics Subpackage
 ..................
@@ -30,16 +36,17 @@ Metrics Subpackage
     - ``parameter_distance``
     - ``likelihood_distance``
 
-Unsupervised Subpackage
-.......................
-
-- ``cluster`` module including ``AffinityPropagation`` algorithm
-- ``embedding`` module including ``TSNE`` algorithm
-
 Models Subpackage
 .................
 
 - A new place to keep all of the paradigm model modules
+- ``twostep`` module containing models of the two-step task
+- ``synthetic_data`` module containing object for synthetic behavioural data
+
+Model Selection Subpackage
+..........................
+
+- The former ``model_selection`` module is now the ``fitr.model_selection`` subpackage, with constituent functions as individual modules. Should make development easier with shorter files.
 
 Plotting Subpackage
 ...................
@@ -48,10 +55,15 @@ Plotting Subpackage
 - ``heatmap`` function
 - ``distance_hist`` and ``distance_scatter`` functions
 
+Unsupervised Subpackage
+.......................
+
+- ``cluster`` module including ``AffinityPropagation`` algorithm
+- ``embedding`` module including ``TSNE`` algorithm
+
 Enhancements
 ------------
 
-- The ``SyntheticData`` object was moved to a new module, ``fitrdata`` to account for the new task-specific model structures being introduced.
 - Added more unit tests to catch up on code coverage
 
 Bug Fixes
@@ -69,6 +81,7 @@ Removed Features
 
 - ``tasks.twostep``
 - ``rlparams.generate_groups``
+- 'MAP0' option in the ``fitr.inference.fitmodel`` function ``FitModel.fit()``
 
 Version 0.0.1
 =============

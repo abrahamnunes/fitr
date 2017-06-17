@@ -21,12 +21,19 @@
 #
 # ============================================================================
 """
-The :mod:`fitr.models` includes code for various paradigm models
+The :mod:`fitr.inference` module includes functions for parameter estimation
 """
 
-from .synthetic_data import SyntheticData
-from .synthetic_data import combine_groups
+from .em import EM
+from .empiricalpriors import EmpiricalPriors
+from .fitmodel import FitModel
+from .mcmc import MCMC
+from .mle import MLE
+from .modelfitresult import ModelFitResult
 
-__all__ = ['twostep',
-           'SyntheticData',
-           'combine_groups']
+__all__ = ['EM',
+           'EmpiricalPriors',
+           'FitModel',
+           'MCMC',
+           'MLE',
+           'ModelFitResult']

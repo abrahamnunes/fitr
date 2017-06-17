@@ -33,7 +33,7 @@ Module Documentation
 """
 import warnings
 import numpy as np
-from .fitrdata import SyntheticData
+from .models.synthetic_data import SyntheticData
 
 # Warn user of the deprecated modules
 warnings.warn(

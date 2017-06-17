@@ -21,12 +21,15 @@
 #
 # ============================================================================
 """
-The :mod:`fitr.models` includes code for various paradigm models
+The :mod:`fitr.model_selection` module includes functions for model comparison
 """
 
-from .synthetic_data import SyntheticData
-from .synthetic_data import combine_groups
+from .aic import AIC
+from .bic import BIC
+from .bms import BMS
+from .modelselectionresult import ModelSelectionResult
 
-__all__ = ['twostep',
-           'SyntheticData',
-           'combine_groups']
+__all__ = ['AIC',
+           'BIC',
+           'BMS',
+           'ModelSelectionResult']
