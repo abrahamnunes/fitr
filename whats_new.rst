@@ -53,6 +53,7 @@ Plotting Subpackage
 
 - A new place to write the plotting functions to be used across Fitr
 - ``heatmap`` function
+- ``confusion_matrix`` function
 - ``distance_hist`` and ``distance_scatter`` functions
 
 Unsupervised Subpackage

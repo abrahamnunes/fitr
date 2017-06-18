@@ -25,11 +25,8 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.optimize import minimize
-from scipy.optimize import brute
 from scipy.stats import multivariate_normal as mvn
 
-from ..utils import trans_UC
 from ..metrics import BIC, AIC, LME
 
 class ModelFitResult(object):

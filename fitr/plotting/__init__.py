@@ -25,10 +25,12 @@ The :mod:`fitr.plotting` includes various plotting functions
 """
 
 from .base import heatmap
+from .base import confusion_matrix
 
 from .distance import distance_scatter
 from .distance import distance_hist
 
 __all__ = ['heatmap',
+           'confusion_matrix',
            'distance_scatter',
            'distance_hist']
