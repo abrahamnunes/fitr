@@ -293,7 +293,7 @@ class EM(object):
             Log-posterior probability
         """
 
-        lp = self.loglik_func(params=trans_UC(x, rngconvergence iself.param_rng), states=states, actions=actions, rewards=rewards) + self.prior.logpdf(x, mean=self.mu, cov=self.cov)
+        lp = self.loglik_func(params=trans_UC(x, rng=self.param_rng), states=states, actions=actions, rewards=rewards) + self.prior.logpdf(x, mean=self.mu, cov=self.cov)
 
         return lp
 
