@@ -31,7 +31,7 @@ References
 Module Documentation
 --------------------
 """
-
+import numpy as np
 from .synthetic_data import SyntheticData
 
 from ..rlparams import LearningRate
