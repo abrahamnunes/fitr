@@ -177,7 +177,7 @@ def test_mcmc():
 
 def test_fitrmodels():
 	nsubjects = 5
-	ntrials = 10
+	ntrials = 100
 
 	lr = fitr.rlparams.LearningRate()
 	cr = fitr.rlparams.ChoiceRandomness()
