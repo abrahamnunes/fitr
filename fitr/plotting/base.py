@@ -133,7 +133,9 @@ def confusion_matrix(X,
     plt.yticks(tick_marks, classes)
 
     if normalize:
-        X = np.round(X.astype('float') / X.sum(axis=1)[:, np.newaxis], round_digits)
+        X = np.around(X.astype('float') / X.sum(axis=1)[:, np.newaxis], decimals=round_digits)
+    else:
+        X = np.around(X, decimals=round_digits)
 
     thresh = X.max() / 2.
     for i, j in itertools.product(range(X.shape[0]), range(X.shape[1])):
