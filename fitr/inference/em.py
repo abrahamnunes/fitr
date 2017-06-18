@@ -214,7 +214,11 @@ class EM(object):
                         results.hess[:,:,i] = np.linalg.pinv(res.hess_inv)
                         results.hess_inv[:,:,i] = res.hess_inv
 
-                    results.nloglik[i]  = -self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
+                    trans_params = trans_UC(res.x, rng=self.param_rng)
+                    results.nloglik[i] = -self.loglik_func(params=trans_params,
+                                                           states=data[i]['S'],
+                                                           actions=data[i]['A'],
+                                                           rewards=data[i]['R'])
                     results.LME[i] = LME(-res.fun, self.nparams, results.hess[:,:,i])
                     results.AIC[i] = AIC(self.nparams, -results.nloglik[i])
                     results.BIC[i] = BIC(-results.nloglik[i], self.nparams, len(data[0]['A']))
@@ -289,7 +293,7 @@ class EM(object):
             Log-posterior probability
         """
 
-        lp = self.loglik_func(params=trans_UC(x, rng=self.param_rng), states=states, actions=actions, rewards=rewards) + self.prior.logpdf(x, mean=self.mu, cov=self.cov)
+        lp = self.loglik_func(params=trans_UC(x, rngconvergence iself.param_rng), states=states, actions=actions, rewards=rewards) + self.prior.logpdf(x, mean=self.mu, cov=self.cov)
 
         return lp
 

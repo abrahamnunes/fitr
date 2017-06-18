@@ -172,7 +172,11 @@ class EmpiricalPriors(object):
                         results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
                         results.hess_inv[:,:,i] = res.hess_inv
 
-                    results.nloglik[i]  = -self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
+                    trans_params = trans_UC(res.x, rng=self.param_rng)
+                    results.nloglik[i] = -self.loglik_func(params=trans_params,
+                                                           states=data[i]['S'],
+                                                           actions=data[i]['A'],
+                                                           rewards=data[i]['R'])
                     results.LME[i] = LME(-res.fun, self.nparams, results.hess[:,:,i])
                     results.AIC[i] = AIC(self.nparams, -results.nloglik[i])
                     results.BIC[i] = BIC(-results.nloglik[i], self.nparams, len(data[0]['A']))
