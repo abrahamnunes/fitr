@@ -26,7 +26,9 @@ Core plotting functions
 Module Documentation
 --------------------
 """
+import os
 import itertools
+import numpy as np
 import matplotlib.pyplot as plt
 
 def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, interpolation='none', save_figure=False, figsize=None, figname='heat.pdf'):
@@ -87,6 +89,7 @@ def confusion_matrix(X,
                      title='Confusion matrix',
                      xlabel='Predicted Label',
                      ylabel='True Label',
+                     figsize=None,
                      file_dir=None,
                      filename=None,
                      cmap=plt.cm.Blues):

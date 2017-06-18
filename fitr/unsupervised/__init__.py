@@ -32,5 +32,5 @@ from .embedding import TSNE
 
 __all__ = ['Cluster',
            'AffinityPropagation',
-           'Embedding'
+           'Embedding',
            'TSNE']
