@@ -18,77 +18,106 @@ def test_bandit():
 
 			# Loop over whether preset_paths are used
 			for preset in [preset_paths, None]:
-				lrcr = db.lr_cr(narms=k)
-				lrcrrs = db.lr_cr_rs(narms=k)
-				lrcrp = db.lr_cr_p(narms=k)
-				lrcrrsp = db.lr_cr_rs_p(narms=k)
+				lc = db.lr_cr(narms=k)
+				lcr = db.lr_cr_rs(narms=k)
+				lcp = db.lr_cr_p(narms=k)
+				lcrp = db.lr_cr_rs_p(narms=k)
 				dummy = db.dummy(narms=k)
 
-				lrcr_res = lrcr.simulate(nsubjects=N,
-										 ntrials=T,
-										 group_id='A',
-										 preset_rpaths=preset,
-										 rpath_common=common)
-				lrcrrs_res = lrcrrs.simulate(nsubjects=N,
+				lc_d = lc.simulate(nsubjects=N,
+									 ntrials=T,
+								     group_id='A',
+							   	     preset_rpaths=preset,
+								     rpath_common=common)
+				lc_LL = lc.loglikelihood(params=[0.1, 4],
+									     states=lc_d.data[0]['S'],
+										 actions=lc_d.data[0]['A'],
+										 rewards=lc_d.data[0]['R'])
+
+				lcr_d = lcr.simulate(nsubjects=N,
 											 ntrials=T,
 											 group_id='A',
 											 preset_rpaths=preset,
 											 rpath_common=common)
-				lrcrp_res = lrcrp.simulate(nsubjects=N,
-										   ntrials=T,
-										   group_id='A',
-										   preset_rpaths=preset,
-										   rpath_common=common)
-				lrcrrsp_res = lrcrrsp.simulate(nsubjects=N,
-											   ntrials=T,
+				lcr_LL = lcr.loglikelihood(params=[0.1, 4, 0.9],
+										   states=lcr_d.data[0]['S'],
+									       actions=lcr_d.data[0]['A'],
+									       rewards=lcr_d.data[0]['R'])
+
+				lcp_d = lcp.simulate(nsubjects=N,
+									 ntrials=T,
+								     group_id='A',
+							  	     preset_rpaths=preset,
+								     rpath_common=common)
+				lcp_LL = lcp.loglikelihood(params=[0.1, 4, 0.01],
+										   states=lcp_d.data[0]['S'],
+									       actions=lcp_d.data[0]['A'],
+								     	   rewards=lcp_d.data[0]['R'])
+
+				lcrp_d = lcrp.simulate(nsubjects=N,
+										 ntrials=T,
 											   group_id='A',
 											   preset_rpaths=preset,
 											   rpath_common=common)
-				dummy_res = dummy.simulate(nsubjects=N,
-										   ntrials=T,
-										   group_id='A',
-										   preset_rpaths=preset,
-										   rpath_common=common)
+				lcrp_LL = lcrp.loglikelihood(params=[0.1, 4, 0.9, 0.01],
+											 states=lcrp_d.data[0]['S'],
+									         actions=lcrp_d.data[0]['A'],
+							     		     rewards=lcrp_d.data[0]['R'])
+
+				dummy_d = dummy.simulate(nsubjects=N,
+										 ntrials=T,
+									     group_id='A',
+									     preset_rpaths=preset,
+								         rpath_common=common)
+				dummy_LL = dummy.loglikelihood(params=[4],
+											   states=dummy_d.data[0]['S'],
+											   actions=dummy_d.data[0]['A'],
+											   rewards=dummy_d.data[0]['R'])
 
 				# Test lrcrrs_res
-				assert(lrcr.narms == k)
-				assert(len(lrcr_res.data) == N)
-				assert(lrcr_res.data_mcmc['N'] == N)
-				assert(lrcr_res.data_mcmc['T'] == T)
-				assert(np.shape(lrcr_res.data_mcmc['A']) == (T, N))
-				assert(np.shape(lrcr_res.data_mcmc['R']) == (T, N))
+				assert(type(lc_LL) is np.float64)
+				assert(lc.narms == k)
+				assert(len(lc_d.data) == N)
+				assert(lc_d.data_mcmc['N'] == N)
+				assert(lc_d.data_mcmc['T'] == T)
+				assert(np.shape(lc_d.data_mcmc['A']) == (T, N))
+				assert(np.shape(lc_d.data_mcmc['R']) == (T, N))
 
 				# Test lrcrrs_res
-				assert(lrcrrs.narms == k)
-				assert(len(lrcrrs_res.data) == N)
-				assert(lrcrrs_res.data_mcmc['N'] == N)
-				assert(lrcrrs_res.data_mcmc['T'] == T)
-				assert(np.shape(lrcrrs_res.data_mcmc['A']) == (T, N))
-				assert(np.shape(lrcrrs_res.data_mcmc['R']) == (T, N))
+				assert(type(lcr_LL) is np.float64)
+				assert(lcr.narms == k)
+				assert(len(lcr_d.data) == N)
+				assert(lcr_d.data_mcmc['N'] == N)
+				assert(lcr_d.data_mcmc['T'] == T)
+				assert(np.shape(lcr_d.data_mcmc['A']) == (T, N))
+				assert(np.shape(lcr_d.data_mcmc['R']) == (T, N))
 
 				# Test lrcrp_res
-				assert(lrcrp.narms == k)
-				assert(len(lrcrp_res.data) == N)
-				assert(lrcrp_res.data_mcmc['N'] == N)
-				assert(lrcrp_res.data_mcmc['T'] == T)
-				assert(np.shape(lrcrp_res.data_mcmc['A']) == (T, N))
-				assert(np.shape(lrcrp_res.data_mcmc['R']) == (T, N))
+				assert(type(lcp_LL) is np.float64)
+				assert(lcp.narms == k)
+				assert(len(lcp_d.data) == N)
+				assert(lcp_d.data_mcmc['N'] == N)
+				assert(lcp_d.data_mcmc['T'] == T)
+				assert(np.shape(lcp_d.data_mcmc['A']) == (T, N))
+				assert(np.shape(lcp_d.data_mcmc['R']) == (T, N))
 
 				# Test lrcrrsp_res
-				assert(lrcrrsp.narms == k)
-				assert(len(lrcrrsp_res.data) == N)
-				assert(lrcrrsp_res.data_mcmc['N'] == N)
-				assert(lrcrrsp_res.data_mcmc['T'] == T)
-				assert(np.shape(lrcrrsp_res.data_mcmc['A']) == (T, N))
-				assert(np.shape(lrcrrsp_res.data_mcmc['R']) == (T, N))
+				assert(type(lcrp_LL) is np.float64)
+				assert(lcrp.narms == k)
+				assert(len(lcrp_d.data) == N)
+				assert(lcrp_d.data_mcmc['N'] == N)
+				assert(lcrp_d.data_mcmc['T'] == T)
+				assert(np.shape(lcrp_d.data_mcmc['A']) == (T, N))
+				assert(np.shape(lcrp_d.data_mcmc['R']) == (T, N))
 
 				# Test dummy_res
+				assert(type(dummy_LL) is np.float64)
 				assert(dummy.narms == k)
-				assert(len(dummy_res.data) == N)
-				assert(dummy_res.data_mcmc['N'] == N)
-				assert(dummy_res.data_mcmc['T'] == T)
-				assert(np.shape(dummy_res.data_mcmc['A']) == (T, N))
-				assert(np.shape(dummy_res.data_mcmc['R']) == (T, N))
+				assert(len(dummy_d.data) == N)
+				assert(dummy_d.data_mcmc['N'] == N)
+				assert(dummy_d.data_mcmc['T'] == T)
+				assert(np.shape(dummy_d.data_mcmc['A']) == (T, N))
+				assert(np.shape(dummy_d.data_mcmc['R']) == (T, N))
 
 def test_twostep_lr_cr_mf():
 	nsubjects = 5

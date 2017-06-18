@@ -36,7 +36,6 @@ from .synthetic_data import SyntheticData
 
 from ..rlparams import LearningRate
 from ..rlparams import ChoiceRandomness
-from ..rlparams import EligibilityTrace
 from ..rlparams import RewardSensitivity
 from ..rlparams import Perseveration
 from ..utils import action as _action
@@ -158,10 +157,6 @@ class lr_cr(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -365,10 +360,6 @@ class lr_cr_rs(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -586,10 +577,6 @@ class lr_cr_p(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -827,10 +814,6 @@ class lr_cr_rs_p(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -1035,10 +1018,6 @@ class dummy(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,

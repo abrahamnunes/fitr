@@ -24,8 +24,8 @@ def test_param_plot_pdf():
 
 def test_synthetic_data_plots():
     group = task.lr_cr_mf().simulate(ntrials=20, nsubjects=5)
-    group.plot_cumreward()
-    group.cumreward_param_plot()
+    f = group.plot_cumreward(save_figure=True)
+    f = group.cumreward_param_plot(save_figure=True)
 
 def test_distance_plots(tmpdir):
     nsubjects = 20

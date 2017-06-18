@@ -28,8 +28,6 @@ from .utils import *
 
 
 __all__ = ['rlparams',
-           'loglik_functions',
            'generative_models',
            'model_selection',
-           'tasks',
            'utils']

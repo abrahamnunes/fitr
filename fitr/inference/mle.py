@@ -104,19 +104,18 @@ class MLE(object):
         convergence = False
         opt_iter = 1
         sum_nlogpost = 0 # Monitor total neg-log-posterior for convergence
-        while convergence == False and opt_iter < n_iterations:
+        while convergence is False and opt_iter < n_iterations:
             for i in range(nsubjects):
                 if verbose is True:
                     print('ITERATION: '  + str(opt_iter) +
                           ' | SUBJECT: ' + str(i+1))
 
-                # Extract subject-level data
-                S = data[i]['S']
-                A = data[i]['A']
-                R = data[i]['R']
-
-                # Construct the subject's negative log-posterior function
-                _nlogpost = lambda x: -self.loglik_func(params=x, states=S, actions=A, rewards=R)
+                def _nlogpost(x):
+                    _lp = -self.loglik_func(params=x,
+                                            states=data[i]['S'],
+                                            actions=data[i]['A'],
+                                            rewards=data[i]['R'])
+                    return _lp
 
                 # Create bounds
                 bounds = ()

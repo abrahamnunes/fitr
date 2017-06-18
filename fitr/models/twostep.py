@@ -169,10 +169,6 @@ class lr_cr_mf(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -402,10 +398,6 @@ class lr_cr_rs_mf(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -638,10 +630,6 @@ class lr_cr_et_mf(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -888,10 +876,6 @@ class lr_cr_p_mf(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -1158,10 +1142,6 @@ class lr_cr_et_p_mf(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -1425,10 +1405,6 @@ class lr_cr_rs_p_mf(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,
@@ -1697,10 +1673,6 @@ class lr_cr_rs_et_p_mf(object):
 
         # Set reward paths
         if preset_rpaths is None:
-            path_max = rpath_max
-            path_min = rpath_min
-            path_sd = rpath_sd
-
             if rpath_common is True:
                 paths = np.random.uniform(rpath_min,
                                           rpath_max,

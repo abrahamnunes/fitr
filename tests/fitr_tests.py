@@ -13,7 +13,7 @@ import numpy as np
 import scipy
 
 def test_em():
-	ntrials = 10
+	ntrials = 100
 	nsubjects = 5
 
 	res = task.lr_cr_mf().simulate(ntrials=ntrials, nsubjects=nsubjects)
@@ -66,7 +66,7 @@ def test_em():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_empirical_priors():
-	ntrials = 10
+	ntrials = 100
 	nsubjects = 5
 
 	lr = fitr.rlparams.LearningRate()
@@ -109,7 +109,7 @@ def test_empirical_priors():
 	assert(type(mfit.ts_AIC) == list)
 
 def test_mle():
-	ntrials = 10
+	ntrials = 100
 	nsubjects = 5
 
 	lr = fitr.rlparams.LearningRate()

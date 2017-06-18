@@ -145,20 +145,20 @@ class EM(object):
         opt_iter = 1
         sum_nlogpost = np.sum(results.nlogpost)
         results_old = None # Keep placeholder for old results for early stopping
-        while convergence == False and opt_iter < n_iterations:
+        while convergence is False and opt_iter < n_iterations:
             for i in range(nsubjects):
                 if verbose is True:
                     print('ITERATION: '          + str(opt_iter) +
                           ' | [E-STEP] SUBJECT: ' + str(i+1) +
                           ' | POSTERIOR LOG-LIKELIHOOD: ' + str(-np.round(np.sum(results.nlogpost), 3)))
 
-                # Extract subject-level data
-                S = data[i]['S']
-                A = data[i]['A']
-                R = data[i]['R']
-
-                # Construct the subject's negative log-posterior function
-                _nlogpost = lambda x: -self.logposterior(x=x, states=S, actions=A, rewards=R)
+                # Construct subject's negative log-posterior function
+                def _nlogpost(x):
+                    _lp = -self.loglik_func(params=x,
+                                            states=data[i]['S'],
+                                            actions=data[i]['A'],
+                                            rewards=data[i]['R'])
+                    return _lp
 
                 # Run optimization until convergence succeeds
                 exitflag = False
@@ -276,12 +276,12 @@ class EM(object):
         ----------
         x : ndarray(nparams)
             Array of parameters for single subject
-        states : ndarray
-            Array of states encountered by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.
-        actions: ndarray
-            Array of actions taken by subject. Number of rows should reflect number of trials. If the task is a multi-step per trial task, then the number of columns should reflect the number of steps, unless a custom likelihood function is used which does not require this.
-        rewards : ndarray
-            Array of rewards received by the subject. Number of rows should reflect number of trials. If there are multiple steps at which rewards are received, they should be stored in different columns, unless a custom likelihood funciton is used which does not require this.
+        states : ndarray(shape=[ntrials, nsteps])
+            Array of states encountered by subject
+        actions: ndarray(shape=[ntrials, nsteps])
+            Array of actions taken by subject
+        rewards : ndarray(shape=[ntrials, nsteps])
+            Array of rewards received by the subject.
 
         Returns
         -------
