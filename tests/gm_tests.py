@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import fitr
-from fitr import tasks
 from fitr import generative_models as gm
 import numpy as np
 import scipy

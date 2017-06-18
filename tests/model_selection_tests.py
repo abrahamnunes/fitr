@@ -1,38 +1,35 @@
 # -*- coding: utf-8 -*-
 
-import fitr
+import numpy as np
+
+from fitr.rlparams import LearningRate
+from fitr.rlparams import ChoiceRandomness
+from fitr.rlparams import RewardSensitivity
 from fitr.inference import EM
 from fitr.model_selection import BIC
 from fitr.model_selection import AIC
 from fitr.model_selection import BMS
 
-from fitr import tasks
-from fitr import generative_models as gm
-from fitr import loglik_functions as ll
-import numpy as np
-import scipy
+from fitr.models import driftbandit
 
 def test_model_selections():
 	nsubjects = 5
 	ntrials = 10
 
-	lr = fitr.rlparams.LearningRate()
-	cr = fitr.rlparams.ChoiceRandomness()
+	lr = LearningRate()
+	cr = ChoiceRandomness()
 	params = [lr, cr]
 
-	group = np.zeros([nsubjects, 2])
-	group[:, 0] = lr.sample(size=nsubjects)
-	group[:, 1] = cr.sample(size=nsubjects)
+	task = driftbandit.lr_cr(narms=2)
+	res = task.simulate(nsubjects=nsubjects, ntrials=ntrials)
 
-	res = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
-
-	m1 = EM(loglik_func=ll.bandit_ll().lr_cr,
+	m1 = EM(loglik_func=task.loglikelihood,
 			params=params)
 
-	m2 = EM(loglik_func=ll.bandit_ll().lr_cr_rs,
-			params=[fitr.rlparams.LearningRate(),
-		  		    fitr.rlparams.ChoiceRandomness(),
-				    fitr.rlparams.RewardSensitivity()])
+	m2 = EM(loglik_func=driftbandit.lr_cr_rs(narms=2).loglikelihood,
+			params=[LearningRate(),
+		  		    ChoiceRandomness(),
+				    RewardSensitivity()])
 
 	fit1 = m1.fit(data=res.data)
 	fit2 = m2.fit(data=res.data)

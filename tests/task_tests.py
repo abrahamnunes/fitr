@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import fitr
-from fitr import tasks
 from fitr.models import twostep
 from fitr.models import driftbandit as db
 import numpy as np
