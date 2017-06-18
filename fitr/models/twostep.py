@@ -34,7 +34,11 @@ Module Documentation
 
 from .synthetic_data import SyntheticData
 
-from ..rlparams import *
+from ..rlparams import LearningRate
+from ..rlparams import ChoiceRandomness
+from ..rlparams import EligibilityTrace
+from ..rlparams import RewardSensitivity
+from ..rlparams import Perseveration
 from ..utils import action, logsumexp
 
 class lr_cr_mf(object):

@@ -21,12 +21,8 @@
 #
 # ============================================================================
 
-import warnings
 import numpy as np
-import pandas as pd
 from scipy.optimize import minimize
-from scipy.optimize import brute
-from scipy.stats import multivariate_normal as mvn
 
 from .modelfitresult import ModelFitResult
 

@@ -80,7 +80,7 @@ def heatmap(X, xlab=None, ylab=None, title=None, ticks=False, interpolation='non
     if save_figure is True:
         plt.savefig(figname, bbox_inches="tight")
 
-    return ax
+    return fig
 
 def confusion_matrix(X,
                      classes,

@@ -124,8 +124,6 @@ def distance_hist(X, group_labels, xlab='Distance', ylab='', normed=1, alpha=0.5
 
     fig, ax = plt.subplots(figsize=figsize)
 
-    unique_labels = np.unique(group_labels)
-
     group_colour = np.zeros([len(group_labels), len(group_labels)])
     for i in range(len(group_labels)):
         for j in range(len(group_labels)):

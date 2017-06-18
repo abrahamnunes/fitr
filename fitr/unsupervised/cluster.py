@@ -29,10 +29,8 @@ Module Documentation
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from sklearn.cluster import AffinityPropagation as AP
-from sklearn.metrics import pairwise_distances
 from sklearn.metrics import homogeneity_score
 from sklearn.metrics import completeness_score
 from sklearn.metrics import v_measure_score
@@ -60,7 +58,7 @@ class Cluster(object):
         Returns performance metrics for clustering algorithm
 
     """
-    def __init__(self, labels_true=None):
+    def __init__(self):
         self.algorithm = None
 
         self.clusters = None
@@ -79,7 +77,7 @@ class AffinityPropagation(Cluster):
                             affinity=affinity,
                             verbose=verbose)
 
-    def fit(self, data, group_labels=None, verbose=True):
+    def fit(self, data):
         """
         Runs the affinity propagation clustering algorithm
 
@@ -87,10 +85,6 @@ class AffinityPropagation(Cluster):
         ----------
         data : ndarray
             Data to be clustered
-        group_labels : (optional) ndarray(shape=nsubjects)
-            Ground truth labels
-        verbose : bool
-            Verbosity level
         """
 
         self.algorithm.fit(data)
