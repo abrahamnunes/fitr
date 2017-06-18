@@ -6,10 +6,9 @@ from fitr.inference import EM
 from fitr.inference import EmpiricalPriors
 from fitr.inference import MCMC
 from fitr.inference import MLE
-from fitr import tasks
 from fitr.models import twostep as task
+from fitr.models import driftbandit as db
 from fitr import generative_models as gm
-from fitr import loglik_functions as ll
 import numpy as np
 import scipy
 
@@ -157,15 +156,7 @@ def test_mcmc():
 	nsubjects = 5
 	ntrials = 10
 
-	lr = fitr.rlparams.LearningRate()
-	cr = fitr.rlparams.ChoiceRandomness()
-	params = [lr, cr]
-
-	group = np.zeros([nsubjects, 2])
-	group[:, 0] = lr.sample(size=nsubjects)
-	group[:, 1] = cr.sample(size=nsubjects)
-
-	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
+	taskresults = db.lr_cr(narms=2).simulate(nsubjects=nsubjects, ntrials=ntrials)
 	banditgm = gm.bandit(model='lr_cr')
 
 	model = MCMC(generative_model=banditgm)
@@ -192,13 +183,9 @@ def test_fitrmodels():
 	cr = fitr.rlparams.ChoiceRandomness()
 	params = [lr, cr]
 
-	group = np.zeros([nsubjects, 2])
-	group[:, 0] = lr.sample(size=nsubjects)
-	group[:, 1] = cr.sample(size=nsubjects)
+	taskresults = db.lr_cr(narms=2).simulate(nsubjects=nsubjects, ntrials=ntrials)
 
-	taskresults = tasks.bandit(narms=2).simulate(params=group, ntrials=ntrials)
-
-	banditll = ll.bandit_ll().lr_cr
+	banditll = db.lr_cr(narms=2).loglikelihood
 	banditgm = gm.bandit(model='lr_cr')
 
 	model = FitModel(name='My 2-Armed Bandit Model',
