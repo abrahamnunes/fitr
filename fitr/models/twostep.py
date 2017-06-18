@@ -197,7 +197,7 @@ class lr_cr_mf(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -430,7 +430,7 @@ class lr_cr_rs_mf(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -666,7 +666,7 @@ class lr_cr_et_mf(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -916,7 +916,7 @@ class lr_cr_p_mf(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -1186,7 +1186,7 @@ class lr_cr_et_p_mf(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -1453,7 +1453,7 @@ class lr_cr_rs_p_mf(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -1725,7 +1725,7 @@ class lr_cr_rs_et_p_mf(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]

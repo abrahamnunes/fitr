@@ -16,11 +16,11 @@ def test_param_plot_pdf():
     Perseveration().plot_pdf()
 
     with pytest.raises(Exception):
-        LearningRate().plot_pdf(xlim=[1, 0])
-        LearningRate().plot_pdf(xlim=[-1, 1])
-        LearningRate().plot_pdf(xlim=[0, 2])
-        ChoiceRandomness().plot_pdf(xlim=[-1, 20])
-        ChoiceRandomness().plot_pdf(xlim=[1, -20])
+        LearningRate().plot_pdf(xlim=[1, 0], save_figure=True)
+        LearningRate().plot_pdf(xlim=[-1, 1], save_figure=True)
+        LearningRate().plot_pdf(xlim=[0, 2], save_figure=True)
+        ChoiceRandomness().plot_pdf(xlim=[-1, 20], save_figure=True)
+        ChoiceRandomness().plot_pdf(xlim=[1, -20], save_figure=True)
 
 def test_synthetic_data_plots():
     group = task.lr_cr_mf().simulate(ntrials=20, nsubjects=5)

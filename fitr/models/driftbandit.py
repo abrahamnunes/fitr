@@ -130,7 +130,7 @@ class lr_cr(object):
             Number of subjects to simulate
         group_id : int (default=None)
             Identifier for the group of simulated subjects
-        preset_rpaths : ndarray(shape=(ntrials, 4, nsubjects))
+        preset_rpaths : ndarray(shape=(ntrials, narms, nsubjects))
             Array of preset reward paths. If rpath_common is True, then this can be an (ntrials X 4) array.
         rpath_max : float on interval (0, 1)
             Maximum probability of reward
@@ -186,7 +186,7 @@ class lr_cr(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -335,7 +335,7 @@ class lr_cr_rs(object):
             Number of subjects to simulate
         group_id : int (default=None)
             Identifier for the group of simulated subjects
-        preset_rpaths : ndarray(shape=(ntrials, 4, nsubjects))
+        preset_rpaths : ndarray(shape=(ntrials, self.narms, nsubjects))
             Array of preset reward paths. If rpath_common is True, then this can be an (ntrials X 4) array.
         rpath_max : float on interval (0, 1)
             Maximum probability of reward
@@ -393,7 +393,7 @@ class lr_cr_rs(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -556,7 +556,7 @@ class lr_cr_p(object):
             Number of subjects to simulate
         group_id : int (default=None)
             Identifier for the group of simulated subjects
-        preset_rpaths : ndarray(shape=(ntrials, 4, nsubjects))
+        preset_rpaths : ndarray(shape=(ntrials, narms, nsubjects))
             Array of preset reward paths. If rpath_common is True, then this can be an (ntrials X 4) array.
         rpath_max : float on interval (0, 1)
             Maximum probability of reward
@@ -614,7 +614,7 @@ class lr_cr_p(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -795,7 +795,7 @@ class lr_cr_rs_p(object):
             Number of subjects to simulate
         group_id : int (default=None)
             Identifier for the group of simulated subjects
-        preset_rpaths : ndarray(shape=(ntrials, 4, nsubjects))
+        preset_rpaths : ndarray(shape=(ntrials, narms, nsubjects))
             Array of preset reward paths. If rpath_common is True, then this can be an (ntrials X 4) array.
         rpath_max : float on interval (0, 1)
             Maximum probability of reward
@@ -855,7 +855,7 @@ class lr_cr_rs_p(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
@@ -1009,7 +1009,7 @@ class dummy(object):
             Number of subjects to simulate
         group_id : int (default=None)
             Identifier for the group of simulated subjects
-        preset_rpaths : ndarray(shape=(ntrials, 4, nsubjects))
+        preset_rpaths : ndarray(shape=(ntrials, narms, nsubjects))
             Array of preset reward paths. If rpath_common is True, then this can be an (ntrials X 4) array.
         rpath_max : float on interval (0, 1)
             Maximum probability of reward
@@ -1063,7 +1063,7 @@ class dummy(object):
 
         for i in range(nsubjects):
             # Set subject-level reward path
-            if rpath_common is True:
+            if rpath_common is True and preset_rpaths is None:
                 subj_rpath = paths
             else:
                 subj_rpath = paths[:, :, i]
