@@ -15,11 +15,20 @@ def test_param_plot_pdf():
     ChoiceRandomness(mean=4.5, sd=2).plot_pdf()
     Perseveration().plot_pdf()
 
+    # Test the exceptions
     with pytest.raises(Exception):
         LearningRate().plot_pdf(xlim=[1, 0], save_figure=True)
+
+    with pytest.raises(Exception):
         LearningRate().plot_pdf(xlim=[-1, 1], save_figure=True)
+
+    with pytest.raises(Exception):
         LearningRate().plot_pdf(xlim=[0, 2], save_figure=True)
+
+    with pytest.raises(Exception):
         ChoiceRandomness().plot_pdf(xlim=[-1, 20], save_figure=True)
+
+    with pytest.raises(Exception):
         ChoiceRandomness().plot_pdf(xlim=[1, -20], save_figure=True)
 
 def test_synthetic_data_plots():
