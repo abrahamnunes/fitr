@@ -41,6 +41,7 @@ Models Subpackage
 
 - A new place to keep all of the paradigm model modules
 - ``twostep`` module containing models of the two-step task
+- ``driftbandit`` module containing models of an N-armed bandit task with drifting reward probabilities
 - ``synthetic_data`` module containing object for synthetic behavioural data
 
 Model Selection Subpackage
@@ -75,12 +76,13 @@ Bug Fixes
 Deprecations
 ------------
 
-- The modules ``tasks``, ``loglik_functions``, and ``generative_models`` are deprecated and will be replaced by task specific modules, such as ``twostep``, wherein each model of the task will be represented as an object with the relevant likelihood functions and generative models contained within.
+- The ``generative_models`` module is deprecated and will be replaced by task specific modules, such as ``twostep``, wherein each model of the task will be represented as an object with the relevant likelihood functions and generative models contained within.
 
 Removed Features
 ----------------
 
-- ``tasks.twostep``
+- ``tasks`` module
+- ``loglik_functions`` module
 - ``rlparams.generate_groups``
 - 'MAP0' option in the ``fitr.inference.fitmodel`` function ``FitModel.fit()``
 

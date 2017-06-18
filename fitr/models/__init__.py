@@ -27,6 +27,7 @@ The :mod:`fitr.models` includes code for various paradigm models
 from .synthetic_data import SyntheticData
 from .synthetic_data import combine_groups
 
-__all__ = ['twostep',
+__all__ = ['driftbandit',
+           'twostep',
            'SyntheticData',
            'combine_groups']
