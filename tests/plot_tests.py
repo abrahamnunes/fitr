@@ -15,17 +15,26 @@ def test_param_plot_pdf():
     ChoiceRandomness(mean=4.5, sd=2).plot_pdf()
     Perseveration().plot_pdf()
 
+    # Test the exceptions
     with pytest.raises(Exception):
-        LearningRate().plot_pdf(xlim=[1, 0])
-        LearningRate().plot_pdf(xlim=[-1, 1])
-        LearningRate().plot_pdf(xlim=[0, 2])
-        ChoiceRandomness().plot_pdf(xlim=[-1, 20])
-        ChoiceRandomness().plot_pdf(xlim=[1, -20])
+        LearningRate().plot_pdf(xlim=[1, 0], save_figure=True)
+
+    with pytest.raises(Exception):
+        LearningRate().plot_pdf(xlim=[-1, 1], save_figure=True)
+
+    with pytest.raises(Exception):
+        LearningRate().plot_pdf(xlim=[0, 2], save_figure=True)
+
+    with pytest.raises(Exception):
+        ChoiceRandomness().plot_pdf(xlim=[-1, 20], save_figure=True)
+
+    with pytest.raises(Exception):
+        ChoiceRandomness().plot_pdf(xlim=[1, -20], save_figure=True)
 
 def test_synthetic_data_plots():
     group = task.lr_cr_mf().simulate(ntrials=20, nsubjects=5)
-    group.plot_cumreward()
-    group.cumreward_param_plot()
+    f = group.plot_cumreward(save_figure=True)
+    f = group.cumreward_param_plot(save_figure=True)
 
 def test_distance_plots(tmpdir):
     nsubjects = 20

@@ -107,19 +107,19 @@ class EmpiricalPriors(object):
         convergence = False
         opt_iter = 1
         sum_nlogpost = 0 # Monitor total neg-log-posterior for convergence
-        while convergence == False and opt_iter < n_iterations:
+        while convergence is False and opt_iter < n_iterations:
             for i in range(nsubjects):
                 if verbose is True:
                     print('ITERATION: '          + str(opt_iter) +
                           ' | SUBJECT: ' + str(i+1))
 
-                # Extract subject-level data
-                S = data[i]['S']
-                A = data[i]['A']
-                R = data[i]['R']
-
-                # Construct the subject's negative log-posterior function
-                _nlogpost = lambda x: -self.logposterior(x=x, states=S, actions=A, rewards=R)
+                # Construct subjects negative log-posterior function
+                def _nlogpost(x):
+                    _lp = -self.loglik_func(params=x,
+                                            states=data[i]['S'],
+                                            actions=data[i]['A'],
+                                            rewards=data[i]['R'])
+                    return _lp
 
 
                 # Create bounds
@@ -172,7 +172,11 @@ class EmpiricalPriors(object):
                         results.hess[:,:,i] = np.linalg.inv(res.hess_inv)
                         results.hess_inv[:,:,i] = res.hess_inv
 
-                    results.nloglik[i]  = -self.loglik_func(params=trans_UC(res.x, rng=self.param_rng), states=S, actions=A, rewards=R)
+                    trans_params = trans_UC(res.x, rng=self.param_rng)
+                    results.nloglik[i] = -self.loglik_func(params=trans_params,
+                                                           states=data[i]['S'],
+                                                           actions=data[i]['A'],
+                                                           rewards=data[i]['R'])
                     results.LME[i] = LME(-res.fun, self.nparams, results.hess[:,:,i])
                     results.AIC[i] = AIC(self.nparams, -results.nloglik[i])
                     results.BIC[i] = BIC(-results.nloglik[i], self.nparams, len(data[0]['A']))

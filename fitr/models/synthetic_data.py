@@ -156,7 +156,7 @@ class SyntheticData(object):
             if save_figure is True:
                 plt.savefig(filename, bbox_inches='tight')
 
-            return ax
+            return fig
 
         else:
             print('ERROR: There are no parameters assigned')
@@ -186,7 +186,7 @@ class SyntheticData(object):
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
 
-        return ax
+        return fig
 
 def combine_groups(x, y):
     """

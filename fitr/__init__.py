@@ -22,17 +22,12 @@
 # ============================================================================
 
 from .rlparams import *
-
-from .loglik_functions import *
 from .generative_models import *
 from .model_selection import *
-from .tasks import *
 from .utils import *
 
 
 __all__ = ['rlparams',
-           'loglik_functions',
            'generative_models',
            'model_selection',
-           'tasks',
            'utils']
