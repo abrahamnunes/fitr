@@ -105,9 +105,11 @@ class MLE(object):
         sum_nlogpost = 0 # Monitor total neg-log-posterior for convergence
         while convergence is False and opt_iter < n_iterations:
             for i in range(nsubjects):
-                if verbose is True:
-                    print('ITERATION: '  + str(opt_iter) +
-                          ' | SUBJECT: ' + str(i+1))
+                # Print update message to console
+                self.__printupdate(curr_iter=opt_iter,
+                                   subject_i=i,
+                                   _lp=-np.round(np.sum(results.nlogpost), 3),
+                                   verbose=verbose)
 
                 def _nlogpost(x):
                     _lp = -self.loglik_func(params=x,
@@ -214,3 +216,24 @@ class MLE(object):
               '     OPTIMIZATION ALGORITHM: ' + algorithm + '\n' +
               '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
+
+    @classmethod
+    def __printupdate(self, curr_iter, subject_i, _lp, verbose):
+        """
+        Prints update on iteration fit
+
+        Parameters
+        ----------
+        opt_iter : int > 0
+            Current iteration of optimization
+        subject_i : int >= 0
+            Current subject index
+        _lp : float
+            Current log-likelihood subject
+        verbose : bool
+            Whether to print
+        """
+        if verbose is True:
+            print('ITERATION: '          + str(curr_iter) +
+                  ' | SUBJECT: ' + str(subject_i+1) +
+                  ' | SUBJECT LOG-LIKELIHOOD: ' + str(_lp))

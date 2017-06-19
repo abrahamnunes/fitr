@@ -146,7 +146,7 @@ class EM(object):
         while convergence is False and opt_iter < n_iterations:
             for i in range(nsubjects):
                 # Print update to console
-                self.__printupdate(opt_iter=opt_iter,
+                self.__printupdate(curr_iter=opt_iter,
                                    subject_i=i,
                                    _lp=-np.round(np.sum(results.nlogpost), 3),
                                    verbose=verbose)
@@ -421,13 +421,13 @@ class EM(object):
               '=============================================\n')
 
     @classmethod
-    def __printupdate(opt_iter, subject_i, _lp, verbose):
+    def __printupdate(self, curr_iter, subject_i, _lp, verbose):
         """
         Prints update on iteration fit
 
         Parameters
         ----------
-        opt_iter : int > 0
+        curr_iter : int > 0
             Current iteration of optimization
         subject_i : int >= 0
             Current subject index
@@ -437,6 +437,6 @@ class EM(object):
             Whether to print
         """
         if verbose is True:
-            print('ITERATION: '          + str(opt_iter) +
+            print('ITERATION: '          + str(curr_iter) +
                   ' | [E-STEP] SUBJECT: ' + str(subject_i+1) +
                   ' | POSTERIOR LOG-LIKELIHOOD: ' + str(_lp))
