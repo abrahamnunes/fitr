@@ -85,7 +85,6 @@ class FitModel(object):
                     params=self.params,
                     name=self.name)
             results = m.fit(data=data,
-                            n_iterations=1,
                             c_limit=c_limit,
                             verbose=verbose)
         elif method=='EmpiricalPriors':

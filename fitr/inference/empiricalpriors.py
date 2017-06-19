@@ -24,7 +24,7 @@
 import numpy as np
 from scipy.optimize import minimize
 
-from .modelfitresult import ModelFitResult
+from .modelfitresult import OptimizationFitResult
 
 from ..utils import trans_UC
 from ..metrics import BIC, AIC, LME
@@ -52,7 +52,10 @@ class EmpiricalPriors(object):
         Runs model-fitting algorithm
     logposterior(x, states, actions, rewards)
         Computes the log-poseterior probability
-
+    __printfitstart(self, n_iterations, algorithm, verbose)
+        (Private) function to print optimization info to console
+    __printupdate(self, opt_iter, subject_i, posterior_ll, verbose)
+        (Private) function to print iteration info to console
     """
     def __init__(self, loglik_func, params, name='EmpiricalPriorsModel'):
         self.name = name
@@ -90,28 +93,27 @@ class EmpiricalPriors(object):
 
         # Instantiate the results object
         nsubjects = len(data)
-        results = ModelFitResult(method='Empirical Priors',
-                                 nsubjects=nsubjects,
-                                 nparams=self.nparams,
-                                 name=self.name)
+        results = OptimizationFitResult(method='Empirical Priors',
+                                        nsubjects=nsubjects,
+                                        nparams=self.nparams,
+                                        name=self.name)
         results.set_paramnames(params=self.params)
 
-        print('=============================================\n' +
-              '     MODEL: ' + self.name + '\n' +
-              '     METHOD: Empirical Priors\n' +
-              '     ITERATIONS: ' + str(n_iterations) + '\n' +
-              '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
-              '     VERBOSE: ' + str(verbose) + '\n' +
-              '=============================================\n')
+        # Print initial message to console
+        self.__printfitstart(n_iterations=n_iterations,
+                             algorithm=opt_algorithm,
+                             verbose=verbose)
 
         convergence = False
         opt_iter = 1
         sum_nlogpost = 0 # Monitor total neg-log-posterior for convergence
         while convergence is False and opt_iter < n_iterations:
             for i in range(nsubjects):
-                if verbose is True:
-                    print('ITERATION: '          + str(opt_iter) +
-                          ' | SUBJECT: ' + str(i+1))
+                # Print update message to console
+                self.__printupdate(opt_iter=opt_iter,
+                                   subject_i=i,
+                                   _lp=-np.round(np.sum(results.nlogpost), 3),
+                                   verbose=verbose)
 
                 # Construct subjects negative log-posterior function
                 def _nlogpost(x):
@@ -230,3 +232,44 @@ class EmpiricalPriors(object):
             lp = lp + self.params[i].dist.logpdf(x[i])
 
         return lp
+
+    def __printfitstart(self, n_iterations, algorithm, verbose):
+        """
+        Prints information in console banner when fitting starts
+
+        Parameters
+        ----------
+        n_iterations : int
+            Maximum number of iterations to allow.
+        algorithm : {'BFGS', 'L-BFGS-B'}
+            Algorithm to use for optimization
+        verbose : bool
+            Whether to print progress of model fitting
+        """
+        print('=============================================\n' +
+              '     MODEL: ' + self.name + '\n' +
+              '     METHOD: Empirical Priors\n' +
+              '     ITERATIONS: ' + str(n_iterations) + '\n' +
+              '     OPTIMIZATION ALGORITHM: ' + algorithm + '\n' +
+              '     VERBOSE: ' + str(verbose) + '\n' +
+              '=============================================\n')
+
+    def __printupdate(self, opt_iter, subject_i, _lp, verbose):
+        """
+        Prints update on iteration fit
+
+        Parameters
+        ----------
+        opt_iter : int > 0
+            Current iteration of optimization
+        subject_i : int >= 0
+            Current subject index
+        _lp : float
+            Current posterior log-likelihood
+        verbose : bool
+            Whether to print
+        """
+        if verbose is True:
+            print('ITERATION: '          + str(opt_iter) +
+                  ' | SUBJECT: ' + str(subject_i+1) +
+                  ' | POSTERIOR LOG-LIKELIHOOD: ' + str(_lp))
