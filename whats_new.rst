@@ -27,6 +27,7 @@ Inference Subpackage
 
 - The former ``fitr`` module has been turned into the subpackage ``inference``, with all constituent functions therein. Should make development a bit easier with shorter files. Also importing ``fitr.inference`` makes a bit more sense than ``fitr.fitr``, as it was before.
 - Implemented ``fitr.inference.MLE()`` class for maximum-likelihood estimation
+- Split ``ModelFitResult`` into ``OptimizationFitResult`` (for ``EM``, ``EmpiricalPriors``, and ``MLE``) and ``MCMCFitResult`` (for ``MCMC``) to reduce complexity of the code
 
 Metrics Subpackage
 ..................
@@ -43,6 +44,7 @@ Models Subpackage
 - ``twostep`` module containing models of the two-step task
 - ``driftbandit`` module containing models of an N-armed bandit task with drifting reward probabilities
 - ``synthetic_data`` module containing object for synthetic behavioural data
+- ``stancode`` folder with Stan code for fitting various models. Currently have code for various ``driftbandit`` and ``twostep`` models
 
 Model Selection Subpackage
 ..........................
@@ -67,6 +69,7 @@ Enhancements
 ------------
 
 - Added more unit tests to catch up on code coverage
+- Stancode folder to include native ``.stan`` files
 
 Bug Fixes
 ---------
@@ -76,13 +79,12 @@ Bug Fixes
 Deprecations
 ------------
 
-- The ``generative_models`` module is deprecated and will be replaced by task specific modules, such as ``twostep``, wherein each model of the task will be represented as an object with the relevant likelihood functions and generative models contained within.
-
 Removed Features
 ----------------
 
 - ``tasks`` module
 - ``loglik_functions`` module
+- ``generative_models`` module
 - ``rlparams.generate_groups``
 - 'MAP0' option in the ``fitr.inference.fitmodel`` function ``FitModel.fit()``
 
