@@ -14,7 +14,8 @@
 .. |Health| image:: https://landscape.io/github/ComputationalPsychiatry/fitr/master/landscape.svg?style=flat
 .. _Health: https://landscape.io/github/ComputationalPsychiatry/fitr/master
 
-.. |Codacy| image:: https://api.codacy.com/project/badge/Grade/3e84c95fe5e64b42912c3bc08599656a     .. _Codacy: https://www.codacy.com/app/abrahamjnunes/fitr?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ComputationalPsychiatry/fitr&amp;utm_campaign=Badge_Grade
+.. |Codacy| image:: https://api.codacy.com/project/badge/Grade/3e84c95fe5e64b42912c3bc08599656a
+.. _Codacy: https://www.codacy.com/app/abrahamjnunes/fitr?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ComputationalPsychiatry/fitr&amp;utm_campaign=Badge_Grade
 
 .. |PyV| image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
 .. _PyV: https://badge.fury.io/py/fitr
