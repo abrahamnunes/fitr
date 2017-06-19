@@ -23,11 +23,17 @@
 """
 The :mod:`fitr.models` includes code for various paradigm models
 """
+from .taskmodel import TaskModel
 
 from .synthetic_data import SyntheticData
 from .synthetic_data import combine_groups
 
-__all__ = ['driftbandit',
+from .generative_model import GenerativeModel
+
+__all__ = ['TaskModel',
+           'driftbandit',
            'twostep',
            'SyntheticData',
-           'combine_groups']
+           'combine_groups',
+           'GenerativeModel',
+           'TaskModel']
