@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-
 from fitr.rlparams import LearningRate
 from fitr.rlparams import ChoiceRandomness
 from fitr.rlparams import RewardSensitivity
