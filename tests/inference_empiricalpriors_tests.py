@@ -25,10 +25,11 @@ def test_empirical_priors():
 	assert(len(model.params) == 2)
 	assert(model.loglik_func == likfun)
 
+	# Test vanilla empirical priors
 	mfit = model.fit(data=res.data, verbose=False)
-	mfit2 = model.fit(data=res.data,
-					  opt_algorithm='BFGS',
-					  verbose=True)
+
+	# Now test again with other options
+	model.fit(data=res.data, opt_algorithm='BFGS', verbose=True)
 
 	assert(mfit.name == 'EPModel')
 	assert(mfit.method == 'Empirical Priors')

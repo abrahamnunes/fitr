@@ -26,11 +26,12 @@ def test_mle():
 	assert(len(model.params) == 2)
 	assert(model.loglik_func == likfun)
 
+	# Test vanilla MLE
 	mfit = model.fit(data=res.data, verbose=False)
-	mfit2 = model.fit(data=res.data,
-					  opt_algorithm='BFGS',
-					  verbose=True)
 	mfit.ae_metrics(actual=res.params)
+
+	# Test MLE with options
+	model.fit(data=res.data, opt_algorithm='BFGS', verbose=True)
 
 	assert(mfit.name == 'MLModel')
 	assert(mfit.method == 'Maximum Likelihood')

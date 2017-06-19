@@ -17,23 +17,27 @@ def test_fitrmodels():
 	banditll = db.lr_cr(narms=2).loglikelihood
 	banditgm = db.lr_cr(narms=2).gm
 
-	model = FitModel(name='My 2-Armed Bandit Model',
-	                 loglik_func=banditll,
-	                 params=params,
-	                 generative_model=banditgm)
+	FitModel(name='My 2-Armed Bandit Model',
+	         loglik_func=banditll,
+	         params=params,
+	         generative_model=banditgm)
 
-	emfit = model.fit(data=taskresults.data,
-					  method='EM',
-					  verbose=False)
+	# Test with EM
+	model.fit(data=taskresults.data,
+			  method='EM',
+			  verbose=False)
 
-	epfit = model.fit(data=taskresults.data,
-					  method='EmpiricalPriors',
-					  verbose=False)
+	# Test with EmpiricalPriors
+	model.fit(data=taskresults.data,
+			  method='EmpiricalPriors',
+			  verbose=False)
 
-	mcfit = model.fit(data=taskresults.data_mcmc,
-					  method='MCMC',
-					  verbose=False)
+	# Test with MCMC
+	model.fit(data=taskresults.data_mcmc,
+			  method='MCMC',
+			  verbose=False)
 
-	mlfit = model.fit(data=taskresults.data,
-					  method='MLE',
-					  verbose=False)
+	# Test with MLE
+	model.fit(data=taskresults.data,
+			  method='MLE',
+			  verbose=False)
