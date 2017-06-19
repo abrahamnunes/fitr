@@ -26,7 +26,7 @@ from scipy.optimize import minimize
 from scipy.optimize import brute
 from scipy.stats import multivariate_normal as mvn
 
-from .modelfitresult import ModelFitResult
+from .modelfitresult import OptimizationFitResult
 
 from ..utils import trans_UC
 from ..metrics import BIC, AIC, LME
@@ -62,6 +62,10 @@ class EM(object):
         Computes the log-posterior probability
     group_level_estimate(param_est, hess_inv)
         Updates the hyperparameters of the group-level prior
+    __printfitstart(self, n_iterations, c_limit, algorithm, init_grid, grid_reinit, dofull, early_stopping, verbose)
+        (Private) function to print optimization info to console
+    __printupdate(self, opt_iter, subject_i, posterior_ll, verbose)
+        (Private) function to print update on fit iteration to console
     """
     def __init__(self, loglik_func, params, name='EMModel'):
         self.name = name
@@ -117,29 +121,23 @@ class EM(object):
 
         # Instantiate the results object
         nsubjects = len(data)
-        results = ModelFitResult(method='Expectation-Maximization',
-                                 nsubjects=nsubjects,
-                                 nparams=self.nparams,
-                                 name=self.name)
+        results = OptimizationFitResult(method='Expectation-Maximization',
+                                        nsubjects=nsubjects,
+                                        nparams=self.nparams,
+                                        name=self.name)
         results.set_paramnames(params=self.params)
 
 
-        if init_grid is True:
-            init_method = 'Grid Search'
-        else:
-            init_method = 'Random Initialization'
-        print('=============================================\n' +
-              '     MODEL: ' + self.name + '\n' +
-              '     METHOD: Expectation-Maximization\n' +
-              '     INITIALIZATION: ' + init_method + '\n' +
-              '     N-RESTARTS: ' + str(n_reinit) + '\n' +
-              '     GRID REINITIALIZATION: ' + str(grid_reinit) + '\n' +
-              '     MAX EM ITERATIONS: ' + str(n_iterations) + '\n' +
-              '     EARLY STOPPING: ' + str(early_stopping) + '\n' +
-              '     CONVERGENCE LIMIT: ' + str(c_limit) + '\n' +
-              '     OPTIMIZATION ALGORITHM: ' + opt_algorithm + '\n' +
-              '     VERBOSE: ' + str(verbose) + '\n' +
-              '=============================================\n')
+        # Print start info to console
+        self.__printfitstart(n_iterations=n_iterations,
+                             c_limit=c_limit,
+                             algorithm=opt_algorithm,
+                             init_grid=init_grid,
+                             n_reinit=n_reinit,
+                             grid_reinit=grid_reinit,
+                             dofull=dofull,
+                             early_stopping=early_stopping,
+                             verbose=verbose)
 
         convergence = False
         opt_iter = 1
@@ -147,10 +145,11 @@ class EM(object):
         results_old = None # Keep placeholder for old results for early stopping
         while convergence is False and opt_iter < n_iterations:
             for i in range(nsubjects):
-                if verbose is True:
-                    print('ITERATION: '          + str(opt_iter) +
-                          ' | [E-STEP] SUBJECT: ' + str(i+1) +
-                          ' | POSTERIOR LOG-LIKELIHOOD: ' + str(-np.round(np.sum(results.nlogpost), 3)))
+                # Print update to console
+                self.__printupdate(curr_iter=opt_iter,
+                                   subject_i=i,
+                                   _lp=-np.round(np.sum(results.nlogpost), 3),
+                                   verbose=verbose)
 
                 # Construct subject's negative log-posterior function
                 def _nlogpost(x):
@@ -377,3 +376,67 @@ class EM(object):
                 x0 = np.random.normal(loc=0, scale=1, size=self.nparams)
 
         return x0
+
+    def __printfitstart(self, n_iterations, c_limit, algorithm, init_grid, n_reinit, grid_reinit, dofull, early_stopping, verbose):
+        """
+        Prints information in console banner when fitting starts
+
+        Parameters
+        ----------
+        n_iterations : int
+            Maximum number of iterations to allow.
+        c_limit : float
+            Threshold at which convergence is determined
+        algorithm : {'BFGS', 'L-BFGS-B'}
+            Algorithm to use for optimization
+        init_grid : bool
+            Whether to initialize the optimizer using brute force grid search. If False, will sample from normal distribution with mean 0 and standard deviation 1.
+        n_reinit : int
+            Number of times to reinitialize the optimizer if not converged
+        grid_reinit : bool
+            If optimization does not converge, whether to reinitialize with values from grid search
+        dofull : bool
+            Whether update of the full covariance matrix of the prior should be done. If False, the covariance matrix is limited to one in which the off-diagonal elements are set to zero.
+        early_stopping : bool
+            Whether to stop the EM procedure if the log-model-evidence begins decreasing (thereby reverting to the last iteration's results).
+        verbose : bool
+            Whether to print progress of model fitting
+        """
+        if init_grid is True:
+            init_method = 'Grid Search'
+        else:
+            init_method = 'Random Initialization'
+        print('=============================================\n' +
+              '     MODEL: ' + self.name + '\n' +
+              '     METHOD: Expectation-Maximization\n' +
+              '     INITIALIZATION: ' + init_method + '\n' +
+              '     N-RESTARTS: ' + str(n_reinit) + '\n' +
+              '     GRID REINITIALIZATION: ' + str(grid_reinit) + '\n' +
+              '     MAX EM ITERATIONS: ' + str(n_iterations) + '\n' +
+              '     EARLY STOPPING: ' + str(early_stopping) + '\n' +
+              '     CONVERGENCE LIMIT: ' + str(c_limit) + '\n' +
+              '     OPTIMIZATION ALGORITHM: ' + algorithm + '\n' +
+              '     FULL COVARIANCE UPDATE: ' + str(dofull) + '\n' +
+              '     VERBOSE: ' + str(verbose) + '\n' +
+              '=============================================\n')
+
+    @classmethod
+    def __printupdate(self, curr_iter, subject_i, _lp, verbose):
+        """
+        Prints update on iteration fit
+
+        Parameters
+        ----------
+        curr_iter : int > 0
+            Current iteration of optimization
+        subject_i : int >= 0
+            Current subject index
+        _lp : float
+            Current posterior log-likelihood
+        verbose : bool
+            Whether to print
+        """
+        if verbose is True:
+            print('ITERATION: '          + str(curr_iter) +
+                  ' | [E-STEP] SUBJECT: ' + str(subject_i+1) +
+                  ' | POSTERIOR LOG-LIKELIHOOD: ' + str(_lp))

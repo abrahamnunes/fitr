@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal as mvn
 
-from ..metrics import BIC, AIC, LME
+from ..metrics import AIC, LME
 
 class ModelFitResult(object):
     """
@@ -45,32 +45,16 @@ class ModelFitResult(object):
         Number of free parameters in the fitted model.
     params : ndarray(shape=(nsubjects, nparams))
         Array of parameter estimates
-    errs : ndarray(shape=(nsubjects, nparams))
-        Array of parameter estimate errors
-    nlogpost : ndarray(shape=(nsubjects))
-        Subject level negative log-posterior probability
-    nloglik : float
-        Subject level negative log-likelihood
-    LME : float
-        Log-model evidence
-    BIC : ndarray(shape=(nsubjects))
-        Subject-level Bayesian Information Criterion
-    AIC : ndarray(shape=(nsubjects))
-        Subject-level Aikake Information Criterion
-    summary : DataFrame
-        Summary of means and standard deviations for each free parameter, as well as negative log-likelihood, log-model-evidence, BIC, and AIC for the model
+    paramnames : list
+        List of parameter names
 
     Methods
     -------
-    set_paramnames(params) :
+    set_paramnames(params)
         Sets names of RL parameters to the fitrfit object
-    plot_ae(actual, save_figure=False, filename='actual-estimate.pdf') :
+    plot_ae(actual, save_figure=False, filename='actual-estimate.pdf')
         Plots estimated parameters against actual simulated parameters
-    plot_fit_ts(save_figure=False, filename='fit-stats.pdf') :
-        Plots the evolution of log-likelihood, log-model-evidence, AIC, and BIC over optimization iterations
-    param_hist(save_figure=False, filename='param-hist.pdf') :
-        Plots hitograms of parameters in the model
-    summary_table(write_csv=False, filename='summary-table.csv', delimiter=',') :
+    summary_table(write_csv=False, filename='summary-table.csv', delimiter=',')
         Writes a CSV file with summary statistics from the present model
     """
     def __init__(self, method, nsubjects, nparams, name=None):
@@ -80,22 +64,6 @@ class ModelFitResult(object):
         self.nparams = nparams
         self.params = np.zeros([nsubjects, nparams])
         self.paramnames = []
-
-        if method == 'MCMC':
-            self.stanfit = None
-        else:
-            self.hess = np.zeros([nparams, nparams, nsubjects])
-            self.hess_inv = np.zeros([nparams, nparams, nsubjects])
-            self.errs = np.zeros([nsubjects, nparams])
-            self.nlogpost = np.zeros(nsubjects) + 1e7
-            self.nloglik = np.zeros(nsubjects)
-            self.LME = np.zeros(nsubjects)
-            self.BIC = np.zeros(nsubjects)
-            self.AIC = np.zeros(nsubjects)
-            self.ts_LME = []
-            self.ts_nLL = []
-            self.ts_BIC = []
-            self.ts_AIC = []
 
     def set_paramnames(self, params):
         """
@@ -139,6 +107,88 @@ class ModelFitResult(object):
             plt.savefig(filename, bbox_inches='tight')
 
         return fig
+
+    def ae_metrics(self, actual, matches=None):
+        """
+        Computes metrics summarizing the ability of the model to fit data generated from a known model
+
+        Parameters
+        ----------
+        matches : list
+            List consisting of [rlparams object, column index in `actual`, column index in estimates]. Ensures comparisons are being made between the same parameters, particularly when the models have different numbers of free parameters.
+
+        Returns
+        -------
+        DataFrame
+            Including summary statistics of the parameter matching
+        """
+
+        # [TODO] Complete this function
+
+        pass
+
+class OptimizationFitResult(ModelFitResult):
+    """
+    Results of model fitting with optimization methods
+
+    Attributes
+    ----------
+    name : str
+        Model identifier. We suggest using free-parameters as identifiers
+    method : str
+        Method employed in optimization.
+    nsubjects : int
+        Number of subjects fitted.
+    nparams : int
+        Number of free parameters in the fitted model.
+    params : ndarray(shape=(nsubjects, nparams))
+        Array of parameter estimates
+    paramnames : list
+        List of parameter names
+    errs : ndarray(shape=(nsubjects, nparams))
+        Array of parameter estimate errors
+    nlogpost : ndarray(shape=(nsubjects))
+        Subject level negative log-posterior probability
+    nloglik : float
+        Subject level negative log-likelihood
+    LME : float
+        Log-model evidence
+    BIC : ndarray(shape=(nsubjects))
+        Subject-level Bayesian Information Criterion
+    AIC : ndarray(shape=(nsubjects))
+        Subject-level Aikake Information Criterion
+    summary : DataFrame
+        Summary of means and standard deviations for each free parameter, as well as negative log-likelihood, log-model-evidence, BIC, and AIC for the model
+
+    Methods
+    -------
+    plot_fit_ts(save_figure=False, filename='fit-stats.pdf') :
+        Plots the evolution of log-likelihood, log-model-evidence, AIC, and BIC over optimization iterations
+    param_hist(save_figure=False, filename='param-hist.pdf') :
+        Plots hitograms of parameters in the model
+    summary_table(write_csv=False, filename='summary-table.csv', delimiter=',')
+        Writes a CSV file with summary statistics from the present model
+
+    """
+    def __init__(self, method, nsubjects, nparams, name):
+        ModelFitResult.__init__(self,
+                                method=method,
+                                nsubjects=nsubjects,
+                                nparams=nparams,
+                                name=name)
+
+        self.hess = np.zeros([nparams, nparams, nsubjects])
+        self.hess_inv = np.zeros([nparams, nparams, nsubjects])
+        self.errs = np.zeros([nsubjects, nparams])
+        self.nlogpost = np.zeros(nsubjects) + 1e7
+        self.nloglik = np.zeros(nsubjects)
+        self.LME = np.zeros(nsubjects)
+        self.BIC = np.zeros(nsubjects)
+        self.AIC = np.zeros(nsubjects)
+        self.ts_LME = []
+        self.ts_nLL = []
+        self.ts_BIC = []
+        self.ts_AIC = []
 
     def plot_fit_ts(self, save_figure=False, filename='fit-stats.pdf'):
         """
@@ -213,55 +263,6 @@ class ModelFitResult(object):
 
         return fig
 
-    def trace_plot(self, figsize=None, save_figure=False, filename='fitr-mcstan-traceplot.pdf'):
-        """
-        Easy wrapper for Stan Traceplot
-
-        Parameters
-        ----------
-        figsize : (optional) list [width in inches, height in inches]
-            Controls figure size
-        save_figure : bool
-            Whether to save the figure to disk
-        filename : str
-            The file name to be output
-
-        """
-        if figsize is None:
-            figsize = [8, 8]
-
-        # Ignore the annoying warning about tight layout
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-
-            mcplot = self.stanfit['stanfit'].traceplot()
-            mcplot.set_size_inches(figsize[0], figsize[1])
-            mcplot.set_tight_layout(tight=True)
-
-            if save_figure is True:
-                plt.savefig(filename, bbox_inches='tight')
-
-        return mcplot
-
-    def ae_metrics(self, actual, matches=None):
-        """
-        Computes metrics summarizing the ability of the model to fit data generated from a known model
-
-        Parameters
-        ----------
-        matches : list
-            List consisting of [rlparams object, column index in `actual`, column index in estimates]. Ensures comparisons are being made between the same parameters, particularly when the models have different numbers of free parameters.
-
-        Returns
-        -------
-        DataFrame
-            Including summary statistics of the parameter matching
-        """
-
-        # [TODO] Complete this function
-
-        pass
-
     def summary_table(self):
         """
         Generates a table summarizing the model-fitting results
@@ -293,3 +294,92 @@ class ModelFitResult(object):
         self.summary = pd.DataFrame(summary_dict,
                                     index=index_labels,
                                     columns=column_labels)
+
+class MCMCFitResult(ModelFitResult):
+    """
+    Results of model fitting with MCMC
+
+    Attributes
+    ----------
+    name : str
+        Model identifier. We suggest using free-parameters as identifiers
+    method : str
+        Method employed in optimization.
+    nsubjects : int
+        Number of subjects fitted.
+    nparams : int
+        Number of free parameters in the fitted model.
+    params : ndarray(shape=(nsubjects, nparams))
+        Array of parameter estimates
+    paramnames : list
+        List of parameter names
+    stanfit :
+        Stan fit object
+    summary : pandas.DataFrame
+        Summary of the MCMC fit results
+
+    Methods
+    -------
+    get_paramestimates(self, FUN=np.mean)
+        Extracts parameter estimates
+    trace_plot(self, figsize=None, save_figure=False, filename='fitr-mcstan-traceplot.pdf')
+        Trace plot for fit results
+    """
+    def __init__(self, method, nsubjects, nparams, name):
+        ModelFitResult.__init__(self,
+                                method=method,
+                                nsubjects=nsubjects,
+                                nparams=nparams,
+                                name=name)
+
+        self.param_codes = []
+
+        self.stanfit = None
+        self.summary = None
+
+    def get_paramestimates(self, FUN=np.mean):
+        """
+        Extracts parameter estimates
+
+        Parameters
+        ----------
+        FUN : {numpy.mean, numpy.median}
+
+        """
+        param_est = self.stanfit.extract(pars=self.param_codes)
+
+        # Get expected parameter estimates (subject-level) into params array
+        param_idx = 0
+        for k in self.param_codes:
+            self.params[:, param_idx] = FUN(param_est[k], axis=0)
+            param_idx += 1
+
+    def trace_plot(self, figsize=None, save_figure=False, filename='fitr-mcstan-traceplot.pdf'):
+        """
+        Easy wrapper for Stan Traceplot
+
+        Parameters
+        ----------
+        figsize : (optional) list [width in inches, height in inches]
+            Controls figure size
+        save_figure : bool
+            Whether to save the figure to disk
+        filename : str
+            The file name to be output
+
+        """
+        if figsize is None:
+            figsize = [8, 8]
+
+        # Ignore the annoying warning about tight layout
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+
+            mcplot = self.stanfit.traceplot()
+            mcplot.set_size_inches(figsize[0], figsize[1])
+            mcplot.set_tight_layout(tight=True)
+
+            if save_figure is True:
+                plt.savefig(filename, bbox_inches='tight')
+
+        return mcplot

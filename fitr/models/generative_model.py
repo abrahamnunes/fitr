@@ -21,19 +21,20 @@
 #
 # ============================================================================
 """
-The :mod:`fitr.models` includes code for various paradigm models
+Module for the base Generative Model object
 """
-from .taskmodel import TaskModel
 
-from .synthetic_data import SyntheticData
-from .synthetic_data import combine_groups
+class GenerativeModel(object):
+    """
+    Base class for generative models
 
-from .generative_model import GenerativeModel
-
-__all__ = ['TaskModel',
-           'driftbandit',
-           'twostep',
-           'SyntheticData',
-           'combine_groups',
-           'GenerativeModel',
-           'TaskModel']
+    Attributes
+    ----------
+    paramnames : dict
+        Dictionary with two entries: 'long' which are strings representing parameter names, and 'code', which are strings denoting the parameter names as encoded in the Stan code
+    model : string
+        String representing Stan model code
+    """
+    def __init__(self):
+        self.paramnames = {'long': [], 'code': []}
+        self.model = ''

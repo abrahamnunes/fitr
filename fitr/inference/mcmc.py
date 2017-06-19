@@ -21,11 +21,10 @@
 #
 # ============================================================================
 
-import numpy as np
 import pandas as pd
 import pystan
 
-from .modelfitresult import ModelFitResult
+from .modelfitresult import MCMCFitResult
 
 class MCMC(object):
     """
@@ -41,6 +40,8 @@ class MCMC(object):
     -------
     fit(self, data, chains=4, n_iterations=2000, warmup=None, thin=1, seed=None, init='random', sample_file=None, algorithm='NUTS', control=None, n_jobs=-1, compile_verbose=False, sampling_verbose=False)
         Runs the MCMC Inference procedure with Stan
+    __initresults(self)
+        (Private) method to initialize MCMCFitResult object
 
     """
     def __init__(self, generative_model=None, name='FitrMCMCModel'):
@@ -88,26 +89,14 @@ class MCMC(object):
         .. [1] PyStan API documentation (https://pystan.readthedocs.io)
         """
 
-        print('=============================================\n' +
-              '     MODEL: ' + self.name + '\n' +
-              '     METHOD: Markov Chain Monte-Carlo\n' +
-              '     ITERATIONS: ' + str(n_iterations) + '\n' +
-              '     OPTIMIZATION ALGORITHM: ' + algorithm + '\n' +
-              '=============================================\n')
+        # Print fit information in banner
+        self.__printfitstart(n_iterations=n_iterations, algorithm=algorithm)
 
         # Instantiate a ModelFitResult object
-        param_codenames = self.generative_model.paramnames['code']
-        results = ModelFitResult(name=self.name,
-                                 method='MCMC',
-                                 nsubjects=data['N'],
-                                 nparams=len(param_codenames))
-
-        results.paramnames = self.generative_model.paramnames['long']
-
-        model_code = self.generative_model.model
+        results = self.__initresults(nsubjects=data['N'])
 
         # Compile generative model with Stan
-        sm = pystan.StanModel(model_code=model_code,
+        sm = pystan.StanModel(model_code=self.generative_model.model,
                               verbose=compile_verbose)
 
         # Sample from generative model
@@ -124,6 +113,8 @@ class MCMC(object):
                               control=control,
                               n_jobs=n_jobs)
 
+        results.stanfit = stanfit
+
         # Create summary dataframe
         summary_data = stanfit.summary()['summary']
         summary_colnames = stanfit.summary()['summary_colnames']
@@ -132,20 +123,44 @@ class MCMC(object):
                                     columns=summary_colnames,
                                     index=summary_rownames)
 
-        # Extract parameter estimates for easy manipulation with ModelFitResult
-        param_codes = self.generative_model.paramnames['code']
-        param_est = stanfit.extract(pars=param_codes)
+        results.summary = stan_summary
 
-        # Get expected parameter estimates (subject-level) into params array
-        param_idx = 0
-        for k in self.generative_model.paramnames['code']:
-            results.params[:, param_idx] = np.mean(param_est[k], axis=0)
-            param_idx += 1
+        return results
 
-        # Populate results.stanfit dict with Stan related objects
-        results.stanfit = {
-            'stanfit' : stanfit,
-            'summary' : stan_summary
-        }
+    def __printfitstart(self, n_iterations, algorithm):
+        """
+        Prints information in console banner when MCMC fitting starts
+
+        Parameters
+        ----------
+        n_iterations : int > 0
+            Number of iterations in model fitting
+        algorithm : {'NUTS', 'HMC', 'Fixed_param'}
+            Which of Stan's algorithms is being implemented
+        """
+        print('=============================================\n' +
+              '     MODEL: ' + self.name + '\n' +
+              '     METHOD: Markov Chain Monte-Carlo\n' +
+              '     ITERATIONS: ' + str(n_iterations) + '\n' +
+              '     OPTIMIZATION ALGORITHM: ' + algorithm + '\n' +
+              '=============================================\n')
+
+    def __initresults(self, nsubjects):
+        """
+        Initializes and returns an MCMCFitResult object
+
+        Parameters
+        ----------
+        nsubjects : int > 0
+            Number of subjects in the sample
+        """
+        param_codenames = self.generative_model.paramnames['code']
+        results = MCMCFitResult(name=self.name,
+                                method='MCMC',
+                                nsubjects=nsubjects,
+                                nparams=len(param_codenames))
+
+        results.paramnames = self.generative_model.paramnames['long']
+        results.param_codes = param_codenames
 
         return results

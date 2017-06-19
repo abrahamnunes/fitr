@@ -1,11 +1,22 @@
 # -*- coding: utf-8 -*-
 
-import fitr
-from fitr.models import combine_groups
-from fitr.rlparams import *
-from fitr.models import twostep as task
+import os
+import pytest
 import numpy as np
-import scipy
+
+from fitr.rlparams import *
+from fitr.models import TaskModel
+from fitr.models import combine_groups
+from fitr.models import twostep as task
+
+def test_taskmodel():
+    task = TaskModel()
+
+    with pytest.raises(Exception):
+        task.set_gm(path=os.path.join("mycode", "datacode.txt"),
+                    paramnames_long=['A', 'B'],
+                    paramnames_code=['a', 'b'])
+
 
 def test_synthdata_and_combine():
     ntrials = 10
