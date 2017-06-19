@@ -22,17 +22,17 @@
 # ============================================================================
 
 """
-Module containing code to implement simulations of Two-Step Task and fit models to behavioural data from that task.
-
-References
-----------
-.. [Daw2011] Daw, N.D. et al. (2011) Model-based influences on humans’ choices and striatal prediction errors. Neuron 69, 1204–1215
+Module containing code to implement simulations of a four armed bandit task with drifting reward probabilities.
 
 Module Documentation
 --------------------
 """
+import io
+import os
 import numpy as np
 from .synthetic_data import SyntheticData
+from .taskmodel import TaskModel
+from .generative_model import GenerativeModel
 
 from ..rlparams import LearningRate
 from ..rlparams import ChoiceRandomness
@@ -41,7 +41,7 @@ from ..rlparams import Perseveration
 from ..utils import action as _action
 from ..utils import logsumexp
 
-class lr_cr(object):
+class lr_cr(TaskModel):
     """
     Learner with only learning rate and choice randomness parameters.
 
@@ -51,8 +51,7 @@ class lr_cr(object):
         Learning rate object
     CR : fitr.rlparams.ChoiceRandomness object
         Choice randomness object
-    generative_model : str
-        Stan code for fitr.MCMC
+    gm : GenerativeModel
     ptrans : float in range (0, 1)
         The dominant transition probability (default = 0.7).
 
@@ -62,8 +61,6 @@ class lr_cr(object):
         Loglikelihood function for parameter estimation using optimization
     set_generativemodel()
         Sets the Stan code for the model
-    make_group()
-        Creates a group of subjects
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -72,7 +69,12 @@ class lr_cr(object):
 
         self.LR = LR
         self.CR = CR
-        self.generative_model = self.set_generativemodel()
+
+        # Set generative model
+        self.set_gm(path='stancode/driftbandit/lrcr.stan',
+                    paramnames_long=['Learning Rate',
+                                     'Choice Randomness'],
+                    paramnames_code=['lr', 'cr'])
 
         # Task parameters
         self.narms = narms
@@ -113,9 +115,6 @@ class lr_cr(object):
             Q[s, a] = Q[s, a] + lr*(r - Q[s, a])
 
         return loglik
-
-    def set_generativemodel(self):
-        pass
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -227,6 +226,7 @@ class lr_cr(object):
             rewards[:, i] = results.data[i]['R']
 
         results.data_mcmc = {
+            'K': self.narms,
             'N': nsubjects,
             'T': ntrials,
             'A': actions.astype(int),
@@ -238,7 +238,7 @@ class lr_cr(object):
 
         return results
 
-class lr_cr_rs(object):
+class lr_cr_rs(TaskModel):
     """
     Learner with learning rate, choice randomness, and reward sensitivity parameters.
 
@@ -250,8 +250,7 @@ class lr_cr_rs(object):
         Choice randomness object
     RS : fitr.rlparams.RewardSensitivity
         Reward sensitivity parameter object
-    generative_model : str
-        Stan code for fitr.MCMC
+    gm : GenerativeModel
     ptrans : float in range (0, 1)
         The dominant transition probability (default = 0.7).
 
@@ -259,10 +258,6 @@ class lr_cr_rs(object):
     -------
     loglikelihood()
         Loglikelihood function for parameter estimation using optimization
-    set_generativemodel()
-        Sets the Stan code for the model
-    make_group()
-        Creates a group of subjects
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -272,7 +267,13 @@ class lr_cr_rs(object):
         self.LR = LR
         self.CR = CR
         self.RS = RS
-        self.generative_model = self.set_generativemodel()
+
+        # Set generative model
+        self.set_gm(path='stancode/driftbandit/lrcrrs.stan',
+                    paramnames_long=['Learning Rate',
+                                     'Choice Randomness',
+                                     'RewardSensitivity'],
+                    paramnames_code=['lr', 'cr', 'rs'])
 
         # Task parameters
         self.narms = narms
@@ -314,9 +315,6 @@ class lr_cr_rs(object):
             Q[s, a] = Q[s, a] + lr*(rs*r - Q[s, a])
 
         return loglik
-
-    def set_generativemodel(self):
-        pass
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -431,6 +429,7 @@ class lr_cr_rs(object):
             rewards[:, i] = results.data[i]['R']
 
         results.data_mcmc = {
+            'K': self.narms,
             'N': nsubjects,
             'T': ntrials,
             'A': actions.astype(int),
@@ -442,7 +441,7 @@ class lr_cr_rs(object):
 
         return results
 
-class lr_cr_p(object):
+class lr_cr_p(TaskModel):
     """
     Learner with learning rate, choice randomness, and perseveration parameters.
 
@@ -454,8 +453,7 @@ class lr_cr_p(object):
         Choice randomness object
     P : fitr.rlparams.Perseveration
         Perseveration parameter object
-    generative_model : str
-        Stan code for fitr.MCMC
+    gm : GenerativeModel
     ptrans : float in range (0, 1)
         The dominant transition probability (default = 0.7).
 
@@ -465,8 +463,6 @@ class lr_cr_p(object):
         Loglikelihood function for parameter estimation using optimization
     set_generativemodel()
         Sets the Stan code for the model
-    make_group()
-        Creates a group of subjects
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -476,7 +472,13 @@ class lr_cr_p(object):
         self.LR = LR
         self.CR = CR
         self.P = P
-        self.generative_model = self.set_generativemodel()
+
+        # Set generative model
+        self.set_gm(path='stancode/driftbandit/lrcrp.stan',
+                    paramnames_long=['Learning Rate',
+                                     'Choice Randomness',
+                                     'Perseveration'],
+                    paramnames_code=['lr', 'cr', 'persev'])
 
         # Task parameters
         self.narms = narms
@@ -531,9 +533,6 @@ class lr_cr_p(object):
             a_last = a
 
         return loglik
-
-    def set_generativemodel(self):
-        pass
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -662,6 +661,7 @@ class lr_cr_p(object):
             rewards[:, i] = results.data[i]['R']
 
         results.data_mcmc = {
+            'K': self.narms,
             'N': nsubjects,
             'T': ntrials,
             'A': actions.astype(int),
@@ -673,7 +673,7 @@ class lr_cr_p(object):
 
         return results
 
-class lr_cr_rs_p(object):
+class lr_cr_rs_p(TaskModel):
     """
     Learner with learning rate, choice randomness, reward sensitivity, and perseveration parameters.
 
@@ -687,8 +687,7 @@ class lr_cr_rs_p(object):
         Reward sensitivity parameter object
     P : fitr.rlparams.Perseveration
         Perseveration parameter object
-    generative_model : str
-        Stan code for fitr.MCMC
+    gm : GenerativeModel
     ptrans : float in range (0, 1)
         The dominant transition probability (default = 0.7).
 
@@ -698,8 +697,6 @@ class lr_cr_rs_p(object):
         Loglikelihood function for parameter estimation using optimization
     set_generativemodel()
         Sets the Stan code for the model
-    make_group()
-        Creates a group of subjects
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -710,7 +707,14 @@ class lr_cr_rs_p(object):
         self.CR = CR
         self.RS = RS
         self.P = P
-        self.generative_model = self.set_generativemodel()
+
+        # Set generative model
+        self.set_gm(path='stancode/driftbandit/lrcrrsp.stan',
+                    paramnames_long=['Learning Rate',
+                                     'Choice Randomness',
+                                     'Reward Sensitivity',
+                                     'Perseveration'],
+                    paramnames_code=['lr', 'cr', 'rs', 'persev'])
 
         # Task parameters
         self.narms = narms
@@ -766,9 +770,6 @@ class lr_cr_rs_p(object):
             a_last = a
 
         return loglik
-
-    def set_generativemodel(self):
-        pass
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -900,6 +901,7 @@ class lr_cr_rs_p(object):
             rewards[:, i] = results.data[i]['R']
 
         results.data_mcmc = {
+            'K': self.narms,
             'N': nsubjects,
             'T': ntrials,
             'A': actions.astype(int),
@@ -911,7 +913,7 @@ class lr_cr_rs_p(object):
 
         return results
 
-class dummy(object):
+class dummy(TaskModel):
     """
     Dummy learner with choice randomness.
 
@@ -919,8 +921,6 @@ class dummy(object):
     ----------
     CR : fitr.rlparams.ChoiceRandomness
         Choice randomness object
-    generative_model : str
-        Stan code for fitr.MCMC
     ptrans : float in range (0, 1)
         The dominant transition probability (default = 0.7).
 
@@ -930,8 +930,6 @@ class dummy(object):
         Loglikelihood function for parameter estimation using optimization
     set_generativemodel()
         Sets the Stan code for the model
-    make_group()
-        Creates a group of subjects
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -939,7 +937,6 @@ class dummy(object):
     def __init__(self, narms=4, CR=ChoiceRandomness()):
 
         self.CR = CR
-        self.generative_model = self.set_generativemodel()
 
         # Task parameters
         self.narms = narms
@@ -1086,6 +1083,7 @@ class dummy(object):
             rewards[:, i] = results.data[i]['R']
 
         results.data_mcmc = {
+            'K': self.narms,
             'N': nsubjects,
             'T': ntrials,
             'A': actions.astype(int),
