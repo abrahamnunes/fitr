@@ -8,7 +8,6 @@ from fitr.inference import MCMC
 from fitr.inference import MLE
 from fitr.models import twostep as task
 from fitr.models import driftbandit as db
-from fitr import generative_models as gm
 import numpy as np
 import scipy
 
@@ -31,8 +30,10 @@ def test_em():
 	assert(model.loglik_func == likfun)
 
 	mfit = model.fit(data=res.data,
+					 n_iterations=2,
 					 early_stopping=False)
 	mfit2 = model.fit(data=res.data,
+					  n_iterations=1,
 					  opt_algorithm='BFGS',
 					  init_grid=True,
 					  grid_reinit=True,
@@ -157,8 +158,8 @@ def test_mcmc():
 	ntrials = 10
 
 	taskresults = db.lr_cr(narms=2).simulate(nsubjects=nsubjects, ntrials=ntrials)
-	banditgm = gm.bandit(model='lr_cr')
 
+	banditgm = db.lr_cr(narms=2).gm
 	model = MCMC(generative_model=banditgm)
 
 	assert(model.name == 'FitrMCMCModel')
@@ -173,7 +174,6 @@ def test_mcmc():
 	assert(lrcr.nparams == 2)
 	assert(np.shape(lrcr.params) == (5, 2))
 	assert(len(lrcr.paramnames) == 2)
-	assert(type(lrcr.stanfit) == dict)
 
 def test_fitrmodels():
 	nsubjects = 5
@@ -186,7 +186,7 @@ def test_fitrmodels():
 	taskresults = db.lr_cr(narms=2).simulate(nsubjects=nsubjects, ntrials=ntrials)
 
 	banditll = db.lr_cr(narms=2).loglikelihood
-	banditgm = gm.bandit(model='lr_cr')
+	banditgm = db.lr_cr(narms=2).gm
 
 	model = FitModel(name='My 2-Armed Bandit Model',
 	                 loglik_func=banditll,
