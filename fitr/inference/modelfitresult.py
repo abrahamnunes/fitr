@@ -343,10 +343,10 @@ class MCMCFitResult(ModelFitResult):
 
         Parameters
         ----------
-        FUN : numpy function {np.mean, np.median, np.mode}
+        FUN : {numpy.mean, numpy.median}
 
         """
-        param_est = stanfit.extract(pars=self.param_codes)
+        param_est = self.stanfit.extract(pars=self.param_codes)
 
         # Get expected parameter estimates (subject-level) into params array
         param_idx = 0
