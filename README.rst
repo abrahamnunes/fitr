@@ -60,3 +60,8 @@ How to Cite
 If you use Fitr in your work, we would very much appreciate the citation, which can be done as follows:
 
 - Abraham Nunes, Alexander Rudiuk, & Thomas Trappenberg. (2017). Fitr: A Toolbox for Computational Psychiatry Research. Zenodo. http://doi.org/10.5281/zenodo.439989
+
+
+.. image:: https://api.codacy.com/project/badge/Grade/3e84c95fe5e64b42912c3bc08599656a
+   :alt: Codacy Badge
+   :target: https://www.codacy.com/app/abrahamjnunes/fitr?utm_source=github.com&utm_medium=referral&utm_content=ComputationalPsychiatry/fitr&utm_campaign=badger
