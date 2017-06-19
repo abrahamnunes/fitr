@@ -254,7 +254,8 @@ class EmpiricalPriors(object):
               '     VERBOSE: ' + str(verbose) + '\n' +
               '=============================================\n')
 
-    def __printupdate(self, opt_iter, subject_i, _lp, verbose):
+    @classmethod
+    def __printupdate(opt_iter, subject_i, _lp, verbose):
         """
         Prints update on iteration fit
 

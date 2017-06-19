@@ -64,7 +64,7 @@ class TaskModel(object):
         self.gm = GenerativeModel()
 
         # Get the model code
-        this_dir, this_filename = os.path.split(__file__)
+        this_dir = os.path.split(__file__)[0]
         DATA_PATH = os.path.join(this_dir, path)
         try:
             with io.open(DATA_PATH, 'rt') as f:

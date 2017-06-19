@@ -72,7 +72,7 @@ def test_bandit():
 											   rewards=dummy_d.data[0]['R'])
 
 				# Test lrcrrs_res
-				assert(type(lc_LL) is np.float64)
+				assert(isinstance(lc_LL, np.float64))
 				assert(lc.narms == k)
 				assert(len(lc_d.data) == N)
 				assert(lc_d.data_mcmc['N'] == N)
@@ -81,7 +81,7 @@ def test_bandit():
 				assert(np.shape(lc_d.data_mcmc['R']) == (T, N))
 
 				# Test lrcrrs_res
-				assert(type(lcr_LL) is np.float64)
+				assert(isinstance(lcr_LL, np.float64))
 				assert(lcr.narms == k)
 				assert(len(lcr_d.data) == N)
 				assert(lcr_d.data_mcmc['N'] == N)
@@ -90,7 +90,7 @@ def test_bandit():
 				assert(np.shape(lcr_d.data_mcmc['R']) == (T, N))
 
 				# Test lrcrp_res
-				assert(type(lcp_LL) is np.float64)
+				assert(isinstance(lcp_LL, np.float64))
 				assert(lcp.narms == k)
 				assert(len(lcp_d.data) == N)
 				assert(lcp_d.data_mcmc['N'] == N)
@@ -99,7 +99,7 @@ def test_bandit():
 				assert(np.shape(lcp_d.data_mcmc['R']) == (T, N))
 
 				# Test lrcrrsp_res
-				assert(type(lcrp_LL) is np.float64)
+				assert(isinstance(lcrp_LL, np.float64))
 				assert(lcrp.narms == k)
 				assert(len(lcrp_d.data) == N)
 				assert(lcrp_d.data_mcmc['N'] == N)
@@ -108,7 +108,7 @@ def test_bandit():
 				assert(np.shape(lcrp_d.data_mcmc['R']) == (T, N))
 
 				# Test dummy_res
-				assert(type(dummy_LL) is np.float64)
+				assert(isinstance(dummy_LL, np.float64))
 				assert(dummy.narms == k)
 				assert(len(dummy_d.data) == N)
 				assert(dummy_d.data_mcmc['N'] == N)

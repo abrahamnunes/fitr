@@ -2,10 +2,7 @@
 
 from fitr.rlparams import *
 from fitr.inference import FitModel
-from fitr.models import twostep as task
 from fitr.models import driftbandit as db
-import numpy as np
-import scipy
 
 def test_fitrmodels():
 	nsubjects = 5

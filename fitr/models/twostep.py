@@ -31,7 +31,6 @@ References
 Module Documentation
 --------------------
 """
-import os
 import numpy as np
 from .taskmodel import TaskModel
 from .synthetic_data import SyntheticData

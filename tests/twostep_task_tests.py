@@ -19,7 +19,7 @@ def test_twostep_lr_cr_mf():
 											 states=res.data[0]['S'],
 											 actions=res.data[0]['A'],
 											 rewards=res.data[0]['R'])
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -44,7 +44,7 @@ def test_twostep_lr_cr_rs_mf():
 											  	states=res.data[0]['S'],
 											  	actions=res.data[0]['A'],
 											  	rewards=res.data[0]['R'])
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -69,7 +69,7 @@ def test_twostep_lr_cr_et_mf():
 												states=res.data[0]['S'],
 												actions=res.data[0]['A'],
 												rewards=res.data[0]['R'])
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -94,7 +94,7 @@ def test_twostep_lr_cr_p_mf():
 											   states=res.data[0]['S'],
 											   actions=res.data[0]['A'],
 											   rewards=res.data[0]['R'])
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -119,7 +119,7 @@ def test_twostep_lr_cr_et_p_mf():
 											  	  states=res.data[0]['S'],
 											  	  actions=res.data[0]['A'],
 											  	  rewards=res.data[0]['R'])
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -145,7 +145,7 @@ def test_twostep_lr_cr_rs_p_mf():
 												  states=res.data[0]['S'],
 											  	  actions=res.data[0]['A'],
 											  	  rewards=res.data[0]['R'])
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -171,7 +171,7 @@ def test_twostep_lr_cr_rs_et_p_mf():
 												  	 actions=res.data[0]['A'],
 												  	 rewards=res.data[0]['R'])
 
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -197,7 +197,7 @@ def test_twostep_lr_cr_w():
 											actions=res.data[0]['A'],
 											rewards=res.data[0]['R'])
 
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -223,7 +223,7 @@ def test_twostep_lr_cr_et_w():
 											   actions=res.data[0]['A'],
 											   rewards=res.data[0]['R'])
 
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -249,7 +249,7 @@ def test_twostep_lr_cr_p_w():
 											  actions=res.data[0]['A'],
 											  rewards=res.data[0]['R'])
 
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -275,7 +275,7 @@ def test_twostep_lr_cr_et_p_w():
 												 actions=res.data[0]['A'],
 												 rewards=res.data[0]['R'])
 
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)
@@ -301,7 +301,7 @@ def test_twostep_lr_cr_rs_et_p_w():
 												  	actions=res.data[0]['A'],
 												  	rewards=res.data[0]['R'])
 
-			assert(type(LL) is np.float64)
+			assert(isinstance(LL, np.float64))
 			assert(len(res.data) == nsubjects)
 			assert(res.data_mcmc['N'] == nsubjects)
 			assert(res.data_mcmc['T'] == ntrials)

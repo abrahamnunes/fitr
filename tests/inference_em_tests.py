@@ -46,10 +46,10 @@ def test_em_vanilla():
 	assert(np.size(mfit.LME) == 5)
 	assert(np.size(mfit.BIC) == 5)
 	assert(np.size(mfit.AIC) == 5)
-	assert(type(mfit.ts_LME) == list)
-	assert(type(mfit.ts_nLL) == list)
-	assert(type(mfit.ts_BIC) == list)
-	assert(type(mfit.ts_AIC) == list)
+	assert(isinstance(mfit.ts_LME, list))
+	assert(isinstance(mfit.ts_nLL, list))
+	assert(isinstance(mfit.ts_BIC, list))
+	assert(isinstance(mfit.ts_AIC, list))
 
 def test_em_options():
 	ntrials = 100
@@ -94,7 +94,7 @@ def test_em_options():
 	assert(np.size(mfit.LME) == 5)
 	assert(np.size(mfit.BIC) == 5)
 	assert(np.size(mfit.AIC) == 5)
-	assert(type(mfit.ts_LME) == list)
-	assert(type(mfit.ts_nLL) == list)
-	assert(type(mfit.ts_BIC) == list)
-	assert(type(mfit.ts_AIC) == list)
+	assert(isinstance(mfit.ts_LME, list))
+	assert(isinstance(mfit.ts_nLL, list))
+	assert(isinstance(mfit.ts_BIC, list))
+	assert(isinstance(mfit.ts_AIC, list))

@@ -27,12 +27,10 @@ Module containing code to implement simulations of a four armed bandit task with
 Module Documentation
 --------------------
 """
-import io
-import os
+
 import numpy as np
 from .synthetic_data import SyntheticData
 from .taskmodel import TaskModel
-from .generative_model import GenerativeModel
 
 from ..rlparams import LearningRate
 from ..rlparams import ChoiceRandomness
