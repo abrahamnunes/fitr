@@ -28,9 +28,9 @@ def test_banditgm_lrcr():
 	assert(len(model.gm.paramnames['long']) == 2)
 	assert(len(model.gm.paramnames['code']) == 2)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['K'] == narms)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['K'] == narms)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
 
 def test_banditgm_lrcrrs():
 	nsubjects = 10
@@ -46,9 +46,9 @@ def test_banditgm_lrcrrs():
 	assert(len(model.gm.paramnames['long']) == 3)
 	assert(len(model.gm.paramnames['code']) == 3)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['K'] == narms)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['K'] == narms)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
 
 def test_banditgm_lrcrp():
 	nsubjects = 10
@@ -64,9 +64,9 @@ def test_banditgm_lrcrp():
 	assert(len(model.gm.paramnames['long']) == 3)
 	assert(len(model.gm.paramnames['code']) == 3)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['K'] == narms)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['K'] == narms)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
 
 def test_banditgm_lrcrrsp():
 	nsubjects = 10
@@ -82,9 +82,9 @@ def test_banditgm_lrcrrsp():
 	assert(len(model.gm.paramnames['long']) == 4)
 	assert(len(model.gm.paramnames['code']) == 4)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['K'] == narms)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['K'] == narms)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
 
 def test_twostep_gm_lrcrw():
 	nsubjects = 10
@@ -98,8 +98,8 @@ def test_twostep_gm_lrcrw():
 	assert(len(model.gm.paramnames['long']) == 3)
 	assert(len(model.gm.paramnames['code']) == 3)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
 
 def test_twostep_gm_lrcretw():
 	nsubjects = 10
@@ -113,8 +113,8 @@ def test_twostep_gm_lrcretw():
 	assert(len(model.gm.paramnames['long']) == 4)
 	assert(len(model.gm.paramnames['code']) == 4)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
 
 def test_twostep_gm_lrcrpw():
 	nsubjects = 10
@@ -128,8 +128,8 @@ def test_twostep_gm_lrcrpw():
 	assert(len(model.gm.paramnames['long']) == 4)
 	assert(len(model.gm.paramnames['code']) == 4)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
 
 def test_twostep_gm_lrcretpw():
 	nsubjects = 10
@@ -143,5 +143,5 @@ def test_twostep_gm_lrcretpw():
 	assert(len(model.gm.paramnames['long']) == 5)
 	assert(len(model.gm.paramnames['code']) == 5)
 	assert(type(model.gm.model) == str)
-	assert(model.data_mcmc['N'] == nsubjects)
-	assert(model.data_mcmc['T'] == ntrials)
+	assert(res.data_mcmc['N'] == nsubjects)
+	assert(res.data_mcmc['T'] == ntrials)
