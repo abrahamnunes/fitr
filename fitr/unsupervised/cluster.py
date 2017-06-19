@@ -122,10 +122,8 @@ class AffinityPropagation(Cluster):
             truelab = np.zeros(n_samples)
             unique_labels = np.unique(group_labels)
 
-            lab_idx = 0
-            for i in range(len(unique_labels)):
-                truelab[group_labels==unique_labels[i]] = lab_idx
-                lab_idx += 1
+            for i, label_i in enumerate(unique_labels):
+                truelab[group_labels == label_i] = i
 
             self.clusters["true"] = group_labels
             self.clusters["true_int"] = truelab
