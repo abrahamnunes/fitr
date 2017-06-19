@@ -17,10 +17,10 @@ def test_fitrmodels():
 	banditll = db.lr_cr(narms=2).loglikelihood
 	banditgm = db.lr_cr(narms=2).gm
 
-	FitModel(name='My 2-Armed Bandit Model',
-	         loglik_func=banditll,
-	         params=params,
-	         generative_model=banditgm)
+	model = FitModel(name='My 2-Armed Bandit Model',
+	         		 loglik_func=banditll,
+	         		 params=params,
+	         		 generative_model=banditgm)
 
 	# Test with EM
 	model.fit(data=taskresults.data,
