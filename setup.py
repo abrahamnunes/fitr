@@ -37,9 +37,6 @@ setup(name='fitr',
       ],
       license='MIT',
       packages=find_packages(exclude=['docs', 'examples', 'tests']),
-      package_data={'fitr': ['*.stan',
-                             'fitr/models/stancode/driftbandit/*.stan',
-                             'fitr/models/stancode/twostep/*.stan']},
       include_package_data=True,
       # zip_safe=False
       )
