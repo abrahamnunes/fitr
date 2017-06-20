@@ -403,7 +403,7 @@ class Perseveration(Param):
         Samples from the parameter's distribution
 
     """
-    def __init__(self, name='Perseveration', rng='unc', mean=0., sd=1.):
+    def __init__(self, name='Perseveration', rng='unc', mean=0., sd=0.1):
         """
         Instantiates the Parameter
 

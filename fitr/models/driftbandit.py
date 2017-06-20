@@ -766,7 +766,7 @@ class lr_cr_p(TaskModel):
         """
 
         # Generate group of subjects
-        params = np.zeros([nsubjects, 4])
+        params = np.zeros([nsubjects, 3])
         params[:, 0] = self.LR.sample(size=nsubjects)
         params[:, 1] = self.CR.sample(size=nsubjects)
         params[:, 2] = self.P.sample(size=nsubjects)

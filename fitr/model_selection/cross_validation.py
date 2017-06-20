@@ -27,6 +27,8 @@ Functions for cross validation
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ..plotting import param_scatter
+
 class LOACV(object):
     """
     Look-one-ahead cross validation
@@ -55,8 +57,7 @@ class LOACV(object):
         """
         nsubjects, nparams = np.shape(params)
 
-        self.results = LookOneAheadCVResult(nsubjects=nsubjects,
-                                            nparams=nparams)
+        self.results = LookOneAheadCVResult(params=params)
 
         for i in range(nsubjects):
             loocv_data = self.cv_func(params=params[i, :],
@@ -84,9 +85,10 @@ class LookOneAheadCVResult(object):
     raw : dict
         Dictionary
     """
-    def __init__(self, nsubjects, nparams):
-        self.nsubjects = nsubjects
-        self.nparams = nparams
+    def __init__(self, params):
+        self.params = params
+        self.nsubjects = np.shape(params)[0]
+        self.nparams = np.shape(params)[1]
         self.accuracy = []
         self.nLL = []
 
@@ -158,5 +160,40 @@ class LookOneAheadCVResult(object):
 
         if save_figure is True:
             plt.savefig(filename, bbox_inches='tight')
+
+        return fig
+
+    def accuracy_param_scatter(self, paramnames=None, ylim=None, alpha=0.5, save_figure=False, filename='accuracy-param-scatter.pdf', figsize=None):
+        """
+        Plots accuracy against parameter values. Helpful to visually inspect the effects of various parameters on cross-validation accuracy
+
+        Parameters
+        ----------
+        paramnames : (optional) list
+            List of parameter names in strings
+        ylim : (optional) tuple (min, max)
+            Y-axis limits
+        alpha : 0 < float < 1
+            Transparency of the plot points
+        save_figure : bool
+            Whether to save the plot
+        filename : str
+            Name of the file to which figure will be saved
+        figsize : (optional) tuple (width, height)
+            The size of the figure
+
+        Returns
+        -------
+        matplotlib.pyplot.figure
+
+        """
+        fig = param_scatter(X=self.params,
+                            Y=self.accuracy,
+                            ylabel='Accuracy',
+                            ylim=ylim,
+                            paramnames=paramnames,
+                            alpha=alpha,
+                            save_figure=save_figure,
+                            filename=filename)
 
         return fig

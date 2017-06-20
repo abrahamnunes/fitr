@@ -30,7 +30,10 @@ from .base import confusion_matrix
 from .distance import distance_scatter
 from .distance import distance_hist
 
+from .paramplots import param_scatter
+
 __all__ = ['heatmap',
            'confusion_matrix',
            'distance_scatter',
-           'distance_hist']
+           'distance_hist',
+           'param_scatter']

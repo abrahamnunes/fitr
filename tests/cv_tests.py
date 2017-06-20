@@ -15,5 +15,11 @@ def test_driftbandit_loacv():
     cv = LOACV(cv_func=task.loacv)
     cv.run(params=res.params, data=res.data)
 
-    cv.results.accuracy_maplot(save_figure=True); plt.close()
-    cv.results.accuracy_hist(save_figure=True); plt.close()
+    cv.results.accuracy_maplot(save_figure=True)
+    plt.close()
+
+    cv.results.accuracy_hist(save_figure=True)
+    plt.close()
+
+    cv.results.accuracy_param_scatter(save_figure=True, ylim=(0, 1))
+    plt.close()
