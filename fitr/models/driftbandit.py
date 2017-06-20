@@ -57,8 +57,8 @@ class lr_cr(TaskModel):
     -------
     loglikelihood()
         Loglikelihood function for parameter estimation using optimization
-    set_generativemodel()
-        Sets the Stan code for the model
+    loacv(self, params, states, actions, rewards)
+        Function for look-one-ahead cross validation
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -113,6 +113,72 @@ class lr_cr(TaskModel):
             Q[s, a] = Q[s, a] + lr*(r - Q[s, a])
 
         return loglik
+
+    def loacv(self, params, states, actions, rewards):
+        """
+        Look-One-Ahead cross validation
+
+        Parameters
+        ----------
+        params : ndarray(shape=2)
+            Current parameter estimates for learning rate and choice randomness.
+        states : ndarray(shape=ntrials)
+            Subject-level states
+        actions : ndarray(shape=ntrials)
+            Subject-level actions
+        rewards : ndarray(shape=ntrials)
+            Subject-level rewards
+
+        Returns
+        -------
+        float
+
+        """
+        loacv_data = {
+            'S': states,
+            'A': actions,
+            'A_pred' : np.zeros(np.shape(actions), dtype=np.int64),
+            'A_match': np.zeros(np.shape(actions), dtype=np.int64),
+            'R' : rewards,
+            'dLL': np.zeros(np.shape(actions)),
+            'dLL_pred': np.zeros(np.shape(actions)),
+            'LL' : 0,
+            'LL_pred' : 0,
+            'acc' : 0
+        }
+
+        lr = params[0]
+        cr = params[1]
+
+        ntrials = len(actions)
+        Q = np.zeros([1, self.narms])
+        loglik = 0
+        loglik_pred = 0
+
+        for t in range(0, ntrials):
+            s = int(states[t])
+            a = int(actions[t])
+            a_pred = int(_action(cr*Q[s, :]))
+            a_match = int(a == a_pred)
+            r = rewards[t]
+
+            dLL = cr*Q[s, a] - logsumexp(cr*Q)
+            dLL_pred = cr*Q[s, a_pred] - logsumexp(cr*Q)
+
+            loglik = loglik + dLL
+            loglik_pred = loglik_pred + dLL_pred
+            Q[s, a] = Q[s, a] + lr*(r - Q[s, a])
+
+            loacv_data['A_pred'][t] = a_pred
+            loacv_data['A_match'][t] = a_match
+            loacv_data['dLL'][t] = dLL
+            loacv_data['dLL_pred'][t] = dLL_pred
+            loacv_data['LL'] = loglik
+            loacv_data['LL_pred'] = loglik_pred
+
+        loacv_data['acc'] = np.mean(loacv_data['A_match'])
+
+        return loacv_data
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -256,6 +322,8 @@ class lr_cr_rs(TaskModel):
     -------
     loglikelihood()
         Loglikelihood function for parameter estimation using optimization
+    def loacv(self, params, states, actions, rewards)
+        Look-one-ahead cross validation
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -313,6 +381,73 @@ class lr_cr_rs(TaskModel):
             Q[s, a] = Q[s, a] + lr*(rs*r - Q[s, a])
 
         return loglik
+
+    def loacv(self, params, states, actions, rewards):
+        """
+        Look-One-Ahead cross validation
+
+        Parameters
+        ----------
+        params : ndarray(shape=2)
+            Current parameter estimates for learning rate and choice randomness.
+        states : ndarray(shape=ntrials)
+            Subject-level states
+        actions : ndarray(shape=ntrials)
+            Subject-level actions
+        rewards : ndarray(shape=ntrials)
+            Subject-level rewards
+
+        Returns
+        -------
+        float
+
+        """
+        loacv_data = {
+            'S': states,
+            'A': actions,
+            'A_pred' : np.zeros(np.shape(actions), dtype=np.int64),
+            'A_match': np.zeros(np.shape(actions), dtype=np.int64),
+            'R' : rewards,
+            'dLL': np.zeros(np.shape(actions)),
+            'dLL_pred': np.zeros(np.shape(actions)),
+            'LL' : 0,
+            'LL_pred' : 0,
+            'acc' : 0
+        }
+
+        lr = params[0]
+        cr = params[1]
+        rs = params[2]
+
+        ntrials = len(actions)
+        Q = np.zeros([1, self.narms])
+        loglik = 0
+        loglik_pred = 0
+
+        for t in range(0, ntrials):
+            s = int(states[t])
+            a = int(actions[t])
+            a_pred = int(_action(cr*Q[s, :]))
+            a_match = int(a == a_pred)
+            r = rewards[t]
+
+            dLL = cr*Q[s, a] - logsumexp(cr*Q)
+            dLL_pred = cr*Q[s, a_pred] - logsumexp(cr*Q)
+
+            loglik = loglik + dLL
+            loglik_pred = loglik_pred + dLL_pred
+            Q[s, a] = Q[s, a] + lr*(rs*r - Q[s, a])
+
+            loacv_data['A_pred'][t] = a_pred
+            loacv_data['A_match'][t] = a_match
+            loacv_data['dLL'][t] = dLL
+            loacv_data['dLL_pred'][t] = dLL_pred
+            loacv_data['LL'] = loglik
+            loacv_data['LL_pred'] = loglik_pred
+
+        loacv_data['acc'] = np.mean(loacv_data['A_match'])
+
+        return loacv_data
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -459,8 +594,8 @@ class lr_cr_p(TaskModel):
     -------
     loglikelihood()
         Loglikelihood function for parameter estimation using optimization
-    set_generativemodel()
-        Sets the Stan code for the model
+    loacv()
+        Look-One-Ahead cross validation function
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -506,31 +641,101 @@ class lr_cr_p(TaskModel):
         persev = params[2]
 
         ntrials = len(actions)
-        Q = np.zeros([1, self.narms])
+        Q = np.zeros([1, self.narms])     # State-action values
+        p_vec = np.zeros([1, self.narms]) # Perseveration vector
+        V = np.zeros([1, self.narms])     # Q + Persev Vector
         loglik = 0
 
-        # Initialize perseveration vector
-        p_vec = np.zeros(self.narms)
-        a_last = 100
         for t in range(0, ntrials):
             s = int(states[t])
             a = int(actions[t])
             r = rewards[t]
 
-            loglik = loglik + cr*Q[s, a] - logsumexp(cr*Q)
+            loglik = loglik + cr*V[s, a] - logsumexp(cr*V)
             Q[s, a] = Q[s, a] + lr*(r - Q[s, a])
 
             # Adjust Q for perseveration
-            if a == a_last:
-                p_vec[a] = 1
-            else:
-                p_vec = np.zeros(self.narms)
+            p_vec = np.zeros([1, self.narms])
+            p_vec[s, a] = 1
 
-            Q[s,:] = Q[s,:] + persev*p_vec
-
-            a_last = a
+            V = Q + persev*p_vec
 
         return loglik
+
+    def loacv(self, params, states, actions, rewards):
+        """
+        Look-One-Ahead cross validation
+
+        Parameters
+        ----------
+        params : ndarray(shape=2)
+            Current parameter estimates for learning rate and choice randomness.
+        states : ndarray(shape=ntrials)
+            Subject-level states
+        actions : ndarray(shape=ntrials)
+            Subject-level actions
+        rewards : ndarray(shape=ntrials)
+            Subject-level rewards
+
+        Returns
+        -------
+        float
+
+        """
+        loacv_data = {
+            'S': states,
+            'A': actions,
+            'A_pred' : np.zeros(np.shape(actions), dtype=np.int64),
+            'A_match': np.zeros(np.shape(actions), dtype=np.int64),
+            'R' : rewards,
+            'dLL': np.zeros(np.shape(actions)),
+            'dLL_pred': np.zeros(np.shape(actions)),
+            'LL' : 0,
+            'LL_pred' : 0,
+            'acc' : 0
+        }
+
+        lr = params[0]
+        cr = params[1]
+        persev = params[2]
+
+        ntrials = len(actions)
+        Q = np.zeros([1, self.narms])     # State-action values
+        p_vec = np.zeros([1, self.narms]) # Perseveration vector
+        V = np.zeros([1, self.narms])     # Q + Persev Vector
+        loglik = 0
+        loglik_pred = 0
+
+        for t in range(0, ntrials):
+            s = int(states[t])
+            a = int(actions[t])
+            a_pred = int(_action(cr*V[s, :]))
+            a_match = int(a == a_pred)
+            r = rewards[t]
+
+            dLL = cr*V[s, a] - logsumexp(cr*V)
+            dLL_pred = cr*V[s, a_pred] - logsumexp(cr*V)
+
+            loglik = loglik + dLL
+            loglik_pred = loglik_pred + dLL_pred
+            Q[s, a] = Q[s, a] + lr*(r - Q[s, a])
+
+            # Adjust Q for perseveration
+            p_vec = np.zeros([1, self.narms])
+            p_vec[s, a] = 1
+
+            V = Q + persev*p_vec
+
+            loacv_data['A_pred'][t] = a_pred
+            loacv_data['A_match'][t] = a_match
+            loacv_data['dLL'][t] = dLL
+            loacv_data['dLL_pred'][t] = dLL_pred
+            loacv_data['LL'] = loglik
+            loacv_data['LL_pred'] = loglik_pred
+
+        loacv_data['acc'] = np.mean(loacv_data['A_match'])
+
+        return loacv_data
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -561,7 +766,7 @@ class lr_cr_p(TaskModel):
         """
 
         # Generate group of subjects
-        params = np.zeros([nsubjects, 4])
+        params = np.zeros([nsubjects, 3])
         params[:, 0] = self.LR.sample(size=nsubjects)
         params[:, 1] = self.CR.sample(size=nsubjects)
         params[:, 2] = self.P.sample(size=nsubjects)
@@ -618,30 +823,23 @@ class lr_cr_p(TaskModel):
             if group_id is not None:
                 results.data[i]['G'] = group_id
 
-            Q = np.zeros([1, self.narms])
-
-            # Initialize perseveration vector
-            p_vec = np.zeros(self.narms)
-            a_last = 100
+            Q = np.zeros([1, self.narms])     # State-action values
+            p_vec = np.zeros([1, self.narms]) # Perseveration vector
+            V = np.zeros([1, self.narms])     # Q + Persev Vector
 
             for t in range(ntrials):
                 s = int(0)
-                a = int(_action(cr * Q[s, :]))
+                a = int(_action(cr * V[s, :]))
                 r = np.random.binomial(1, p=subj_rpath[t, a])
 
                 # Update model-free values
                 rpe = (r - Q[s, a])
                 Q[s, a] = Q[s, a] + lr * rpe
 
-                # Adjust Q for perseveration
-                if a == a_last:
-                    p_vec[a] = 1
-                else:
-                    p_vec = np.zeros(self.narms)
+                p_vec = np.zeros([1, self.narms])
+                p_vec[s, a] = 1
 
-                Q[s,:] = Q[s,:] + persev*p_vec
-
-                a_last = a
+                V[s, :] = Q[s,:] + persev*p_vec
 
                 # Store data
                 results.data[i]['S'][t] = s
@@ -693,8 +891,8 @@ class lr_cr_rs_p(TaskModel):
     -------
     loglikelihood()
         Loglikelihood function for parameter estimation using optimization
-    set_generativemodel()
-        Sets the Stan code for the model
+    loacv()
+        Look-One-Ahead cross-validation function
     simulate()
         Simulates data for a group of artificial subjects
 
@@ -744,30 +942,101 @@ class lr_cr_rs_p(TaskModel):
 
         ntrials = len(actions)
         Q = np.zeros([1, self.narms])
+        p_vec = np.zeros([1, self.narms])
+        V = np.zeros([1, self.narms])
         loglik = 0
 
-        # Initialize perseveration vector
-        p_vec = np.zeros(self.narms)
-        a_last = 100
         for t in range(0, ntrials):
             s = int(states[t])
             a = int(actions[t])
             r = rewards[t]
 
-            loglik = loglik + cr*Q[s, a] - logsumexp(cr*Q)
+            loglik = loglik + cr*V[s, a] - logsumexp(cr*V)
             Q[s, a] = Q[s, a] + lr*(rs*r - Q[s, a])
 
             # Adjust Q for perseveration
-            if a == a_last:
-                p_vec[a] = 1
-            else:
-                p_vec = np.zeros(self.narms)
+            p_vec = np.zeros([1, self.narms])
+            p_vec[s, a] = 1
 
-            Q[s,:] = Q[s,:] + persev*p_vec
-
-            a_last = a
+            V[s,:] = Q[s,:] + persev*p_vec
 
         return loglik
+
+    def loacv(self, params, states, actions, rewards):
+        """
+        Look-One-Ahead cross validation
+
+        Parameters
+        ----------
+        params : ndarray(shape=2)
+            Current parameter estimates for learning rate and choice randomness.
+        states : ndarray(shape=ntrials)
+            Subject-level states
+        actions : ndarray(shape=ntrials)
+            Subject-level actions
+        rewards : ndarray(shape=ntrials)
+            Subject-level rewards
+
+        Returns
+        -------
+        float
+
+        """
+        loacv_data = {
+            'S': states,
+            'A': actions,
+            'A_pred' : np.zeros(np.shape(actions), dtype=np.int64),
+            'A_match': np.zeros(np.shape(actions), dtype=np.int64),
+            'R' : rewards,
+            'dLL': np.zeros(np.shape(actions)),
+            'dLL_pred': np.zeros(np.shape(actions)),
+            'LL' : 0,
+            'LL_pred' : 0,
+            'acc' : 0
+        }
+
+        lr = params[0]
+        cr = params[1]
+        rs = params[2]
+        persev = params[3]
+
+        ntrials = len(actions)
+        Q = np.zeros([1, self.narms])
+        p_vec = np.zeros([1, self.narms])
+        V = np.zeros([1, self.narms])
+        loglik = 0
+        loglik_pred = 0
+
+        for t in range(0, ntrials):
+            s = int(states[t])
+            a = int(actions[t])
+            a_pred = int(_action(cr*V[s, :]))
+            a_match = int(a == a_pred)
+            r = rewards[t]
+
+            dLL = cr*V[s, a] - logsumexp(cr*V)
+            dLL_pred = cr*V[s, a_pred] - logsumexp(cr*V)
+
+            loglik = loglik + dLL
+            loglik_pred = loglik_pred + dLL_pred
+            Q[s, a] = Q[s, a] + lr*(rs*r - Q[s, a])
+
+            # Adjust Q for perseveration
+            p_vec = np.zeros(self.narms)
+            p_vec[a] = 1
+
+            V = Q + persev*p_vec
+
+            loacv_data['A_pred'][t] = a_pred
+            loacv_data['A_match'][t] = a_match
+            loacv_data['dLL'][t] = dLL
+            loacv_data['dLL_pred'][t] = dLL_pred
+            loacv_data['LL'] = loglik
+            loacv_data['LL_pred'] = loglik_pred
+
+        loacv_data['acc'] = np.mean(loacv_data['A_match'])
+
+        return loacv_data
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """
@@ -859,14 +1128,12 @@ class lr_cr_rs_p(TaskModel):
                 results.data[i]['G'] = group_id
 
             Q = np.zeros([1, self.narms])
-
-            # Initialize perseveration vector
-            p_vec = np.zeros(self.narms)
-            a_last = 100
+            p_vec = np.zeros([1, self.narms])
+            V = np.zeros([1, self.narms])
 
             for t in range(ntrials):
                 s = int(0)
-                a = int(_action(cr * Q[s, :]))
+                a = int(_action(cr * V[s, :]))
                 r = np.random.binomial(1, p=subj_rpath[t, a])
 
                 # Update model-free values
@@ -874,14 +1141,10 @@ class lr_cr_rs_p(TaskModel):
                 Q[s, a] = Q[s, a] + lr * rpe
 
                 # Adjust Q for perseveration
-                if a == a_last:
-                    p_vec[a] = 1
-                else:
-                    p_vec = np.zeros(self.narms)
+                p_vec = np.zeros([1, self.narms])
+                p_vec[s, a] = 1
 
-                Q[s,:] = Q[s,:] + persev*p_vec
-
-                a_last = a
+                V[s,:] = Q[s,:] + persev*p_vec
 
                 # Store data
                 results.data[i]['S'][t] = s
@@ -972,8 +1235,70 @@ class dummy(TaskModel):
 
         return loglik
 
-    def set_generativemodel(self):
-        pass
+    def loacv(self, params, states, actions, rewards):
+        """
+        Look-One-Ahead cross validation
+
+        Parameters
+        ----------
+        params : ndarray(shape=2)
+            Current parameter estimates for learning rate and choice randomness.
+        states : ndarray(shape=ntrials)
+            Subject-level states
+        actions : ndarray(shape=ntrials)
+            Subject-level actions
+        rewards : ndarray(shape=ntrials)
+            Subject-level rewards
+
+        Returns
+        -------
+        float
+
+        """
+        loacv_data = {
+            'S': states,
+            'A': actions,
+            'A_pred' : np.zeros(np.shape(actions), dtype=np.int64),
+            'A_match': np.zeros(np.shape(actions), dtype=np.int64),
+            'R' : rewards,
+            'dLL': np.zeros(np.shape(actions)),
+            'dLL_pred': np.zeros(np.shape(actions)),
+            'LL' : 0,
+            'LL_pred' : 0,
+            'acc' : 0
+        }
+
+        cr = params[0]
+
+        ntrials = len(actions)
+        Q = np.zeros([1, self.narms])
+        loglik = 0
+        loglik_pred = 0
+
+        p_vec = np.zeros(self.narms)
+        for t in range(0, ntrials):
+            s = int(states[t])
+            a = int(actions[t])
+            a_pred = int(_action(cr*Q[s, :]))
+            a_match = int(a == a_pred)
+            r = rewards[t]
+
+            dLL = cr*Q[s, a] - logsumexp(cr*Q)
+            dLL_pred = cr*Q[s, a_pred] - logsumexp(cr*Q)
+
+            loglik = loglik + dLL
+            loglik_pred = loglik_pred + dLL_pred
+
+            loacv_data['A_pred'][t] = a_pred
+            loacv_data['A_match'][t] = a_match
+            loacv_data['dLL'][t] = dLL
+            loacv_data['dLL_pred'][t] = dLL_pred
+            loacv_data['LL'] = loglik
+            loacv_data['LL_pred'] = loglik_pred
+
+        loacv_data['acc'] = np.mean(loacv_data['A_match'])
+
+        return loacv_data
 
     def simulate(self, ntrials, nsubjects, group_id=None, preset_rpaths=None, rpath_max=0.75, rpath_min=0.25, rpath_sd=0.025, rpath_common=False):
         """

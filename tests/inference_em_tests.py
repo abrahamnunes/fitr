@@ -70,7 +70,7 @@ def test_em_options():
 	assert(model.loglik_func == likfun)
 
 	mfit = model.fit(data=res.data,
-					 n_iterations=1,
+					 n_iterations=2,
 					 opt_algorithm='BFGS',
 					 init_grid=True,
 					 grid_reinit=True,

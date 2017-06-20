@@ -2,7 +2,6 @@
 import pytest
 import fitr
 import numpy as np
-import scipy
 
 # Test that Param object can be instantiated appropriately
 def test_paramobj():

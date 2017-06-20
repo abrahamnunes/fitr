@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import scipy
-
-import fitr
 from fitr.models import driftbandit
 from fitr.models import twostep
 from fitr.models import GenerativeModel
