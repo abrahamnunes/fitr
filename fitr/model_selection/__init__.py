@@ -27,9 +27,11 @@ The :mod:`fitr.model_selection` module includes functions for model comparison
 from .aic import AIC
 from .bic import BIC
 from .bms import BMS
+from .cross_validation import LOACV
 from .modelselectionresult import ModelSelectionResult
 
 __all__ = ['AIC',
            'BIC',
            'BMS',
+           'LOACV',
            'ModelSelectionResult']
