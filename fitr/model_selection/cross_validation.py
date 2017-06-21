@@ -193,6 +193,7 @@ class LookOneAheadCVResult(object):
                             ylim=ylim,
                             paramnames=paramnames,
                             alpha=alpha,
+                            figsize=figsize,
                             save_figure=save_figure,
                             filename=filename)
 
