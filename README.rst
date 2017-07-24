@@ -1,6 +1,9 @@
 .. -*- mode: rst -*-
 
-|PyPI|_ |Build|_ |Codecov|_ |Health|_ |Codacy|_ |PyV|_ |DOI|_
+|Docs|_ |PyPI|_ |Build|_ |Codecov|_ |Health|_ |Codacy|_ |PyV|_ |DOI|_
+
+.. |Docs| image:: https://readthedocs.org/projects/fitr/badge/?version=latest
+.. _Docs: http://fitr.readthedocs.io/en/latest/?badge=latest
 
 .. |Build| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
 .. _Build: https://travis-ci.org/ComputationalPsychiatry/fitr
@@ -45,12 +48,12 @@ Currently, we build and test on Linux and OSX. As such, we cannot guarantee perf
 Documentation
 -------------
 
-`Fitr documentation <https://computationalpsychiatry.github.io/fitr/>`_ is hosted on GitHub Pages.
+Fitr documentation is hosted on ReadTheDocs (See badge above).
 
 Tutorials
 ---------
 
-Tutorials (Jupyter Notebooks) can be found in the examples folder. 
+Tutorials (Jupyter Notebooks) can be found in the examples folder.
 
 How to Cite
 -----------
