@@ -1,6 +1,6 @@
 .. -*- mode: rst -*-
 
-|Docs|_ |PyPI|_ |Build|_ |Codecov|_ |Health|_ |Codacy|_ |PyV|_ |DOI|_
+|Docs|_ |Build|_ |PyPI|_ |Codecov|_ |Health|_ |Codacy|_ |PyV|_ |DOI|_
 
 .. |Docs| image:: https://readthedocs.org/projects/fitr/badge/?version=latest
 .. _Docs: http://fitr.readthedocs.io/en/latest/?badge=latest
@@ -14,8 +14,8 @@
 .. |Codecov| image:: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master/graphs/badge.svg
 .. _Codecov: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
 
-.. |Health| image:: https://landscape.io/github/ComputationalPsychiatry/fitr/master/landscape.svg?style=flat
-.. _Health: https://landscape.io/github/ComputationalPsychiatry/fitr/master
+.. |Health| image:: https://landscape.io/github/abrahamnunes/fitr/master/landscape.svg?style=flat
+.. _Health: https://landscape.io/github/abrahamnunes/fitr/master
 
 .. |Codacy| image:: https://api.codacy.com/project/badge/Grade/3e84c95fe5e64b42912c3bc08599656a
 .. _Codacy: https://www.codacy.com/app/abrahamjnunes/fitr?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ComputationalPsychiatry/fitr&amp;utm_campaign=Badge_Grade
