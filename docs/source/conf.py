@@ -16,11 +16,16 @@
 import sys
 import os
 import sphinx_rtd_theme
+import mock
+
+MOCK_MODULES = ['pystan']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../../"))
 
 # -- General configuration ------------------------------------------------
 
@@ -214,6 +219,8 @@ html_static_path = ['_static']
 htmlhelp_basename = 'fitrdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
+
+mathjax_path = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML'
 
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').

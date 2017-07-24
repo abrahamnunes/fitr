@@ -1,5 +1,0 @@
-Fitr
-=====
-
-.. automodule:: fitr
-    :members:

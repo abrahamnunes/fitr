@@ -55,6 +55,8 @@ class Param(object):
     sample(size=1)
         Samples from the parameter's distribution
 
+
+
     """
     def __init__(self, name=None, rng=None):
         self.name  = name
@@ -82,6 +84,7 @@ class Param(object):
         """
         Converts mean and standard deviation to other distribution parameters.
 
+
         Parameters
         ----------
         mean : float
@@ -91,35 +94,38 @@ class Param(object):
         dist : {'beta', 'gamma'}
             Target distribution
 
+
         Notes
         -----
+
         Currently, only the gamma and beta distributions are supported for this function.
 
-        The Beta distribution has two shape parameters :math:`\lbrace \alpha, \beta \rbrace > 0`. Using the mean :math:`\mu` and the standard deviation :math:`\sigma`, the :math:`\alpha` parameter can be calculated as
+        The Beta distribution has two shape parameters :math:`\\lbrace \\alpha, \\beta \\rbrace > 0`. Using the mean :math:`\mu` and the standard deviation :math:`\\sigma`, the :math:`\\alpha` parameter can be calculated as
 
         .. math::
 
-            \alpha = (\frac{1-\mu}{\sigma^2} - \frac{1}{\mu})\mu^2,
+            \\alpha = (\\frac{1-\\mu}{\\sigma^2} - \\frac{1}{\\mu})\\mu^2
 
-        and the :math:`\beta` parameter as
-
-        .. math::
-
-            \beta = \alpha (\frac{1}{\mu} - 1).
-
-        Note that for the Beta distribution to be defined this way, the following constraint must hold for the mean, :math:`0 < \mu < 1, and the following for the variance, :math:`0 < \sigma^2 \leq \mu - \mu^2`
-
-        For the Gamma distribution, we have a shape parameter :math:`\kappa > 0` and a scale parameter :math:`\theta`. These can be calculated using the mean :math:`\mu` and standard deviation :math:`\sigma` as
+        and the :math:`\\beta` parameter as
 
         .. math::
 
-            \theta = \frac{\sigma^2}{\mu},
+            \\beta = \\alpha (\\frac{1}{\\mu} - 1)
+
+        Note that for the Beta distribution to be defined this way, the following constraint must hold for the mean, :math:`0 < \\mu < 1`, and the following for the variance, :math:`0 < \\sigma^2 \\leq \\mu - \\mu^2`.
+
+        For the Gamma distribution, we have a shape parameter :math:`\\kappa > 0` and a scale parameter :math:`\\theta`. These can be calculated using the mean :math:`\\mu` and standard deviation :math:`\\sigma` as
+
+        .. math::
+
+            \\theta = \\frac{\\sigma^2}{\\mu}
 
         and
 
         .. math::
 
-            \kappa = \frac{\mu^2}{\sigma^2}
+            \\kappa = \\frac{\\mu^2}{\\sigma^2}
+
         """
 
         if sd <= 0:
