@@ -18,7 +18,7 @@ import os
 import sphinx_rtd_theme
 import mock
 
-MOCK_MODULES = ['pystan']
+MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'matplotlib.pyplot', 'pandas', 'pystan']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
