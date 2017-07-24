@@ -45,11 +45,6 @@ If you want the latest version on the GitHub master branch, install as follows::
 
 Currently, we build and test on Linux and OSX. As such, we cannot guarantee performance on Windows.
 
-Documentation
--------------
-
-Fitr documentation is hosted on ReadTheDocs (See badge above).
-
 Tutorials
 ---------
 
