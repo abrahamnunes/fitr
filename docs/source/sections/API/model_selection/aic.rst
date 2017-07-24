@@ -1,5 +1,5 @@
 Aikake Information Criterion Model-Selection
 ============================================
 
-.. automodule:: model_selection.aic
+.. automodule:: fitr.model_selection.aic
     :members:

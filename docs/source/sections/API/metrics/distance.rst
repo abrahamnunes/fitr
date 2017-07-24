@@ -1,5 +1,5 @@
 Distance Metrics
 ================
 
-.. automodule:: metrics.distance
+.. automodule:: fitr.metrics.distance
     :members:

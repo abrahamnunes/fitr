@@ -1,5 +1,5 @@
 RLParams
 ========
 
-.. automodule:: rlparams
+.. automodule:: fitr.rlparams
     :members:

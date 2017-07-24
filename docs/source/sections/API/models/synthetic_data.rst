@@ -1,5 +1,5 @@
 Synthetic Data
 ==============
 
-.. automodule:: models.synthetic_data
+.. automodule:: fitr.models.synthetic_data
     :members:

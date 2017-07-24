@@ -1,5 +1,5 @@
 Markov-Chain Monte-Carlo
 ========================
 
-.. automodule:: inference/mcmc
+.. automodule:: fitr.inference.mcmc
     :members:

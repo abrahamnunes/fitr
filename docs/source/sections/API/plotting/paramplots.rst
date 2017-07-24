@@ -1,5 +1,5 @@
 ParamPlots
 ==========
 
-.. automodule:: plotting.paramplots
+.. automodule:: fitr.plotting.paramplots
     :members:

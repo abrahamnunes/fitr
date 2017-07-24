@@ -1,5 +1,5 @@
 Distance Metric Plots
 =====================
 
-.. automodule:: plotting.distance
+.. automodule:: fitr.plotting.distance
     :members:
