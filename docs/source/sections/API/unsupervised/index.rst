@@ -1,5 +1,5 @@
 Fitr API
-========
+==================
 
 Modules:
 
@@ -11,5 +11,4 @@ Modules:
    models/index
    metrics/index
    plotting/index
-   utils/rlparams
-   utils/utils
+   unsupervised/index
