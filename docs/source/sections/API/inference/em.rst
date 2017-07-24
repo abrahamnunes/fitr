@@ -1,5 +1,5 @@
 Expectation-Maximization
 ========================
 
-.. automodule:: fitr.inference.em
+.. automodule:: inference.em
     :members:

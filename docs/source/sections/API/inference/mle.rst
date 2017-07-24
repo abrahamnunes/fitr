@@ -1,5 +1,5 @@
 Maximum-Likelihood Estimation
 =============================
 
-.. automodule:: fitr.inference.mle
+.. automodule:: inference.mle
     :members:

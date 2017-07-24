@@ -1,5 +1,5 @@
 Empirical Priors
 ================
 
-.. automodule:: fitr.inference.empiricalpriors
+.. automodule:: inference.empiricalpriors
     :members:

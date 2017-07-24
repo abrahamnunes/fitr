@@ -1,5 +1,5 @@
 ModelFitResult
 ==============
 
-.. automodule:: fitr.inference.modelfitresult
+.. automodule:: inference.modelfitresult
     :members:

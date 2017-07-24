@@ -1,5 +1,5 @@
 Fitmodel: High Level Model-Fitting Wrapper
 ==========================================
 
-.. automodule:: fitr.inference.fitmodel
+.. automodule:: inference.fitmodel
     :members:
