@@ -337,7 +337,20 @@ class MCMCFitResult(ModelFitResult):
         self.stanfit = None
         self.summary = None
 
-    def get_paramestimates(self, FUN=np.mean):
+    def make_summary(self):
+        """
+        Creates summary of Stan fitting results
+        """
+
+        # Create summary dataframe
+        summary_data = self.stanfit.summary()['summary']
+        summary_colnames = self.stanfit.summary()['summary_colnames']
+        summary_rownames = self.stanfit.summary()['summary_rownames']
+        self.summary = pd.DataFrame(data=summary_data,
+                                    columns=summary_colnames,
+                                    index=summary_rownames)
+
+    def get_paramestimates(self, FUN=np.median):
         """
         Extracts parameter estimates
 
@@ -366,7 +379,6 @@ class MCMCFitResult(ModelFitResult):
             Whether to save the figure to disk
         filename : str
             The file name to be output
-
         """
         if figsize is None:
             figsize = [8, 8]
