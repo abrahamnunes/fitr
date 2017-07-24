@@ -1,15 +1,15 @@
 Fitr API
-==================
+========
 
 Modules:
 
 .. toctree::
    :maxdepth: 1
 
-   fitr
-   model_selection
-   loglik_functions
-   generative_models
-   rlparams
-   tasks
-   utils
+   inference/index
+   model_selection/index
+   models/index
+   metrics/index
+   plotting/index
+   utils/rlparams
+   utils/utils
