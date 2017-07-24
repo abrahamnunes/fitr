@@ -100,30 +100,20 @@ class MCMC(object):
                               verbose=compile_verbose)
 
         # Sample from generative model
-        stanfit = sm.sampling(data=data,
-                              chains=chains,
-                              iter=n_iterations,
-                              warmup=warmup,
-                              thin=thin,
-                              seed=seed,
-                              init=init,
-                              sample_file=sample_file,
-                              verbose=sampling_verbose,
-                              algorithm=algorithm,
-                              control=control,
-                              n_jobs=n_jobs)
+        results.stanfit = sm.sampling(data=data,
+                                      chains=chains,
+                                      iter=n_iterations,
+                                      warmup=warmup,
+                                      thin=thin,
+                                      seed=seed,
+                                      init=init,
+                                      sample_file=sample_file,
+                                      verbose=sampling_verbose,
+                                      algorithm=algorithm,
+                                      control=control,
+                                      n_jobs=n_jobs)
 
-        results.stanfit = stanfit
-
-        # Create summary dataframe
-        summary_data = stanfit.summary()['summary']
-        summary_colnames = stanfit.summary()['summary_colnames']
-        summary_rownames = stanfit.summary()['summary_rownames']
-        stan_summary = pd.DataFrame(data=summary_data,
-                                    columns=summary_colnames,
-                                    index=summary_rownames)
-
-        results.summary = stan_summary
+        results.make_summary()
 
         return results
 
