@@ -38,7 +38,7 @@ The current PyPI release of Fitr can be installed as follows::
 
 If you want the latest version on the GitHub master branch, install as follows::
 
-    pip install git+https://github.com/ComputationalPsychiatry/fitr.git
+    pip install git+https://github.com/abrahamnunes/fitr.git
 
 Currently, we build and test on Linux and OSX. As such, we cannot guarantee performance on Windows.
 
