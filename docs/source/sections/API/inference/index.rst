@@ -1,5 +1,5 @@
-Fitr API
-==================
+Inference
+=========
 
 Modules:
 
@@ -12,4 +12,3 @@ Modules:
    mcmc
    fitmodel
    modelfitresult
-   
