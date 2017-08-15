@@ -3,8 +3,8 @@ import numpy as np
 import fitr
 from fitr.rlparams import *
 from fitr.models import twostep as task
-from fitr.metrics import parameter_distance
-from fitr.metrics import likelihood_distance
+from fitr.criticism.distance import parameter_distance
+from fitr.criticism.distance import likelihood_distance
 from fitr.plotting import heatmap
 from fitr.plotting import confusion_matrix
 from fitr.plotting import distance_scatter

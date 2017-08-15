@@ -29,7 +29,7 @@ from scipy.stats import multivariate_normal as mvn
 from .modelfitresult import OptimizationFitResult
 
 from ..utils import trans_UC
-from ..metrics import BIC, AIC, LME
+from ..criticism.model_evaluation import BIC, AIC, LME
 
 class EM(object):
     """

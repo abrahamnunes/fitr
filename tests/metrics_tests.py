@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import fitr.metrics
-from fitr.metrics import likelihood_distance
+from fitr.criticism.distance import likelihood_distance
 from fitr.models import twostep
 import numpy as np
 

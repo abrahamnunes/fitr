@@ -20,38 +20,15 @@
 #    Email: nunes@dal.ca
 #
 # ============================================================================
+"""
+The :mod:`fitr.criticism` module includes functions for criticizing model fits and performing model selection
+"""
 
-import numpy as np
-
+from .cross_validation import LOACV
 from .modelselectionresult import ModelSelectionResult
 
-class BIC(object):
-    """
-    Model comparison with Bayesian Information Criterion
-
-    Attributes
-    ----------
-    modelfits : list
-        List of ModelFitResult objects from completed model fitting
-
-    Methods
-    -------
-    run(self)
-        Runs model comparison by Bayesian Information Criterion
-    """
-    def __init__(self, model_fits):
-        self.modelfits = model_fits
-
-    def run(self):
-        """
-        Runs model comparison by Bayesian Information Criterion
-        """
-        results = ModelSelectionResult(method='BIC')
-
-        for i in range(len(self.modelfits)):
-            results.BIC.append(np.sum(self.modelfits[i].BIC))
-
-        for i in range(len(self.modelfits)):
-            results.modelnames.append(self.modelfits[i].name)
-
-        return results
+__all__ = ['model_selection',
+           'model_evaluation',
+           'distance',
+           'LOACV',
+           'ModelSelectionResult']

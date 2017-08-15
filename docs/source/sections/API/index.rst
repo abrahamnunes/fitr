@@ -7,9 +7,8 @@ Modules:
    :maxdepth: 1
 
    inference/index
-   model_selection/index
+   criticism/index
    models/index
-   metrics/index
    plotting/index
    utils/rlparams
    utils/utils

@@ -27,7 +27,7 @@ from scipy.optimize import minimize
 from .modelfitresult import OptimizationFitResult
 
 from ..utils import trans_UC
-from ..metrics import BIC, AIC, LME
+from ..criticism.model_evaluation import BIC, AIC, LME
 
 class EmpiricalPriors(object):
     """

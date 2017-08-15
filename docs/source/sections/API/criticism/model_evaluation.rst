@@ -1,5 +1,5 @@
 Model-Evaluation Metrics
 ========================
 
-.. automodule:: fitr.metrics.model_evaluation
+.. automodule:: fitr.criticism.model_evaluation
     :members:

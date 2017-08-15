@@ -1,5 +1,5 @@
 Cross Validation Methods
 ========================
 
-.. automodule:: fitr.model_selection.cross_validation
+.. automodule:: fitr.criticism.cross_validation
     :members:

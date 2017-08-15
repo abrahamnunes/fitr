@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal as mvn
 
-from ..metrics import AIC, LME
+from ..criticism.model_evaluation import AIC, LME
 
 class ModelFitResult(object):
     """

@@ -1,5 +1,5 @@
 Model-Selection Result
 ======================
 
-.. automodule:: fitr.model_selection.modelselectionresult
+.. automodule:: fitr.criticism.modelselectionresult
     :members:
