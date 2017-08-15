@@ -12,7 +12,7 @@ def test_paramcorr():
 	y = np.random.normal(0, 1, size=(n_subjects, n_params))
 
 	corrs = paramcorr(X=x, Y=y)
-	assert(np.shape(corrs) == (n_params, n_subjects))
+	assert(np.shape(corrs) == (n_params, 2))
 
 def test_param_ttest():
 	n_params = 3
@@ -22,4 +22,4 @@ def test_param_ttest():
 	y = np.random.normal(0, 1, size=(n_subjects, n_params))
 
 	res = param_ttest(X=x, Y=y)
-	assert(np.shape(res) == (n_params, n_subjects))
+	assert(np.shape(res) == (n_params, 2))
