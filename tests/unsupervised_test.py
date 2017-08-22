@@ -1,7 +1,7 @@
 import numpy as np
 
 from fitr.models import twostep
-from fitr.metrics import parameter_distance
+from fitr.criticism.distance import parameter_distance
 from fitr.unsupervised import Embedding
 from fitr.unsupervised import TSNE
 from fitr.unsupervised import AffinityPropagation

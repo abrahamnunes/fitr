@@ -22,10 +22,10 @@
 # ============================================================================
 
 from .rlparams import *
-from .model_selection import *
+from .criticism import *
 from .utils import *
 
 
 __all__ = ['rlparams',
-           'model_selection',
+           'criticism',
            'utils']

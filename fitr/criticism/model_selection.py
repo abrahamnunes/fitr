@@ -20,7 +20,6 @@
 #    Email: nunes@dal.ca
 #
 # ============================================================================
-
 """
 Functions for model selection/comparison.
 
@@ -39,6 +38,71 @@ from scipy.special import digamma as psi
 from scipy.special import gammaln
 
 from .modelselectionresult import ModelSelectionResult
+
+
+class AIC(object):
+    """
+    Model comparison with Aikake Information Criterion
+
+    Attributes
+    ----------
+    modelfits : list
+        List of fitrfit objects from completed model fitting
+
+    Methods
+    -------
+    run(self)
+        Runs model comparison by Aikake Information Criterion
+
+    """
+    def __init__(self, model_fits):
+        self.modelfits = model_fits
+
+    def run(self):
+        """
+        Runs model comparison by Aikake Information Criterion
+        """
+        results = ModelSelectionResult(method='AIC')
+
+        for i in range(len(self.modelfits)):
+            results.AIC.append(np.sum(self.modelfits[i].AIC))
+
+        for i in range(len(self.modelfits)):
+            results.modelnames.append(self.modelfits[i].name)
+
+        return results
+
+class BIC(object):
+    """
+    Model comparison with Bayesian Information Criterion
+
+    Attributes
+    ----------
+    modelfits : list
+        List of ModelFitResult objects from completed model fitting
+
+    Methods
+    -------
+    run(self)
+        Runs model comparison by Bayesian Information Criterion
+    """
+    def __init__(self, model_fits):
+        self.modelfits = model_fits
+
+    def run(self):
+        """
+        Runs model comparison by Bayesian Information Criterion
+        """
+        results = ModelSelectionResult(method='BIC')
+
+        for i in range(len(self.modelfits)):
+            results.BIC.append(np.sum(self.modelfits[i].BIC))
+
+        for i in range(len(self.modelfits)):
+            results.modelnames.append(self.modelfits[i].name)
+
+        return results
+
 
 class BMS(object):
     """

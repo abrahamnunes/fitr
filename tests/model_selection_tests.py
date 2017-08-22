@@ -4,9 +4,9 @@ from fitr.rlparams import LearningRate
 from fitr.rlparams import ChoiceRandomness
 from fitr.rlparams import RewardSensitivity
 from fitr.inference import EM
-from fitr.model_selection import BIC
-from fitr.model_selection import AIC
-from fitr.model_selection import BMS
+from fitr.criticism.model_selection import BIC
+from fitr.criticism.model_selection import AIC
+from fitr.criticism.model_selection import BMS
 
 from fitr.models import driftbandit
 

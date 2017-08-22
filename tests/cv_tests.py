@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 
 from fitr.models import driftbandit as db
-from fitr.model_selection import LOACV
+from fitr.criticism import LOACV
 
 def test_driftbandit_loacv():
     N = 5 # number of subjects

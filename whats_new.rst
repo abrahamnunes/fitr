@@ -29,14 +29,6 @@ Inference Subpackage
 - Implemented ``fitr.inference.MLE()`` class for maximum-likelihood estimation
 - Split ``ModelFitResult`` into ``OptimizationFitResult`` (for ``EM``, ``EmpiricalPriors``, and ``MLE``) and ``MCMCFitResult`` (for ``MCMC``) to reduce complexity of the code
 
-Metrics Subpackage
-..................
-
-- Model evaluation functions like ``BIC``, ``AIC``, and ``LME`` are now here
-- A new ``distance`` module which contains distance metrics
-    - ``parameter_distance``
-    - ``likelihood_distance``
-
 Models Subpackage
 .................
 
@@ -46,10 +38,18 @@ Models Subpackage
 - ``synthetic_data`` module containing object for synthetic behavioural data
 - ``stancode`` folder with Stan code for fitting various models. Currently have code for various ``driftbandit`` and ``twostep`` models
 
-Model Selection Subpackage
+Criticism Subpackage
 ..........................
 
-- The former ``model_selection`` module is now the ``fitr.model_selection`` subpackage, with constituent functions as individual modules. Should make development easier with shorter files.
+- ``fitr.criticism`` added to enable conformity with the framework of Box's loop for modeling.
+- Model evaluation functions like ``BIC``, ``AIC``, and ``LME`` are now in ``fitr.criticism.model_evaluation`` module
+- Model selection functions ``BIC``, ``AIC``, and ``BMS`` are now here
+- A new ``distance`` module which contains distance metrics
+    - ``parameter_distance``
+    - ``likelihood_distance``
+- A new ``ae_stats`` module with statistics for comparing true and estimated parameters during task design. It has the following functions
+    - ``paramcorr``: Pearson correlation between actual and estimated parameters
+    - ``param_ttest``: Two sample ttest for actual and estimated parameters
 
 Plotting Subpackage
 ...................

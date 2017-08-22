@@ -1,5 +1,5 @@
 Bayesian Model Selection
 ========================
 
-.. automodule:: fitr.model_selection.bms
+.. automodule:: fitr.criticism.bms
     :members:
