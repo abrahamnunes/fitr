@@ -5,14 +5,14 @@
 .. |Docs| image:: https://readthedocs.org/projects/fitr/badge/?version=latest
 .. _Docs: http://fitr.readthedocs.io/en/latest/?badge=latest
 
-.. |Build| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
-.. _Build: https://travis-ci.org/ComputationalPsychiatry/fitr
+.. |Build| image:: https://travis-ci.org/abrahamnunes/fitr.svg?branch=master
+.. _Build: https://travis-ci.org/abrahamnunes/fitr
 
 .. |PyPI| image:: https://badge.fury.io/py/fitr.svg
 .. _PyPI: https://badge.fury.io/py/fitr
 
-.. |Codecov| image:: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master/graphs/badge.svg
-.. _Codecov: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
+.. |Codecov| image:: https://codecov.io/gh/abrahamnunes/fitr/branch/master/graph/badge.svg
+.. _Codecov: https://codecov.io/gh/abrahamnunes/fitr
 
 .. |Health| image:: https://landscape.io/github/abrahamnunes/fitr/master/landscape.svg?style=flat
 .. _Health: https://landscape.io/github/abrahamnunes/fitr/master
