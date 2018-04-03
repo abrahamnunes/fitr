@@ -1,2 +1,2 @@
-numpydoc
+numpydoc==0.8.0
 pystan
