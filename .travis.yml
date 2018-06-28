@@ -1,19 +1,14 @@
 language: python
 python:
-  - 3.5
-  - 3.6
+  - '3.5'
+  - '3.6'
 # dependencies
 install:
   - pip install --upgrade pip
   - pip install -r requirements.txt
   - pip install -r requirements_test.txt
   - pip install -e .
-# command to run tests
-before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
 script:
-  - py.test --cov=fitr tests/*
+  - pytest
 after_success:
   - codecov
