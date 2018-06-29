@@ -1,0 +1,3 @@
+ignore:
+  - "setup.*"  # setup files
+# - "[a-z]+/test_.*"  # regexp accepted
