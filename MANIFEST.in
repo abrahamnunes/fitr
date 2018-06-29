@@ -1,3 +1,2 @@
 include LICENSE.txt
-include README.rst
-whats_new.rst
+include README.md
