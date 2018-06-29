@@ -5,20 +5,20 @@
 .. |Docs| image:: https://readthedocs.org/projects/fitr/badge/?version=latest
 .. _Docs: http://fitr.readthedocs.io/en/latest/?badge=latest
 
-.. |Build| image:: https://travis-ci.org/ComputationalPsychiatry/fitr.svg?branch=master
-.. _Build: https://travis-ci.org/ComputationalPsychiatry/fitr
+.. |Build| image:: https://travis-ci.org/abrahamnunes/fitr.svg?branch=master
+.. _Build: https://travis-ci.org/abrahamnunes/fitr
 
 .. |PyPI| image:: https://badge.fury.io/py/fitr.svg
 .. _PyPI: https://badge.fury.io/py/fitr
 
-.. |Codecov| image:: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master/graphs/badge.svg
-.. _Codecov: https://codecov.io/gh/ComputationalPsychiatry/fitr/branch/master
+.. |Codecov| image:: https://codecov.io/gh/abrahamnunes/fitr/branch/master/graphs/badge.svg
+.. _Codecov: https://codecov.io/gh/abrahamnunes/fitr/branch/master
 
 .. |Health| image:: https://landscape.io/github/abrahamnunes/fitr/master/landscape.svg?style=flat
 .. _Health: https://landscape.io/github/abrahamnunes/fitr/master
 
 .. |Codacy| image:: https://api.codacy.com/project/badge/Grade/3e84c95fe5e64b42912c3bc08599656a
-.. _Codacy: https://www.codacy.com/app/abrahamjnunes/fitr?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ComputationalPsychiatry/fitr&amp;utm_campaign=Badge_Grade
+.. _Codacy: https://www.codacy.com/app/abrahamjnunes/fitr?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=abrahamnunes/fitr&amp;utm_campaign=Badge_Grade
 
 .. |PyV| image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
 .. _PyV: https://badge.fury.io/py/fitr
