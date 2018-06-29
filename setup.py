@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 # Get path to directory this script is run from
-with open("README.rst", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='fitr',
