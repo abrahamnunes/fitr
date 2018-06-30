@@ -1,0 +1,15 @@
+code_dir: .
+
+#template_dir: templates
+#build_dir: api
+#repo_url: https://github.com/your_user_name/your_repo
+branch: overhaul
+#style: sophon
+
+
+pages:
+- page: sophon/API.md
+  tags:
+  - tag: tag1
+  functions:
+  classes:
