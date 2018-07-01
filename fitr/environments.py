@@ -40,10 +40,10 @@ class Graph(object):
     ``` python
     env = MyBanditTask()            # Instantiate your environment object
     agent = MyAgent()               # Some agent object (arbitrary, really)
-    for t in range(ntrials):
-        x = env.observation()       # Samples initial state
-        u = agent.action(x)         # Choose some action
-        x_, r, done = agent.step(u) # Transition based on action
+    for t in range(ntrials): 
+            x = env.observation()       # Samples initial state
+            u = agent.action(x)         # Choose some action
+            x_, r, done = agent.step(u) # Transition based on action
     ```
 
     What differentiates tasks are the transition tensor $\mathsf T$, starting state distribution $p(\mathbf x)$ and reward function $\mathcal J$ (which here would include the reward vector $\mathbf r$).

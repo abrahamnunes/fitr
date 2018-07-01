@@ -80,10 +80,10 @@ some bandit task \texttt{MyBanditTask} that inherits from
 \begin{Highlighting}[]
 \NormalTok{env }\OperatorTok{=}\NormalTok{ MyBanditTask()            }\CommentTok{# Instantiate your environment object}
 \NormalTok{agent }\OperatorTok{=}\NormalTok{ MyAgent()               }\CommentTok{# Some agent object (arbitrary, really)}
-\ControlFlowTok{for}\NormalTok{ t }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(ntrials):}
-\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()       }\CommentTok{# Samples initial state}
-\NormalTok{u }\OperatorTok{=}\NormalTok{ agent.action(x)         }\CommentTok{# Choose some action}
-\NormalTok{x_, r, done }\OperatorTok{=}\NormalTok{ agent.step(u) }\CommentTok{# Transition based on action}
+\ControlFlowTok{for}\NormalTok{ t }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(ntrials): }
+\NormalTok{    x }\OperatorTok{=}\NormalTok{ env.observation()       }\CommentTok{# Samples initial state}
+\NormalTok{    u }\OperatorTok{=}\NormalTok{ agent.action(x)         }\CommentTok{# Choose some action}
+\NormalTok{    x_, r, done }\OperatorTok{=}\NormalTok{ agent.step(u) }\CommentTok{# Transition based on action}
 \end{Highlighting}
 \end{Shaded}
 
