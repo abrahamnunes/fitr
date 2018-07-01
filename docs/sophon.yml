@@ -3,7 +3,7 @@ template_dir: temp
 build_dir: api
 #repo_url: https://github.com/your_user_name/your_repo
 branch: overhaul
-style: sophon 
+style: sophon
 
 pages:
 - page: doc_data.md
@@ -14,12 +14,12 @@ pages:
     - fitr.data.BehaviouralData
     functions:
     - fitr.data.merge_behavioural_data
-- page: doc_environments.md 
-  template: doc_environments.md 
-  tags: 
-  - tag: environments 
-    classes_with_methods: 
-    - fitr.environments.Graph 
+- page: doc_environments.md
+  template: doc_environments.md
+  tags:
+  - tag: environments
+    classes_with_methods:
+    - fitr.environments.Graph
     - fitr.environments.TwoArmedBandit
     - fitr.environments.OrthogonalGoNoGo
     - fitr.environments.TwoStep
@@ -33,5 +33,27 @@ pages:
     - fitr.utils.softmax
     - fitr.utils.sigmoid
     - fitr.utils.stable_exp
-    - fitr.utils.logsumexp 
+    - fitr.utils.logsumexp
     - fitr.utils.log_loss
+- page: doc_agents.md
+  template: doc_agents.md
+  tags:
+  - tag: agents
+    classes_with_methods:
+    - fitr.agents.policies.SoftmaxPolicy
+    - fitr.agents.policies.StickySoftmaxPolicy
+    - fitr.agents.policies.EpsilonGreedyPolicy
+    - fitr.agents.value_functions.ValueFunction
+    - fitr.agents.value_functions.DummyLearner
+    - fitr.agents.value_functions.InstrumentalRescorlaWagnerLearner
+    - fitr.agents.value_functions.QLearner
+    - fitr.agents.value_functions.SARSALearner
+    - fitr.agents.agents.Agent
+    - fitr.agents.agents.BanditAgent
+    - fitr.agents.agents.MDPAgent
+    - fitr.agents.agents.RandomBanditAgent
+    - fitr.agents.agents.RandomMDPAgent
+    - fitr.agents.agents.SARSASoftmaxAgent
+    - fitr.agents.agents.QLearningSoftmaxAgent
+    - fitr.agents.agents.RWSoftmaxAgent
+    - fitr.agents.agents.RWSoftmaxAgentRewardSensitivity

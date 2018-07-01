@@ -1,0 +1,1634 @@
+\hypertarget{fitr.agents}{%
+\section{\texorpdfstring{\texttt{fitr.agents}}{fitr.agents}}\label{fitr.agents}}
+
+A modular way to build and test reinforcement learning agents.
+
+There are three main submodules:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{fitr.agents.policies}: which describe a class of functions
+  essentially representing \(f:\mathcal X \to \mathcal U\)
+\item
+  \texttt{fitr.agents.value\_functions}: which describe a class of
+  functions essentially representing
+  \(\mathcal V: \mathcal X \to \mathbb R\) and/or
+  \(\mathcal Q: \mathcal Q \times \mathcal U \to \mathbb R\)
+\item
+  \texttt{fitr.agents.agents}: classes of agents that are combinations
+  of policies and value functions, along with some convenience functions
+  for generating data from \texttt{fitr.environments.Graph}
+  environments.
+\end{itemize}
+
+\hypertarget{softmaxpolicy}{%
+\subsection{SoftmaxPolicy}\label{softmaxpolicy}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.SoftmaxPolicy()}
+\end{Highlighting}
+\end{Shaded}
+
+Action selection by sampling from a multinomial whose parameters are
+given by a softmax.
+
+Action sampling is
+
+\[
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v)).
+\]
+
+Parameters of that distribution are
+
+\[
+p(\mathbf u|\mathbf v) = \varsigma(\mathbf v) = \frac{e^{\beta \mathbf v}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i}}.
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{inverse\_softmax\_temp}: Inverse softmax temperature \(\beta\)
+\item
+  \textbf{rng}: \texttt{np.random.RandomState} object
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{softmaxpolicy.action_prob}{%
+\subsubsection{SoftmaxPolicy.action\_prob}\label{softmaxpolicy.action_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.action_prob(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the softmax
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{softmaxpolicy.log_prob}{%
+\subsubsection{SoftmaxPolicy.log\_prob}\label{softmaxpolicy.log_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.log_prob(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the log-probability of an action \(\mathbf u\)
+
+\[
+\log p(\mathbf u|\mathbf v) = \beta \mathbf v - \log \sum_{v_i} e^{\beta \mathbf v_i}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: State vector of type \texttt{ndarray((nstates,))}
+\end{itemize}
+
+Returns:
+
+Scalar log-probability
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{softmaxpolicy.sample}{%
+\subsubsection{SoftmaxPolicy.sample}\label{softmaxpolicy.sample}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.sample(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples from the action distribution
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{stickysoftmaxpolicy}{%
+\subsection{StickySoftmaxPolicy}\label{stickysoftmaxpolicy}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.StickySoftmaxPolicy()}
+\end{Highlighting}
+\end{Shaded}
+
+Action selection by sampling from a multinomial whose parameters are
+given by a softmax, but with accounting for the tendency to perseverate
+(i.e.~choosing the previously used action without considering its
+value).
+
+Let \(\mathbf u_{t-1} = (u_{t-1}^{(i)})_{i=1}^{|\mathcal U|}\) be a one
+hot vector representing the action taken at the last step, and
+\(\beta^\rho\) be an inverse softmax temperature for the influence of
+this last action.
+
+Action sampling is thus:
+
+\[
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v, \mathbf u_{t-1})).
+\]
+
+Parameters of that distribution are
+
+\[
+p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \varsigma(\mathbf v, \mathbf u_{t-1}) = \frac{e^{\beta \mathbf v + \beta^\rho \mathbf u_{t-1}}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i + \beta^\rho u_{t-1}^{(i)}}}.
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{inverse\_softmax\_temp}: Inverse softmax temperature \(\beta\)
+\item
+  \textbf{perseveration}: Inverse softmax temperature \(\beta^\rho\)
+  capturing the tendency to repeat the last action taken.
+\item
+  \textbf{rng}: \texttt{np.random.RandomState} object
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{stickysoftmaxpolicy.action_prob}{%
+\subsubsection{StickySoftmaxPolicy.action\_prob}\label{stickysoftmaxpolicy.action_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.action_prob(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the softmax
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nstates,))} vector of action probabilities
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{stickysoftmaxpolicy.log_prob}{%
+\subsubsection{StickySoftmaxPolicy.log\_prob}\label{stickysoftmaxpolicy.log_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.log_prob(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the log-probability of an action \(\mathbf u\)
+
+\[
+\log p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \big(\beta \mathbf v + \beta^\rho \mathbf u_{t-1}) - \log \sum_{v_i} e^{\beta \mathbf v_i + \beta^\rho u_{t-1}^{(i)}}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: State vector of type \texttt{ndarray((nstates,))}
+\end{itemize}
+
+Returns:
+
+Scalar log-probability
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{stickysoftmaxpolicy.sample}{%
+\subsubsection{StickySoftmaxPolicy.sample}\label{stickysoftmaxpolicy.sample}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.sample(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples from the action distribution
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nstates,))} one-hot action vector
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{epsilongreedypolicy}{%
+\subsection{EpsilonGreedyPolicy}\label{epsilongreedypolicy}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.EpsilonGreedyPolicy()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{epsilongreedypolicy.action_prob}{%
+\subsubsection{EpsilonGreedyPolicy.action\_prob}\label{epsilongreedypolicy.action_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.action_prob(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates vector of action probabilities for e-greedy policy
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{epsilongreedypolicy.sample}{%
+\subsubsection{EpsilonGreedyPolicy.sample}\label{epsilongreedypolicy.sample}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.policies.sample(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{valuefunction}{%
+\subsection{ValueFunction}\label{valuefunction}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.ValueFunction()}
+\end{Highlighting}
+\end{Shaded}
+
+A general value function object.
+
+A value function here is task specific and consists of several
+attributes:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{nstates}: The number of states in the task, \(|\mathcal X|\)
+\item
+  \texttt{nactions}: Number of actions in the task, \(|\mathcal U|\)
+\item
+  \texttt{V}: State value function \(\mathbf v = \mathcal V(\mathbf x)\)
+\item
+  \texttt{Q}: State-action value function
+  \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
+\item
+  \texttt{etrace}: An eligibility trace (optional)
+\end{itemize}
+
+Note that in general we rely on matrix-vector notation for value
+functions, rather than function notation. Vectors in the mathematical
+typesetting are by default column vectors.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{env}: A \texttt{fitr.environments.Graph}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{valuefunction.qmax}{%
+\subsubsection{ValueFunction.Qmax}\label{valuefunction.qmax}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmax(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return maximal action value for given state
+
+\[
+\max_{u_i}\mathcal Q(\mathbf x, u_i) = \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{valuefunction.qmean}{%
+\subsubsection{ValueFunction.Qmean}\label{valuefunction.qmean}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmean(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return mean action value for given state
+
+\[
+Mean \big(\mathcal Q(\mathbf x, :)\big) = \frac{1}{|\mathcal U|} \mathbf 1^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{valuefunction.qx}{%
+\subsubsection{ValueFunction.Qx}\label{valuefunction.qx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{valuefunction.vx}{%
+\subsubsection{ValueFunction.Vx}\label{valuefunction.vx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{valuefunction.uqx}{%
+\subsubsection{ValueFunction.uQx}\label{valuefunction.uqx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{dummylearner}{%
+\subsection{DummyLearner}\label{dummylearner}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.DummyLearner()}
+\end{Highlighting}
+\end{Shaded}
+
+A critic for the random learner
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{dummylearner.qmax}{%
+\subsubsection{DummyLearner.Qmax}\label{dummylearner.qmax}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmax(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return maximal action value for given state
+
+\[
+\max_{u_i}\mathcal Q(\mathbf x, u_i) = \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{dummylearner.qmean}{%
+\subsubsection{DummyLearner.Qmean}\label{dummylearner.qmean}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmean(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return mean action value for given state
+
+\[
+Mean \big(\mathcal Q(\mathbf x, :)\big) = \frac{1}{|\mathcal U|} \mathbf 1^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{dummylearner.qx}{%
+\subsubsection{DummyLearner.Qx}\label{dummylearner.qx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{dummylearner.vx}{%
+\subsubsection{DummyLearner.Vx}\label{dummylearner.vx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{dummylearner.uqx}{%
+\subsubsection{DummyLearner.uQx}\label{dummylearner.uqx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{dummylearner.update}{%
+\subsubsection{DummyLearner.update}\label{dummylearner.update}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.update(}\VariableTok{self}\NormalTok{, x, u, r, x_, u_)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{instrumentalrescorlawagnerlearner}{%
+\subsection{InstrumentalRescorlaWagnerLearner}\label{instrumentalrescorlawagnerlearner}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.InstrumentalRescorlaWagnerLearner()}
+\end{Highlighting}
+\end{Shaded}
+
+A general value function object.
+
+A value function here is task specific and consists of several
+attributes:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{nstates}: The number of states in the task, \(|\mathcal X|\)
+\item
+  \texttt{nactions}: Number of actions in the task, \(|\mathcal U|\)
+\item
+  \texttt{V}: State value function \(\mathbf v = \mathcal V(\mathbf x)\)
+\item
+  \texttt{Q}: State-action value function
+  \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
+\item
+  \texttt{etrace}: An eligibility trace (optional)
+\end{itemize}
+
+Note that in general we rely on matrix-vector notation for value
+functions, rather than function notation. Vectors in the mathematical
+typesetting are by default column vectors.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{env}: A \texttt{fitr.environments.Graph}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{instrumentalrescorlawagnerlearner.qmax}{%
+\subsubsection{InstrumentalRescorlaWagnerLearner.Qmax}\label{instrumentalrescorlawagnerlearner.qmax}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmax(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return maximal action value for given state
+
+\[
+\max_{u_i}\mathcal Q(\mathbf x, u_i) = \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{instrumentalrescorlawagnerlearner.qmean}{%
+\subsubsection{InstrumentalRescorlaWagnerLearner.Qmean}\label{instrumentalrescorlawagnerlearner.qmean}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmean(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return mean action value for given state
+
+\[
+Mean \big(\mathcal Q(\mathbf x, :)\big) = \frac{1}{|\mathcal U|} \mathbf 1^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{instrumentalrescorlawagnerlearner.qx}{%
+\subsubsection{InstrumentalRescorlaWagnerLearner.Qx}\label{instrumentalrescorlawagnerlearner.qx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{instrumentalrescorlawagnerlearner.vx}{%
+\subsubsection{InstrumentalRescorlaWagnerLearner.Vx}\label{instrumentalrescorlawagnerlearner.vx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{instrumentalrescorlawagnerlearner.uqx}{%
+\subsubsection{InstrumentalRescorlaWagnerLearner.uQx}\label{instrumentalrescorlawagnerlearner.uqx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{instrumentalrescorlawagnerlearner.update}{%
+\subsubsection{InstrumentalRescorlaWagnerLearner.update}\label{instrumentalrescorlawagnerlearner.update}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.update(}\VariableTok{self}\NormalTok{, x, u, r, x_, u_)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearner}{%
+\subsection{QLearner}\label{qlearner}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.QLearner()}
+\end{Highlighting}
+\end{Shaded}
+
+A general value function object.
+
+A value function here is task specific and consists of several
+attributes:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{nstates}: The number of states in the task, \(|\mathcal X|\)
+\item
+  \texttt{nactions}: Number of actions in the task, \(|\mathcal U|\)
+\item
+  \texttt{V}: State value function \(\mathbf v = \mathcal V(\mathbf x)\)
+\item
+  \texttt{Q}: State-action value function
+  \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
+\item
+  \texttt{etrace}: An eligibility trace (optional)
+\end{itemize}
+
+Note that in general we rely on matrix-vector notation for value
+functions, rather than function notation. Vectors in the mathematical
+typesetting are by default column vectors.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{env}: A \texttt{fitr.environments.Graph}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearner.qmax}{%
+\subsubsection{QLearner.Qmax}\label{qlearner.qmax}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmax(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return maximal action value for given state
+
+\[
+\max_{u_i}\mathcal Q(\mathbf x, u_i) = \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearner.qmean}{%
+\subsubsection{QLearner.Qmean}\label{qlearner.qmean}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmean(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return mean action value for given state
+
+\[
+Mean \big(\mathcal Q(\mathbf x, :)\big) = \frac{1}{|\mathcal U|} \mathbf 1^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearner.qx}{%
+\subsubsection{QLearner.Qx}\label{qlearner.qx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearner.vx}{%
+\subsubsection{QLearner.Vx}\label{qlearner.vx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearner.uqx}{%
+\subsubsection{QLearner.uQx}\label{qlearner.uqx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearner.update}{%
+\subsubsection{QLearner.update}\label{qlearner.update}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.update(}\VariableTok{self}\NormalTok{, x, u, r, x_, u_)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsalearner}{%
+\subsection{SARSALearner}\label{sarsalearner}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.SARSALearner()}
+\end{Highlighting}
+\end{Shaded}
+
+A general value function object.
+
+A value function here is task specific and consists of several
+attributes:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{nstates}: The number of states in the task, \(|\mathcal X|\)
+\item
+  \texttt{nactions}: Number of actions in the task, \(|\mathcal U|\)
+\item
+  \texttt{V}: State value function \(\mathbf v = \mathcal V(\mathbf x)\)
+\item
+  \texttt{Q}: State-action value function
+  \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
+\item
+  \texttt{etrace}: An eligibility trace (optional)
+\end{itemize}
+
+Note that in general we rely on matrix-vector notation for value
+functions, rather than function notation. Vectors in the mathematical
+typesetting are by default column vectors.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{env}: A \texttt{fitr.environments.Graph}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsalearner.qmax}{%
+\subsubsection{SARSALearner.Qmax}\label{sarsalearner.qmax}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmax(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return maximal action value for given state
+
+\[
+\max_{u_i}\mathcal Q(\mathbf x, u_i) = \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsalearner.qmean}{%
+\subsubsection{SARSALearner.Qmean}\label{sarsalearner.qmean}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qmean(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Return mean action value for given state
+
+\[
+Mean \big(\mathcal Q(\mathbf x, :)\big) = \frac{1}{|\mathcal U|} \mathbf 1^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of the maximal action value at the given state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsalearner.qx}{%
+\subsubsection{SARSALearner.Qx}\label{sarsalearner.qx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsalearner.vx}{%
+\subsubsection{SARSALearner.Vx}\label{sarsalearner.vx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsalearner.uqx}{%
+\subsubsection{SARSALearner.uQx}\label{sarsalearner.uqx}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsalearner.update}{%
+\subsubsection{SARSALearner.update}\label{sarsalearner.update}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.update(}\VariableTok{self}\NormalTok{, x, u, r, x_, u_)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{agent}{%
+\subsection{Agent}\label{agent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.Agent()}
+\end{Highlighting}
+\end{Shaded}
+
+Base class for synthetic RL agents
+
+Arguments:
+
+meta : List of metadata of arbitrary type. e.g.~labels, covariates, etc.
+params : List of parameters for the agent. Should be filled for specific
+agent.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{agent.reset_trace}{%
+\subsubsection{Agent.reset\_trace}\label{agent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{banditagent}{%
+\subsection{BanditAgent}\label{banditagent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.BanditAgent()}
+\end{Highlighting}
+\end{Shaded}
+
+A base class for agents in bandit tasks (i.e.~with one step).
+
+This mainly has implications for generating data
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{banditagent.generate_data}{%
+\subsubsection{BanditAgent.generate\_data}\label{banditagent.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{banditagent.reset_trace}{%
+\subsubsection{BanditAgent.reset\_trace}\label{banditagent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{mdpagent}{%
+\subsection{MDPAgent}\label{mdpagent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.MDPAgent()}
+\end{Highlighting}
+\end{Shaded}
+
+A base class for agents that operate on MDPs.
+
+This mainly has implications for generating data
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{mdpagent.generate_data}{%
+\subsubsection{MDPAgent.generate\_data}\label{mdpagent.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{mdpagent.reset_trace}{%
+\subsubsection{MDPAgent.reset\_trace}\label{mdpagent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randombanditagent}{%
+\subsection{RandomBanditAgent}\label{randombanditagent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.RandomBanditAgent()}
+\end{Highlighting}
+\end{Shaded}
+
+An agent that simply selects random actions at each trial
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randombanditagent.action}{%
+\subsubsection{RandomBanditAgent.action}\label{randombanditagent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randombanditagent.generate_data}{%
+\subsubsection{RandomBanditAgent.generate\_data}\label{randombanditagent.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randombanditagent.learning}{%
+\subsubsection{RandomBanditAgent.learning}\label{randombanditagent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randombanditagent.reset_trace}{%
+\subsubsection{RandomBanditAgent.reset\_trace}\label{randombanditagent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randommdpagent}{%
+\subsection{RandomMDPAgent}\label{randommdpagent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.RandomMDPAgent()}
+\end{Highlighting}
+\end{Shaded}
+
+An agent that simply selects random actions at each trial
+
+\hypertarget{notes}{%
+\subsection{Notes}\label{notes}}
+
+This has been specified as an \texttt{OnPolicyAgent} arbitrarily.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randommdpagent.action}{%
+\subsubsection{RandomMDPAgent.action}\label{randommdpagent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randommdpagent.generate_data}{%
+\subsubsection{RandomMDPAgent.generate\_data}\label{randommdpagent.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randommdpagent.learning}{%
+\subsubsection{RandomMDPAgent.learning}\label{randommdpagent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randommdpagent.reset_trace}{%
+\subsubsection{RandomMDPAgent.reset\_trace}\label{randommdpagent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsasoftmaxagent}{%
+\subsection{SARSASoftmaxAgent}\label{sarsasoftmaxagent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.SARSASoftmaxAgent()}
+\end{Highlighting}
+\end{Shaded}
+
+An agent that uses the SARSA learning rule and a softmax policy
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsasoftmaxagent.action}{%
+\subsubsection{SARSASoftmaxAgent.action}\label{sarsasoftmaxagent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsasoftmaxagent.generate_data}{%
+\subsubsection{SARSASoftmaxAgent.generate\_data}\label{sarsasoftmaxagent.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsasoftmaxagent.learning}{%
+\subsubsection{SARSASoftmaxAgent.learning}\label{sarsasoftmaxagent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sarsasoftmaxagent.reset_trace}{%
+\subsubsection{SARSASoftmaxAgent.reset\_trace}\label{sarsasoftmaxagent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearningsoftmaxagent}{%
+\subsection{QLearningSoftmaxAgent}\label{qlearningsoftmaxagent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.QLearningSoftmaxAgent()}
+\end{Highlighting}
+\end{Shaded}
+
+An agent that uses the Q-learning rule and a softmax policy
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearningsoftmaxagent.action}{%
+\subsubsection{QLearningSoftmaxAgent.action}\label{qlearningsoftmaxagent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearningsoftmaxagent.generate_data}{%
+\subsubsection{QLearningSoftmaxAgent.generate\_data}\label{qlearningsoftmaxagent.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearningsoftmaxagent.learning}{%
+\subsubsection{QLearningSoftmaxAgent.learning}\label{qlearningsoftmaxagent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{qlearningsoftmaxagent.reset_trace}{%
+\subsubsection{QLearningSoftmaxAgent.reset\_trace}\label{qlearningsoftmaxagent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagent}{%
+\subsection{RWSoftmaxAgent}\label{rwsoftmaxagent}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.RWSoftmaxAgent()}
+\end{Highlighting}
+\end{Shaded}
+
+A base class for agents in bandit tasks (i.e.~with one step).
+
+This mainly has implications for generating data
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagent.action}{%
+\subsubsection{RWSoftmaxAgent.action}\label{rwsoftmaxagent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagent.generate_data}{%
+\subsubsection{RWSoftmaxAgent.generate\_data}\label{rwsoftmaxagent.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagent.learning}{%
+\subsubsection{RWSoftmaxAgent.learning}\label{rwsoftmaxagent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagent.reset_trace}{%
+\subsubsection{RWSoftmaxAgent.reset\_trace}\label{rwsoftmaxagent.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagentrewardsensitivity}{%
+\subsection{RWSoftmaxAgentRewardSensitivity}\label{rwsoftmaxagentrewardsensitivity}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.RWSoftmaxAgentRewardSensitivity()}
+\end{Highlighting}
+\end{Shaded}
+
+A base class for agents in bandit tasks (i.e.~with one step).
+
+This mainly has implications for generating data
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagentrewardsensitivity.action}{%
+\subsubsection{RWSoftmaxAgentRewardSensitivity.action}\label{rwsoftmaxagentrewardsensitivity.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagentrewardsensitivity.generate_data}{%
+\subsubsection{RWSoftmaxAgentRewardSensitivity.generate\_data}\label{rwsoftmaxagentrewardsensitivity.generate_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagentrewardsensitivity.learning}{%
+\subsubsection{RWSoftmaxAgentRewardSensitivity.learning}\label{rwsoftmaxagentrewardsensitivity.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagentrewardsensitivity.reset_trace}{%
+\subsubsection{RWSoftmaxAgentRewardSensitivity.reset\_trace}\label{rwsoftmaxagentrewardsensitivity.reset_trace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For agents with eligibility traces, this resets the eligibility trace
+(for episodic tasks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  (optional)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
