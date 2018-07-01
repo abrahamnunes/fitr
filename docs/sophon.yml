@@ -1,0 +1,37 @@
+code_dir: ..
+template_dir: temp
+build_dir: api
+#repo_url: https://github.com/your_user_name/your_repo
+branch: overhaul
+style: sophon 
+
+pages:
+- page: doc_data.md
+  template: doc_data.md
+  tags:
+  - tag: data
+    classes_with_methods:
+    - fitr.data.BehaviouralData
+    functions:
+    - fitr.data.merge_behavioural_data
+- page: doc_environments.md 
+  template: doc_environments.md 
+  tags: 
+  - tag: environments 
+    classes_with_methods: 
+    - fitr.environments.Graph 
+    - fitr.environments.TwoArmedBandit
+    - fitr.environments.OrthogonalGoNoGo
+    - fitr.environments.TwoStep
+    - fitr.environments.ReverseTwoStep
+    - fitr.environments.RandomContextualBandit
+- page: doc_utils.md
+  template: doc_utils.md
+  tags:
+  - tag: utils
+    functions:
+    - fitr.utils.softmax
+    - fitr.utils.sigmoid
+    - fitr.utils.stable_exp
+    - fitr.utils.logsumexp 
+    - fitr.utils.log_loss
