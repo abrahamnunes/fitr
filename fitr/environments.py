@@ -383,13 +383,13 @@ class Graph(object):
 #   SIMPLE FUNCTIONS TO RUN ENVIRONMENTS
 #===============================================================================
 
-def generate_behavioural_data(environment, Agent, nsubjects, ntrials):
+def generate_behavioural_data(environment, agent, nsubjects, ntrials):
     """
     A function for flexibly simulating data for different task/agent combos.
 
     Arguments:
 
-        environment: An instantiated `Graph` object representing the task being tested
+        environment: `fitr.environments.Graph` object
         agent: A `fitr.agents.Agent` object representing the agent being evaluated
         nsubjects: An `int` number of subjects to simulate
         ntrials: An `int` number of trials to simulate
@@ -404,11 +404,12 @@ def generate_behavioural_data(environment, Agent, nsubjects, ntrials):
         from fitr.agents import RWSoftmaxAgent
         from fitr.environments import TwoArmedBandit
 
+        data = generate_behavioural_data(TwoArmedBandit, RWSoftmaxAgent, 5, 100)
         ```
     """
     for i in range(nsubjects):
-        agent = Agent(environment)
-        subject_data = agent.generate_data(ntrials)
+        agent_ = agent(environment())
+        subject_data = agent_.generate_data(ntrials)
         if i == 0:
             data = subject_data
         else:
@@ -545,7 +546,8 @@ def make_bandit_graph(nactions, noutcomes, nstates, min_actions_per_context, alp
 #===============================================================================
 
 class TwoArmedBandit(Graph):
-    """ Two armed bandit just as a tester """
+    """ A simple 2-armed bandit task
+    """
     def __init__(self):
         T = np.zeros((2, 3, 3))
         T[0,1,0] = 0.8      # These end up being reward probabilities
@@ -559,8 +561,7 @@ class TwoArmedBandit(Graph):
         super().__init__(T,R,xend,p_start)
 
 class OrthogonalGoNoGo(Graph):
-    """
-    The orthogonal GoNogo task from Guitart-Masip et al. (2012)
+    """ The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
     """
     def __init__(self):
         T = np.zeros((2,7,7))
@@ -882,7 +883,6 @@ class RandomContextualBandit(Graph):
         p_start = p_start/np.sum(p_start)
         xend[-self.noutcomes:] = 1.
         R[-self.noutcomes:] = np.linspace(reward_lb, reward_ub, self.noutcomes)
-        super().__init__(T,R,xend,p_start)
 
         # Reward drift properties
         self.mu = drift_mu
@@ -899,6 +899,7 @@ class RandomContextualBandit(Graph):
             self.sd = 1.
         self.C = np.eye(self.noutcomes)*self.sd
         self.mvn = multivariate_normal(mean=self.mu, cov=self.C)
+        super().__init__(T,R,xend,p_start,f_reward=self.f_reward)
 
     def f_reward(self, R, x):
         if self.reward_drift == 'on':

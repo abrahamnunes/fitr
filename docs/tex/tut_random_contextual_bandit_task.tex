@@ -1,0 +1,52 @@
+\hypertarget{simulating-and-fitting-data-from-a-random-contextual-bandit-task}{%
+\section{Simulating and Fitting Data from a Random Contextual Bandit
+Task}\label{simulating-and-fitting-data-from-a-random-contextual-bandit-task}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\ImportTok{from}\NormalTok{ fitr }\ImportTok{import}\NormalTok{ generate_behavioural_data}
+\ImportTok{from}\NormalTok{ fitr.agents }\ImportTok{import}\NormalTok{ RWSoftmaxAgent}
+\ImportTok{from}\NormalTok{ fitr.environments }\ImportTok{import}\NormalTok{ RandomContextualBandit}
+\ImportTok{from}\NormalTok{ fitr.criticism.plotting }\ImportTok{import}\NormalTok{ actual_estimate}
+\ImportTok{from}\NormalTok{ fitr.inference }\ImportTok{import}\NormalTok{ mlepar}
+\ImportTok{from}\NormalTok{ fitr.utils }\ImportTok{import}\NormalTok{ sigmoid, relu}
+
+\KeywordTok{class}\NormalTok{ MyBanditTask(RandomContextualBandit):}
+    \KeywordTok{def} \FunctionTok{__init__}\NormalTok{(}\VariableTok{self}\NormalTok{):}
+        \BuiltInTok{super}\NormalTok{().}\FunctionTok{__init__}\NormalTok{(nactions}\OperatorTok{=}\DecValTok{4}\NormalTok{,}
+\NormalTok{                         noutcomes}\OperatorTok{=}\DecValTok{3}\NormalTok{,}
+\NormalTok{                         nstates}\OperatorTok{=}\DecValTok{4}\NormalTok{,}
+\NormalTok{                         min_actions_per_context}\OperatorTok{=}\VariableTok{None}\NormalTok{,}
+\NormalTok{                         alpha}\OperatorTok{=}\FloatTok{0.1}\NormalTok{,}
+\NormalTok{                         alpha_start}\OperatorTok{=}\FloatTok{1.}\NormalTok{,}
+\NormalTok{                         shift_flip}\OperatorTok{=}\StringTok{'shift'}\NormalTok{,}
+\NormalTok{                         reward_lb}\OperatorTok{=-}\DecValTok{1}\NormalTok{,}
+\NormalTok{                         reward_ub}\OperatorTok{=}\DecValTok{1}\NormalTok{,}
+\NormalTok{                         reward_drift}\OperatorTok{=}\StringTok{'on'}\NormalTok{,}
+\NormalTok{                         drift_mu}\OperatorTok{=}\NormalTok{np.zeros(}\DecValTok{3}\NormalTok{),}
+\NormalTok{                         drift_sd}\OperatorTok{=}\FloatTok{1.}\NormalTok{)}
+
+\NormalTok{data }\OperatorTok{=}\NormalTok{ generate_behavioural_data(MyBanditTask, RWSoftmaxAgent, }\DecValTok{20}\NormalTok{, }\DecValTok{200}\NormalTok{)}
+
+\KeywordTok{def}\NormalTok{ log_prob(w, D):}
+\NormalTok{    agent }\OperatorTok{=}\NormalTok{ RWSoftmaxAgent(task}\OperatorTok{=}\NormalTok{MyBanditTask(),}
+\NormalTok{                           learning_rate}\OperatorTok{=}\NormalTok{w[}\DecValTok{0}\NormalTok{],}
+\NormalTok{                           inverse_softmax_temp}\OperatorTok{=}\NormalTok{w[}\DecValTok{1}\NormalTok{])}
+\NormalTok{    L}\OperatorTok{=}\DecValTok{0}
+    \ControlFlowTok{for}\NormalTok{ t }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(D.shape[}\DecValTok{0}\NormalTok{]):}
+\NormalTok{        x}\OperatorTok{=}\NormalTok{D[t,:}\DecValTok{7}\NormalTok{]}\OperatorTok{;}\NormalTok{ u}\OperatorTok{=}\NormalTok{D[t,}\DecValTok{7}\NormalTok{:}\DecValTok{11}\NormalTok{]}\OperatorTok{;}\NormalTok{ r}\OperatorTok{=}\NormalTok{D[t,}\DecValTok{11}\NormalTok{]}\OperatorTok{;}\NormalTok{ x_}\OperatorTok{=}\NormalTok{D[t,}\DecValTok{12}\NormalTok{:]}
+\NormalTok{        L }\OperatorTok{+=}\NormalTok{ u}\OperatorTok{@}\NormalTok{agent.log_prob(x)}
+\NormalTok{        agent.learning(x, u, r, x_, }\VariableTok{None}\NormalTok{)}
+    \ControlFlowTok{return}\NormalTok{ L}
+
+\NormalTok{res }\OperatorTok{=}\NormalTok{ mlepar(log_prob, data.tensor, }\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{5}\NormalTok{)}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ res.transform_xmin([sigmoid, relu])}
+
+\CommentTok{# Criticism: Actual vs. Estimate Plots}
+\NormalTok{lr_fig  }\OperatorTok{=}\NormalTok{ actual_estimate(data.params[:,}\DecValTok{1}\NormalTok{], X[:,}\DecValTok{0}\NormalTok{])}\OperatorTok{;}\NormalTok{ plt.show()}
+\NormalTok{ist_fig }\OperatorTok{=}\NormalTok{ actual_estimate(data.params[:,}\DecValTok{2}\NormalTok{], X[:,}\DecValTok{1}\NormalTok{])}\OperatorTok{;}\NormalTok{ plt.show()}
+\end{Highlighting}
+\end{Shaded}
+

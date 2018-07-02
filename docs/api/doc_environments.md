@@ -278,7 +278,8 @@ Raises:
 fitr.environments.TwoArmedBandit()
 ```
 
-Two armed bandit just as a tester 
+A simple 2-armed bandit task
+
 
 ---
 
@@ -509,7 +510,8 @@ Raises:
 fitr.environments.OrthogonalGoNoGo()
 ```
 
-The orthogonal GoNogo task from Guitart-Masip et al. (2012)
+The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
+
 
 ---
 
