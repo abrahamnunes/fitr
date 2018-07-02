@@ -3,19 +3,21 @@
 
 Functions used across \texttt{fitr}.
 
-\hypertarget{softmax}{%
-\subsection{softmax}\label{softmax}}
+\hypertarget{logsumexp}{%
+\subsection{logsumexp}\label{logsumexp}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.utils.softmax(x)}
+\NormalTok{fitr.utils.logsumexp(x)}
 \end{Highlighting}
 \end{Shaded}
 
-Computes the softmax function
+Numerically stable logsumexp.
+
+Computed as follows:
 
 \[
-p(\mathbf{x}) = \frac{e^{\mathbf{x} - \max_i x_i}}{\mathbf{1}^\top e^{\mathbf{x} - \max_i x_i}}
+\max x + \log \sum_x e^{x - \max x}
 \]
 
 Arguments:
@@ -23,12 +25,77 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: Softmax logits (\texttt{ndarray((N,))})
+  \textbf{x}: `ndarray(shape=(nactions,))``
 \end{itemize}
 
 Returns:
 
-Vector of probabilities of size \texttt{ndarray((N,))}
+\texttt{float}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{relu}{%
+\subsection{relu}\label{relu}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.relu(x, a_max}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Rectified linearity
+
+\[
+\mathbf x' = \max (x_i, 0)_{i=1}^{|\mathbf x|}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: Vector of inputs
+\item
+  \textbf{a\_max}: Upper bound at which to clip values of \texttt{x}
+\end{itemize}
+
+Returns:
+
+Exponentiated values of \texttt{x}.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{scale_data}{%
+\subsection{scale\_data}\label{scale_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.scale_data(X, axis}\OperatorTok{=}\DecValTok{0}\NormalTok{, with_mean}\OperatorTok{=}\VariableTok{True}\NormalTok{, with_var}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Rescales data by subtracting mean and dividing by variance
+
+\[
+\mathbf x' = \frac{\mathbf x - \frac{1}{n} \mathbf 1^\top \mathbf x}{Var(\mathbf x)}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsamples,\ {[}nfeatures{]}))}. Data. May
+  be 1D or 2D.
+\item
+  \textbf{with\_mean}: \texttt{bool}. Whether to subtract the mean
+\item
+  \textbf{with\_var}: \texttt{bool}. Whether to divide by variance
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray(X.shape)}. Rescaled data.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -65,6 +132,35 @@ Vector between 0 and 1 of size \texttt{x.shape}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\hypertarget{softmax}{%
+\subsection{softmax}\label{softmax}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.softmax(x)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the softmax function
+
+\[
+p(\mathbf{x}) = \frac{e^{\mathbf{x} - \max_i x_i}}{\mathbf{1}^\top e^{\mathbf{x} - \max_i x_i}}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: Softmax logits (\texttt{ndarray((N,))})
+\end{itemize}
+
+Returns:
+
+Vector of probabilities of size \texttt{ndarray((N,))}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \hypertarget{stable_exp}{%
 \subsection{stable\_exp}\label{stable_exp}}
 
@@ -93,68 +189,5 @@ Arguments:
 Returns:
 
 Exponentiated values of \texttt{x}.
-
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
-
-\hypertarget{logsumexp}{%
-\subsection{logsumexp}\label{logsumexp}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{fitr.utils.logsumexp(x)}
-\end{Highlighting}
-\end{Shaded}
-
-Numerically stable logsumexp.
-
-Computed as follows:
-
-\[
-\max x + \log \sum_x e^{x - \max x}
-\]
-
-Arguments:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{x}: `ndarray(shape=(nactions,))``
-\end{itemize}
-
-Returns:
-
-\texttt{float}
-
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
-
-\hypertarget{log_loss}{%
-\subsection{log\_loss}\label{log_loss}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{fitr.utils.log_loss(p, q)}
-\end{Highlighting}
-\end{Shaded}
-
-Log-loss function.
-
-\[
-\mathcal L = \mathbf p^\top \log \mathbf q + (1-\mathbf p)^\top \log (1 - \mathbf q)
-\]
-
-Arguments:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{p}: Binary vector of true labels \texttt{ndarray((nsamples,))}
-\item
-  \textbf{q}: Vector of estimates (between 0 and 1) of type
-  \texttt{ndarray((nsamples,))}
-\end{itemize}
-
-Returns:
-
-Scalar log loss
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

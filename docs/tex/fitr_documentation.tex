@@ -1,4 +1,12 @@
 \documentclass[11pt,oneside,letterpaper]{book}
+%\usepackage[margin=0.75in]{geometry}
+
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
 
 \usepackage[colorlinks]{hyperref}
 \usepackage{listings}
@@ -7,6 +15,7 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \usepackage{lmodern}
+\usepackage{times}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
@@ -101,17 +110,34 @@
 
 \tableofcontents
 
-\part{Overview \& Foundations}
+\chapter{Overview \& Foundations}
 
-\part{Tutorials}
-%\include{tut_create_task}
+\chapter{Tutorials}
+\input{tut_getting_started}
+\input{tut_two_armed_bandit}
 %\include{tut_create_agent}
 %\include{tut_create_behav_data}
 
 \part{API}
-\include{doc_data}
-\include{doc_environments}
-\include{doc_agents}
-\include{doc_utils}
+\chapter{Environments}
+\input{doc_environments}
+
+\chapter{Agents}
+\input{doc_agents}
+
+\chapter{Data}
+\input{doc_data}
+
+\chapter{Inference}
+\input{doc_inference}
+
+\chapter{Criticism}
+\input{doc_criticism}
+
+\chapter{Metrics}
+\input{doc_metrics}
+
+\chapter{Utilities}
+\input{doc_utils}
 
 \end{document}

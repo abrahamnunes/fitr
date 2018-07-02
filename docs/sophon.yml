@@ -25,16 +25,26 @@ pages:
     - fitr.environments.TwoStep
     - fitr.environments.ReverseTwoStep
     - fitr.environments.RandomContextualBandit
+- page: doc_metrics.md
+  template: doc_metrics.md
+  tags:
+  - tag: metrics
+    functions:
+    - fitr.metrics.bic
+    - fitr.metrics.linear_correlation
+    - fitr.metrics.lme
+    - fitr.metrics.log_loss
 - page: doc_utils.md
   template: doc_utils.md
   tags:
   - tag: utils
     functions:
-    - fitr.utils.softmax
-    - fitr.utils.sigmoid
-    - fitr.utils.stable_exp
     - fitr.utils.logsumexp
-    - fitr.utils.log_loss
+    - fitr.utils.relu
+    - fitr.utils.scale_data
+    - fitr.utils.sigmoid
+    - fitr.utils.softmax
+    - fitr.utils.stable_exp
 - page: doc_agents.md
   template: doc_agents.md
   tags:
@@ -57,3 +67,18 @@ pages:
     - fitr.agents.agents.QLearningSoftmaxAgent
     - fitr.agents.agents.RWSoftmaxAgent
     - fitr.agents.agents.RWSoftmaxAgentRewardSensitivity
+- page: doc_inference.md
+  template: doc_inference.md
+  tags:
+  - tag: inference
+    classes_with_methods:
+    - fitr.inference.OptimizationResult
+    functions:
+    - fitr.inference.mlepar
+    - fitr.inference.mle_parallel.l_bfgs_b
+- page: doc_criticism.md
+  template: doc_criticism.md
+  tags:
+  - tag: criticism
+    functions:
+    - fitr.criticism.plotting.actual_estimate

@@ -247,6 +247,20 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
+A policy that takes the maximally valued action with probability
+\(1-\epsilon\), otherwise chooses randomlyself.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{epsilon}: Probability of not taking the action with highest
+  value
+\item
+  \textbf{rng}: \texttt{numpy.random.RandomState} object
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{epsilongreedypolicy.action_prob}{%
@@ -260,6 +274,18 @@ Returns:
 
 Creates vector of action probabilities for e-greedy policy
 
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nstates,))} vector of action probabilities
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{epsilongreedypolicy.sample}{%
@@ -270,6 +296,20 @@ Creates vector of action probabilities for e-greedy policy
 \NormalTok{fitr.agents.policies.sample(}\VariableTok{self}\NormalTok{, x)}
 \end{Highlighting}
 \end{Shaded}
+
+Samples from the action distribution
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nstates,))} one-hot action vector
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -413,6 +453,24 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Compute value of state \(\mathbf x\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{valuefunction.uqx}{%
@@ -423,6 +481,59 @@ state
 \NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
 \end{Highlighting}
 \end{Shaded}
+
+Compute value of taking action \(\mathbf u\) in state \(\mathbf x\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{valuefunction.update}{%
+\subsubsection{ValueFunction.update}\label{valuefunction.update}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.update(}\VariableTok{self}\NormalTok{, x, u, r, x_, u_)}
+\end{Highlighting}
+\end{Shaded}
+
+Updates the value function
+
+In the context of the base \texttt{ValueFunction} class, this is merely
+a placeholder. The specific update rule will depend on the specific
+value function desired.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{r}: Scalar reward
+\item
+  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
+\item
+  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -435,7 +546,18 @@ state
 \end{Highlighting}
 \end{Shaded}
 
-A critic for the random learner
+A critic/value function for the random learner
+
+This class actually contributes nothing except identifying that a value
+function has been chosen for an \texttt{Agent} object
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{env}: A \texttt{fitr.environments.Graph}
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -536,6 +658,24 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Compute value of state \(\mathbf x\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{dummylearner.uqx}{%
@@ -546,6 +686,26 @@ state
 \NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
 \end{Highlighting}
 \end{Shaded}
+
+Compute value of taking action \(\mathbf u\) in state \(\mathbf x\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -558,6 +718,28 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Updates the value function
+
+In the context of the base \texttt{ValueFunction} class, this is merely
+a placeholder. The specific update rule will depend on the specific
+value function desired.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{r}: Scalar reward
+\item
+  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
+\item
+  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{instrumentalrescorlawagnerlearner}{%
@@ -569,29 +751,20 @@ state
 \end{Highlighting}
 \end{Shaded}
 
-A general value function object.
+Learns an instrumental control policy through one-step error-driven
+updates of the state-action value function
 
-A value function here is task specific and consists of several
-attributes:
+The instrumental Rescorla-Wagner rule is as follows:
 
-\begin{itemize}
-\tightlist
-\item
-  \texttt{nstates}: The number of states in the task, \(|\mathcal X|\)
-\item
-  \texttt{nactions}: Number of actions in the task, \(|\mathcal U|\)
-\item
-  \texttt{V}: State value function \(\mathbf v = \mathcal V(\mathbf x)\)
-\item
-  \texttt{Q}: State-action value function
-  \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
-\item
-  \texttt{etrace}: An eligibility trace (optional)
-\end{itemize}
+\[
+\mathbf Q \gets \mathbf Q + \alpha \big(r - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf u \mathbf x^\top,
+\]
 
-Note that in general we rely on matrix-vector notation for value
-functions, rather than function notation. Vectors in the mathematical
-typesetting are by default column vectors.
+where \(0 < \alpha < 1\) is the learning rate, and where the reward
+prediction error (RPE) is
+\(\delta = (r - \mathbf u^\top \mathbf Q \mathbf x)\).
+
+\$\$
 
 Arguments:
 
@@ -599,6 +772,8 @@ Arguments:
 \tightlist
 \item
   \textbf{env}: A \texttt{fitr.environments.Graph}
+\item
+  \textbf{learning\_rate}: Learning rate \(\alpha\)
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -700,6 +875,24 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Compute value of state \(\mathbf x\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{instrumentalrescorlawagnerlearner.uqx}{%
@@ -710,6 +903,26 @@ state
 \NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
 \end{Highlighting}
 \end{Shaded}
+
+Compute value of taking action \(\mathbf u\) in state \(\mathbf x\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -722,6 +935,28 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Updates the value function
+
+In the context of the base \texttt{ValueFunction} class, this is merely
+a placeholder. The specific update rule will depend on the specific
+value function desired.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{r}: Scalar reward
+\item
+  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
+\item
+  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{qlearner}{%
@@ -733,29 +968,22 @@ state
 \end{Highlighting}
 \end{Shaded}
 
-A general value function object.
+Learns an instrumental control policy through Q-learning
 
-A value function here is task specific and consists of several
-attributes:
+The Q-learning rule is as follows:
 
-\begin{itemize}
-\tightlist
-\item
-  \texttt{nstates}: The number of states in the task, \(|\mathcal X|\)
-\item
-  \texttt{nactions}: Number of actions in the task, \(|\mathcal U|\)
-\item
-  \texttt{V}: State value function \(\mathbf v = \mathcal V(\mathbf x)\)
-\item
-  \texttt{Q}: State-action value function
-  \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
-\item
-  \texttt{etrace}: An eligibility trace (optional)
-\end{itemize}
+\[
+\mathbf Q \gets \mathbf Q + \alpha \big(r + \gamma \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf z,
+\]
 
-Note that in general we rely on matrix-vector notation for value
-functions, rather than function notation. Vectors in the mathematical
-typesetting are by default column vectors.
+where \(0 < \alpha < 1\) is the learning rate, \(0 \leq \gamma \leq 1\)
+is a discount factor, and where the reward prediction error (RPE) is
+\(\delta = (r + \gamma \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x)\).
+We have also included an eligibility trace \(\mathbf z\) defined as
+
+\[
+\mathbf z = \mathbf u \mathbf x^\top +  \gamma \lambda \mathbf z
+\]
 
 Arguments:
 
@@ -763,6 +991,12 @@ Arguments:
 \tightlist
 \item
   \textbf{env}: A \texttt{fitr.environments.Graph}
+\item
+  \textbf{learning\_rate}: Learning rate \(\alpha\)
+\item
+  \textbf{discount\_factor}: Discount factor \(\gamma\)
+\item
+  \textbf{trace\_decay}: Eligibility trace decay \(\lambda\)
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -864,6 +1098,24 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Compute value of state \(\mathbf x\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{qlearner.uqx}{%
@@ -874,6 +1126,26 @@ state
 \NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
 \end{Highlighting}
 \end{Shaded}
+
+Compute value of taking action \(\mathbf u\) in state \(\mathbf x\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -886,6 +1158,28 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Updates the value function
+
+In the context of the base \texttt{ValueFunction} class, this is merely
+a placeholder. The specific update rule will depend on the specific
+value function desired.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{r}: Scalar reward
+\item
+  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
+\item
+  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{sarsalearner}{%
@@ -897,29 +1191,22 @@ state
 \end{Highlighting}
 \end{Shaded}
 
-A general value function object.
+Learns an instrumental control policy through the SARSA learning rule
 
-A value function here is task specific and consists of several
-attributes:
+The SARSA learning rule is as follows:
 
-\begin{itemize}
-\tightlist
-\item
-  \texttt{nstates}: The number of states in the task, \(|\mathcal X|\)
-\item
-  \texttt{nactions}: Number of actions in the task, \(|\mathcal U|\)
-\item
-  \texttt{V}: State value function \(\mathbf v = \mathcal V(\mathbf x)\)
-\item
-  \texttt{Q}: State-action value function
-  \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
-\item
-  \texttt{etrace}: An eligibility trace (optional)
-\end{itemize}
+\[
+\mathbf Q \gets \mathbf Q + \alpha \big(r + \gamma \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf z,
+\]
 
-Note that in general we rely on matrix-vector notation for value
-functions, rather than function notation. Vectors in the mathematical
-typesetting are by default column vectors.
+where \(0 < \alpha < 1\) is the learning rate, \(0 \leq \gamma \leq 1\)
+is a discount factor, and where the reward prediction error (RPE) is
+\(\delta = (r + \gamma \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x)\).
+We have also included an eligibility trace \(\mathbf z\) defined as
+
+\[
+\mathbf z = \mathbf u \mathbf x^\top +  \gamma \lambda \mathbf z
+\]
 
 Arguments:
 
@@ -927,6 +1214,12 @@ Arguments:
 \tightlist
 \item
   \textbf{env}: A \texttt{fitr.environments.Graph}
+\item
+  \textbf{learning\_rate}: Learning rate \(\alpha\)
+\item
+  \textbf{discount\_factor}: Discount factor \(\gamma\)
+\item
+  \textbf{trace\_decay}: Eligibility trace decay \(\lambda\)
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -1028,6 +1321,24 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Compute value of state \(\mathbf x\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{sarsalearner.uqx}{%
@@ -1038,6 +1349,26 @@ state
 \NormalTok{fitr.agents.value_functions.uQx(}\VariableTok{self}\NormalTok{, u, x)}
 \end{Highlighting}
 \end{Shaded}
+
+Compute value of taking action \(\mathbf u\) in state \(\mathbf x\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1050,6 +1381,28 @@ state
 \end{Highlighting}
 \end{Shaded}
 
+Updates the value function
+
+In the context of the base \texttt{ValueFunction} class, this is merely
+a placeholder. The specific update rule will depend on the specific
+value function desired.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{r}: Scalar reward
+\item
+  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
+\item
+  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{agent}{%
@@ -1061,13 +1414,71 @@ state
 \end{Highlighting}
 \end{Shaded}
 
-Base class for synthetic RL agents
+Base class for synthetic RL agents.
 
 Arguments:
 
 meta : List of metadata of arbitrary type. e.g.~labels, covariates, etc.
 params : List of parameters for the agent. Should be filled for specific
 agent.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{agent.action}{%
+\subsubsection{Agent.action}\label{agent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{agent.learning}{%
+\subsubsection{Agent.learning}\label{agent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1107,7 +1518,37 @@ Arguments:
 
 A base class for agents in bandit tasks (i.e.~with one step).
 
-This mainly has implications for generating data
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{task}: \texttt{fitr.environments.Graph}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{banditagent.action}{%
+\subsubsection{BanditAgent.action}\label{banditagent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1119,6 +1560,84 @@ This mainly has implications for generating data
 \NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
 \end{Highlighting}
 \end{Shaded}
+
+For the parent agent, this function generates data from a bandit task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{banditagent.learning}{%
+\subsubsection{BanditAgent.learning}\label{banditagent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{banditagent.log_prob}{%
+\subsubsection{BanditAgent.log\_prob}\label{banditagent.log_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the log-likelihood over actions for a given state under the
+present agent parameters.
+
+Presently this only works for the state-action value function. In all
+other cases, you should define your own log-likelihood function.
+However, this can be used as a template.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} log-likelihood vector
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1158,7 +1677,39 @@ Arguments:
 
 A base class for agents that operate on MDPs.
 
-This mainly has implications for generating data
+This mainly has implications for generating data.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{task}: \texttt{fitr.environments.Graph}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{mdpagent.action}{%
+\subsubsection{MDPAgent.action}\label{mdpagent.action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1170,6 +1721,55 @@ This mainly has implications for generating data
 \NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
 \end{Highlighting}
 \end{Shaded}
+
+For the parent agent, this function generates data from a Markov
+Decision Process (MDP) task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{mdpagent.learning}{%
+\subsubsection{MDPAgent.learning}\label{mdpagent.learning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
+\end{Highlighting}
+\end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1220,6 +1820,19 @@ An agent that simply selects random actions at each trial
 \end{Highlighting}
 \end{Shaded}
 
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{randombanditagent.generate_data}{%
@@ -1231,6 +1844,20 @@ An agent that simply selects random actions at each trial
 \end{Highlighting}
 \end{Shaded}
 
+For the parent agent, this function generates data from a bandit task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{randombanditagent.learning}{%
@@ -1241,6 +1868,59 @@ An agent that simply selects random actions at each trial
 \NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
 \end{Highlighting}
 \end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randombanditagent.log_prob}{%
+\subsubsection{RandomBanditAgent.log\_prob}\label{randombanditagent.log_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the log-likelihood over actions for a given state under the
+present agent parameters.
+
+Presently this only works for the state-action value function. In all
+other cases, you should define your own log-likelihood function.
+However, this can be used as a template.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} log-likelihood vector
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1296,6 +1976,19 @@ This has been specified as an \texttt{OnPolicyAgent} arbitrarily.
 \end{Highlighting}
 \end{Shaded}
 
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{randommdpagent.generate_data}{%
@@ -1307,6 +2000,21 @@ This has been specified as an \texttt{OnPolicyAgent} arbitrarily.
 \end{Highlighting}
 \end{Shaded}
 
+For the parent agent, this function generates data from a Markov
+Decision Process (MDP) task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{randommdpagent.learning}{%
@@ -1317,6 +2025,29 @@ This has been specified as an \texttt{OnPolicyAgent} arbitrarily.
 \NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
 \end{Highlighting}
 \end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1356,6 +2087,51 @@ Arguments:
 
 An agent that uses the SARSA learning rule and a softmax policy
 
+The softmax policy selects actions from a multinomial
+
+\[
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v)),
+\]
+
+whose parameters are
+
+\[
+p(\mathbf u|\mathbf v) = \varsigma(\mathbf v) = \frac{e^{\beta \mathbf v}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i}}.
+\]
+
+The value function is SARSA:
+
+\[
+\mathbf Q \gets \mathbf Q + \alpha \big(r + \gamma \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf z,
+\]
+
+where \(0 < \alpha < 1\) is the learning rate, \(0 \leq \gamma \leq 1\)
+is a discount factor, and where the reward prediction error (RPE) is
+\(\delta = (r + \gamma \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x)\).
+We have also included an eligibility trace \(\mathbf z\) defined as
+
+\[
+\mathbf z = \mathbf u \mathbf x^\top +  \gamma \lambda \mathbf z
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{task}: \texttt{fitr.environments.Graph}
+\item
+  \textbf{learning\_rate}: Learning rate \(\alpha\)
+\item
+  \textbf{discount\_factor}: Discount factor \(\gamma\)
+\item
+  \textbf{trace\_decay}: Eligibility trace decay \(\lambda\)
+\item
+  \textbf{inverse\_softmax\_temp}: Inverse softmax temperature \(\beta\)
+\item
+  \textbf{rng}: \texttt{np.random.RandomState}
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{sarsasoftmaxagent.action}{%
@@ -1366,6 +2142,19 @@ An agent that uses the SARSA learning rule and a softmax policy
 \NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
 \end{Highlighting}
 \end{Shaded}
+
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1378,6 +2167,21 @@ An agent that uses the SARSA learning rule and a softmax policy
 \end{Highlighting}
 \end{Shaded}
 
+For the parent agent, this function generates data from a Markov
+Decision Process (MDP) task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{sarsasoftmaxagent.learning}{%
@@ -1388,6 +2192,29 @@ An agent that uses the SARSA learning rule and a softmax policy
 \NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
 \end{Highlighting}
 \end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1427,6 +2254,51 @@ Arguments:
 
 An agent that uses the Q-learning rule and a softmax policy
 
+The softmax policy selects actions from a multinomial
+
+\[
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v)),
+\]
+
+whose parameters are
+
+\[
+p(\mathbf u|\mathbf v) = \varsigma(\mathbf v) = \frac{e^{\beta \mathbf v}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i}}.
+\]
+
+The value function is Q-learning:
+
+\[
+\mathbf Q \gets \mathbf Q + \alpha \big(r + \gamma \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf z,
+\]
+
+where \(0 < \alpha < 1\) is the learning rate, \(0 \leq \gamma \leq 1\)
+is a discount factor, and where the reward prediction error (RPE) is
+\(\delta = (r + \gamma \max_{\mathbf u'} \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x)\).
+The eligibility trace \(\mathbf z\) is defined as
+
+\[
+\mathbf z = \mathbf u \mathbf x^\top +  \gamma \lambda \mathbf z
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{task}: \texttt{fitr.environments.Graph}
+\item
+  \textbf{learning\_rate}: Learning rate \(\alpha\)
+\item
+  \textbf{discount\_factor}: Discount factor \(\gamma\)
+\item
+  \textbf{trace\_decay}: Eligibility trace decay \(\lambda\)
+\item
+  \textbf{inverse\_softmax\_temp}: Inverse softmax temperature \(\beta\)
+\item
+  \textbf{rng}: \texttt{np.random.RandomState}
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{qlearningsoftmaxagent.action}{%
@@ -1437,6 +2309,19 @@ An agent that uses the Q-learning rule and a softmax policy
 \NormalTok{fitr.agents.agents.action(}\VariableTok{self}\NormalTok{, state)}
 \end{Highlighting}
 \end{Shaded}
+
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1449,6 +2334,21 @@ An agent that uses the Q-learning rule and a softmax policy
 \end{Highlighting}
 \end{Shaded}
 
+For the parent agent, this function generates data from a Markov
+Decision Process (MDP) task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{qlearningsoftmaxagent.learning}{%
@@ -1459,6 +2359,29 @@ An agent that uses the Q-learning rule and a softmax policy
 \NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
 \end{Highlighting}
 \end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1496,9 +2419,43 @@ Arguments:
 \end{Highlighting}
 \end{Shaded}
 
-A base class for agents in bandit tasks (i.e.~with one step).
+An instrumental Rescorla-Wagner agent with a softmax policy
 
-This mainly has implications for generating data
+The softmax policy selects actions from a multinomial
+
+\[
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v)),
+\]
+
+whose parameters are
+
+\[
+p(\mathbf u|\mathbf v) = \varsigma(\mathbf v) = \frac{e^{\beta \mathbf v}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i}}.
+\]
+
+The value function is the Rescorla-Wagner learning rule:
+
+\[
+\mathbf Q \gets \mathbf Q + \alpha \big(r - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf u \mathbf x^\top,
+\]
+
+where \(0 < \alpha < 1\) is the learning rate, \(0 \leq \gamma \leq 1\)
+is a discount factor, and where the reward prediction error (RPE) is
+\(\delta = (r - \mathbf u^\top \mathbf Q \mathbf x)\).
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{task}: \texttt{fitr.environments.Graph}
+\item
+  \textbf{learning\_rate}: Learning rate \(\alpha\)
+\item
+  \textbf{inverse\_softmax\_temp}: Inverse softmax temperature \(\beta\)
+\item
+  \textbf{rng}: \texttt{np.random.RandomState}
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1511,6 +2468,19 @@ This mainly has implications for generating data
 \end{Highlighting}
 \end{Shaded}
 
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{rwsoftmaxagent.generate_data}{%
@@ -1522,6 +2492,20 @@ This mainly has implications for generating data
 \end{Highlighting}
 \end{Shaded}
 
+For the parent agent, this function generates data from a bandit task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{rwsoftmaxagent.learning}{%
@@ -1532,6 +2516,59 @@ This mainly has implications for generating data
 \NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
 \end{Highlighting}
 \end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagent.log_prob}{%
+\subsubsection{RWSoftmaxAgent.log\_prob}\label{rwsoftmaxagent.log_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the log-likelihood over actions for a given state under the
+present agent parameters.
+
+Presently this only works for the state-action value function. In all
+other cases, you should define your own log-likelihood function.
+However, this can be used as a template.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} log-likelihood vector
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1569,9 +2606,47 @@ Arguments:
 \end{Highlighting}
 \end{Shaded}
 
-A base class for agents in bandit tasks (i.e.~with one step).
+An instrumental Rescorla-Wagner agent with a softmax policy, whose
+experienced reward is scaled by a factor \(\rho\).
 
-This mainly has implications for generating data
+The softmax policy selects actions from a multinomial
+
+\[
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v)),
+\]
+
+whose parameters are
+
+\[
+p(\mathbf u|\mathbf v) = \varsigma(\mathbf v) = \frac{e^{\beta \mathbf v}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i}}.
+\]
+
+The value function is the Rescorla-Wagner learning rule with scaled
+reward \(\rho r\):
+
+\[
+\mathbf Q \gets \mathbf Q + \alpha \big(\rho r - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf u \mathbf x^\top,
+\]
+
+where \(0 < \alpha < 1\) is the learning rate, \(0 \leq \gamma \leq 1\)
+is a discount factor, and where the reward prediction error (RPE) is
+\(\delta = (\rho r - \mathbf u^\top \mathbf Q \mathbf x)\).
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{task}: \texttt{fitr.environments.Graph}
+\item
+  \textbf{learning\_rate}: Learning rate \(\alpha\)
+\item
+  \textbf{inverse\_softmax\_temp}: Inverse softmax temperature \(\beta\)
+\item
+  \textbf{reward\_sensitivity}: Reward sensitivity parameter \(\rho\)
+\item
+  \textbf{rng}: \texttt{np.random.RandomState}
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1584,6 +2659,19 @@ This mainly has implications for generating data
 \end{Highlighting}
 \end{Shaded}
 
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{rwsoftmaxagentrewardsensitivity.generate_data}{%
@@ -1595,6 +2683,20 @@ This mainly has implications for generating data
 \end{Highlighting}
 \end{Shaded}
 
+For the parent agent, this function generates data from a bandit task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ntrials}: \texttt{int} number of trials
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.data.BehaviouralData}
+
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
 \hypertarget{rwsoftmaxagentrewardsensitivity.learning}{%
@@ -1605,6 +2707,59 @@ This mainly has implications for generating data
 \NormalTok{fitr.agents.agents.learning(}\VariableTok{self}\NormalTok{, state, action, reward, next_state, next_action)}
 \end{Highlighting}
 \end{Shaded}
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and
+environment.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\item
+  \textbf{action}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{reward}: scalar reward
+\item
+  \textbf{next\_state}: \texttt{ndarray((nstates,))} one-hot next-state
+  vector
+\item
+  \textbf{next\_action}: \texttt{ndarray((nactions,))} one-hot action
+  vector
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{rwsoftmaxagentrewardsensitivity.log_prob}{%
+\subsubsection{RWSoftmaxAgentRewardSensitivity.log\_prob}\label{rwsoftmaxagentrewardsensitivity.log_prob}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the log-likelihood over actions for a given state under the
+present agent parameters.
+
+Presently this only works for the state-action value function. In all
+other cases, you should define your own log-likelihood function.
+However, this can be used as a template.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} log-likelihood vector
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 

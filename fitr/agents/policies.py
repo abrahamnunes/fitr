@@ -1,4 +1,5 @@
 import numpy as np
+from fitr.utils import logsumexp
 
 class SoftmaxPolicy(object):
     """ Action selection by sampling from a multinomial whose parameters are given by a softmax.
@@ -42,7 +43,7 @@ class SoftmaxPolicy(object):
         """
         xcor = x - np.max(x) # For stability
         Bx  = self.inverse_softmax_temp*xcor
-        LSE = np.log(np.sum(Bx))
+        LSE = logsumexp(Bx)
         if not np.isfinite(LSE): LSE = 0.
         return Bx - LSE
 
@@ -103,7 +104,10 @@ class StickySoftmaxPolicy(object):
         Bx = self.inverse_softmax_temp*x
         stickiness = self.perseveration*np.inner(self.a_last, self.a_last)
         x  = Bx + stickiness
-        return (x - np.max(x)) - np.log(np.sum(x - np.max(x)))
+        x  = x - np.max(x)
+        LSE = logsumexp(x)
+        if not np.isfinite(LSE): LSE = 0.
+        return x - LSE
 
     def action_prob(self, x):
         """ Computes the softmax
@@ -136,16 +140,42 @@ class StickySoftmaxPolicy(object):
         return a_new
 
 class EpsilonGreedyPolicy(object):
+    """ A policy that takes the maximally valued action with probability $1-\\epsilon$, otherwise chooses randomlyself.
+
+    Arguments:
+
+        epsilon: Probability of not taking the action with highest value
+        rng: `numpy.random.RandomState` object
+    """
     def __init__(self, epsilon=0.1, rng=np.random.RandomState()):
         self.epsilon = epsilon
         self.rng  = rng
 
     def action_prob(self, x):
-        """ Creates vector of action probabilities for e-greedy policy """
+        """ Creates vector of action probabilities for e-greedy policy
+
+        Arguments:
+
+            x: `ndarray((nstates,))` one-hot state vector
+
+        Returns:
+
+            `ndarray((nstates,))` vector of action probabilities
+        """
         p = np.zeros(x.size)
         p[np.argmax(x)] = 1 - self.epsilon
         p[p == 0.] = np.epsilon/(x.size-1)
         return p
 
     def sample(self, x):
+        """ Samples from the action distribution
+
+        Arguments:
+
+            x: `ndarray((nstates,))` one-hot state vector
+
+        Returns:
+
+            `ndarray((nstates,))` one-hot action vector
+        """
         return self.rng.multinomial(1, pvals=self.action_prob(x))

@@ -40,7 +40,7 @@ class Graph(object):
     ``` python
     env = MyBanditTask()            # Instantiate your environment object
     agent = MyAgent()               # Some agent object (arbitrary, really)
-    for t in range(ntrials): 
+    for t in range(ntrials):
             x = env.observation()       # Samples initial state
             u = agent.action(x)         # Choose some action
             x_, r, done = agent.step(u) # Transition based on action
@@ -390,7 +390,7 @@ def generate_behavioural_data(environment, Agent, nsubjects, ntrials):
     Arguments:
 
         environment: An instantiated `Graph` object representing the task being tested
-        Agent: A `fitr.agents.Agent` object representing the agent being evaluated
+        agent: A `fitr.agents.Agent` object representing the agent being evaluated
         nsubjects: An `int` number of subjects to simulate
         ntrials: An `int` number of trials to simulate
 
@@ -828,7 +828,7 @@ class RandomContextualBandit(Graph):
     """ Generates a random bandit task
 
     Arguments:
-    
+
         nactions: Number of actions
         noutcomes: Number of outcomes
         nstates: Number of contexts
