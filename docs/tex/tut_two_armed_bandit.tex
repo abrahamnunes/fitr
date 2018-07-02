@@ -14,22 +14,17 @@ Bandit}\label{simulating-and-fitting-a-two-armed-bandit}}
 \ImportTok{from}\NormalTok{ fitr.utils }\ImportTok{import}\NormalTok{ relu}
 \ImportTok{from}\NormalTok{ fitr.criticism.plotting }\ImportTok{import}\NormalTok{ actual_estimate}
 
-\NormalTok{nsubjects }\OperatorTok{=} \DecValTok{50}
-\NormalTok{ntrials }\OperatorTok{=} \DecValTok{200}
+\NormalTok{N }\OperatorTok{=} \DecValTok{50}  \CommentTok{# number of subjects}
+\NormalTok{T }\OperatorTok{=} \DecValTok{200} \CommentTok{# number of trials}
 
 \CommentTok{# Generate synthetic data}
-\NormalTok{data }\OperatorTok{=}\NormalTok{ generate_behavioural_data(Agent}\OperatorTok{=}\NormalTok{RWSoftmaxAgent,}
-\NormalTok{                                 environment}\OperatorTok{=}\NormalTok{TwoArmedBandit(),}
-\NormalTok{                                 nsubjects}\OperatorTok{=}\NormalTok{nsubjects,}
-\NormalTok{                                 ntrials}\OperatorTok{=}\NormalTok{ntrials)}
+\NormalTok{data }\OperatorTok{=}\NormalTok{ generate_behavioural_data(TwoArmedBandit(), RWSoftmaxAgent, N, T)}
 
 \CommentTok{# Create log-likelihood function}
 \KeywordTok{def}\NormalTok{ log_prob(w, D):}
-\NormalTok{    learning_rate }\OperatorTok{=}\NormalTok{ sigmoid(w[}\DecValTok{0}\NormalTok{], a_min}\OperatorTok{=-}\DecValTok{6}\NormalTok{, a_max}\OperatorTok{=}\DecValTok{6}\NormalTok{)}
-\NormalTok{    inverse_softmax_temp }\OperatorTok{=}\NormalTok{ relu(w[}\DecValTok{1}\NormalTok{], a_max}\OperatorTok{=}\DecValTok{10}\NormalTok{)}
-\NormalTok{    agent }\OperatorTok{=}\NormalTok{ RWSoftmaxAgent(TwoArmedBandit(),}
-\NormalTok{                           learning_rate,}
-\NormalTok{                           inverse_softmax_temp)}
+\NormalTok{    lr  }\OperatorTok{=}\NormalTok{ sigmoid(w[}\DecValTok{0}\NormalTok{], a_min}\OperatorTok{=-}\DecValTok{6}\NormalTok{, a_max}\OperatorTok{=}\DecValTok{6}\NormalTok{)}
+\NormalTok{    ist }\OperatorTok{=}\NormalTok{ relu(w[}\DecValTok{1}\NormalTok{], a_max}\OperatorTok{=}\DecValTok{10}\NormalTok{)}
+\NormalTok{    agent }\OperatorTok{=}\NormalTok{ RWSoftmaxAgent(TwoArmedBandit(), lr, ist)}
 \NormalTok{    L }\OperatorTok{=} \DecValTok{0}
     \ControlFlowTok{for}\NormalTok{ t }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(D.shape[}\DecValTok{0}\NormalTok{]):}
 \NormalTok{        x  }\OperatorTok{=}\NormalTok{ D[t, :}\DecValTok{3}\NormalTok{]}
@@ -41,10 +36,7 @@ Bandit}\label{simulating-and-fitting-a-two-armed-bandit}}
     \ControlFlowTok{return}\NormalTok{ L}
 
 \CommentTok{# Fit model}
-\NormalTok{res }\OperatorTok{=}\NormalTok{ mlepar(f}\OperatorTok{=}\NormalTok{log_prob,}
-\NormalTok{             data}\OperatorTok{=}\NormalTok{data.tensor,}
-\NormalTok{             nparams}\OperatorTok{=}\DecValTok{2}\NormalTok{,}
-\NormalTok{             maxstarts}\OperatorTok{=}\DecValTok{5}\NormalTok{)}
+\NormalTok{res }\OperatorTok{=}\NormalTok{ mlepar(log_prob, data.tensor, nparams}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{5}\NormalTok{)}
 \NormalTok{X }\OperatorTok{=}\NormalTok{ res.transform_xmin([sigmoid, relu])}
 
 \CommentTok{# Criticism}

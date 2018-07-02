@@ -8,22 +8,17 @@ from fitr.utils import sigmoid
 from fitr.utils import relu
 from fitr.criticism.plotting import actual_estimate
 
-nsubjects = 50
-ntrials = 200
+N = 50  # number of subjects
+T = 200 # number of trials
 
 # Generate synthetic data
-data = generate_behavioural_data(Agent=RWSoftmaxAgent,
-                                 environment=TwoArmedBandit(),
-                                 nsubjects=nsubjects,
-                                 ntrials=ntrials)
+data = generate_behavioural_data(TwoArmedBandit(), RWSoftmaxAgent, N, T)
 
 # Create log-likelihood function
 def log_prob(w, D):
-    learning_rate = sigmoid(w[0], a_min=-6, a_max=6)
-    inverse_softmax_temp = relu(w[1], a_max=10)
-    agent = RWSoftmaxAgent(TwoArmedBandit(),
-                           learning_rate,
-                           inverse_softmax_temp)
+    lr  = sigmoid(w[0], a_min=-6, a_max=6)
+    ist = relu(w[1], a_max=10)
+    agent = RWSoftmaxAgent(TwoArmedBandit(), lr, ist)
     L = 0
     for t in range(D.shape[0]):
         x  = D[t, :3]
@@ -35,10 +30,7 @@ def log_prob(w, D):
     return L
 
 # Fit model
-res = mlepar(f=log_prob,
-             data=data.tensor,
-             nparams=2,
-             maxstarts=5)
+res = mlepar(log_prob, data.tensor, nparams=2, maxstarts=5)
 X = res.transform_xmin([sigmoid, relu])
 
 # Criticism
