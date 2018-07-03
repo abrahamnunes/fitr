@@ -1,0 +1,84 @@
+code_dir: ..
+template_dir: temp
+build_dir: api
+#repo_url: https://github.com/your_user_name/your_repo
+branch: overhaul
+style: sophon
+
+pages:
+- page: doc_data.md
+  template: doc_data.md
+  tags:
+  - tag: data
+    classes_with_methods:
+    - fitr.data.BehaviouralData
+    functions:
+    - fitr.data.merge_behavioural_data
+- page: doc_environments.md
+  template: doc_environments.md
+  tags:
+  - tag: environments
+    classes_with_methods:
+    - fitr.environments.Graph
+    - fitr.environments.TwoArmedBandit
+    - fitr.environments.OrthogonalGoNoGo
+    - fitr.environments.TwoStep
+    - fitr.environments.ReverseTwoStep
+    - fitr.environments.RandomContextualBandit
+- page: doc_metrics.md
+  template: doc_metrics.md
+  tags:
+  - tag: metrics
+    functions:
+    - fitr.metrics.bic
+    - fitr.metrics.linear_correlation
+    - fitr.metrics.lme
+    - fitr.metrics.log_loss
+- page: doc_utils.md
+  template: doc_utils.md
+  tags:
+  - tag: utils
+    functions:
+    - fitr.utils.logsumexp
+    - fitr.utils.relu
+    - fitr.utils.scale_data
+    - fitr.utils.sigmoid
+    - fitr.utils.softmax
+    - fitr.utils.stable_exp
+- page: doc_agents.md
+  template: doc_agents.md
+  tags:
+  - tag: agents
+    classes_with_methods:
+    - fitr.agents.policies.SoftmaxPolicy
+    - fitr.agents.policies.StickySoftmaxPolicy
+    - fitr.agents.policies.EpsilonGreedyPolicy
+    - fitr.agents.value_functions.ValueFunction
+    - fitr.agents.value_functions.DummyLearner
+    - fitr.agents.value_functions.InstrumentalRescorlaWagnerLearner
+    - fitr.agents.value_functions.QLearner
+    - fitr.agents.value_functions.SARSALearner
+    - fitr.agents.agents.Agent
+    - fitr.agents.agents.BanditAgent
+    - fitr.agents.agents.MDPAgent
+    - fitr.agents.agents.RandomBanditAgent
+    - fitr.agents.agents.RandomMDPAgent
+    - fitr.agents.agents.SARSASoftmaxAgent
+    - fitr.agents.agents.QLearningSoftmaxAgent
+    - fitr.agents.agents.RWSoftmaxAgent
+    - fitr.agents.agents.RWSoftmaxAgentRewardSensitivity
+- page: doc_inference.md
+  template: doc_inference.md
+  tags:
+  - tag: inference
+    classes_with_methods:
+    - fitr.inference.OptimizationResult
+    functions:
+    - fitr.inference.mlepar
+    - fitr.inference.mle_parallel.l_bfgs_b
+- page: doc_criticism.md
+  template: doc_criticism.md
+  tags:
+  - tag: criticism
+    functions:
+    - fitr.criticism.plotting.actual_estimate

@@ -1,0 +1,147 @@
+\hypertarget{fitr.metrics}{%
+\section{\texorpdfstring{\texttt{fitr.metrics}}{fitr.metrics}}\label{fitr.metrics}}
+
+Metrics and performance statistics.
+
+\hypertarget{bic}{%
+\subsection{bic}\label{bic}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.metrics.bic(log_prob, nparams, ntrials)}
+\end{Highlighting}
+\end{Shaded}
+
+Bayesian Information Criterion (BIC)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{log\_prob}: Log probability
+\item
+  \textbf{nparams}: Number of parameters in the model
+\item
+  \textbf{ntrials}: Number of trials in the time series
+\end{itemize}
+
+Returns:
+
+Scalar estimate of BIC.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{linear_correlation}{%
+\subsection{linear\_correlation}\label{linear_correlation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.metrics.linear_correlation(X, Y)}
+\end{Highlighting}
+\end{Shaded}
+
+Linear correlation coefficient.
+
+Will compute the following formula
+
+\[
+\rho = \frac{\mathbf x^\top \mathbf y}{\lVert \mathbf x Vert \cdot \lVert \mathbf y Vert}
+\]
+
+where each vector \(\mathbf x\) and \(\mathbf y\) are rows of the
+matrices \(\mathbf X\) and \(\mathbf Y\), respectively.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
+  2. If \texttt{X} is a 1D array, it will be converted to 2D prior to
+  computation
+\item
+  \textbf{Y}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
+  2. If \texttt{Y} is a 1D array, it will be converted to 2D prior to
+  computation
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{rho}: \texttt{ndarray((nfeatures,))}. Correlation
+  coefficient(s)
+\end{itemize}
+
+TODO:
+
+\begin{itemize}
+\tightlist
+\item
+  {[} {]} Create error raised when X and Y are not same dimension
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{lme}{%
+\subsection{lme}\label{lme}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.metrics.lme(log_prob, nparams, hess_inv)}
+\end{Highlighting}
+\end{Shaded}
+
+Laplace approximation to the log model evidence
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{log\_prob}: Log probability
+\item
+  \textbf{nparams}: Number of parameters in the model
+\item
+  \textbf{hess\_inv}: Hessian at the optimum (shape is \(K \times K\))
+\end{itemize}
+
+Returns:
+
+Scalar approximation of the log model evidence
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{log_loss}{%
+\subsection{log\_loss}\label{log_loss}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.metrics.log_loss(p, q)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes log loss.
+
+\[
+\mathcal L = \mathbf p^\top \log \mathbf q + (1-\mathbf p)^\top \log (1 - \mathbf q)
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{p}: Binary vector of true labels \texttt{ndarray((nsamples,))}
+\item
+  \textbf{q}: Vector of estimates (between 0 and 1) of type
+  \texttt{ndarray((nsamples,))}
+\end{itemize}
+
+Returns:
+
+Scalar log loss
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

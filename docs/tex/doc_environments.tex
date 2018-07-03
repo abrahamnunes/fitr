@@ -1,0 +1,1673 @@
+\hypertarget{fitr.environments}{%
+\section{\texorpdfstring{\texttt{fitr.environments}}{fitr.environments}}\label{fitr.environments}}
+
+Functions to synthesize data from behavioural tasks.
+
+\hypertarget{graph}{%
+\subsection{Graph}\label{graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.Graph()}
+\end{Highlighting}
+\end{Shaded}
+
+Base object that defines a reinforcement learning task.
+
+\hypertarget{definitions}{%
+\paragraph{Definitions}\label{definitions}}
+
+\begin{itemize}
+\tightlist
+\item
+  \(\mathbf x \in \mathcal X\) be a one-hot state vector, where
+  \(|\mathcal X|=n_x\)
+\item
+  \(\mathbf u \in \mathcal U\) be a one-hot action vector, where
+  \(|\mathcal U|=n_u\)
+\item
+  \(\mathsf T = p(\mathbf x_{t+1}|\mathbf x_t, \mathbf u_t)\) be a
+  transition tensor
+\item
+  \(p(\mathbf x)\) be a distribution over starting states
+\item
+  \(\mathcal J: \mathcal X \to \mathcal R\), where
+  \(\mathcal R \subseteq \mathbb R\) be a reward function
+\end{itemize}
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{T}: Transition tensor
+\item
+  \textbf{R}: Vector of rewards for each state such that scalar reward
+  \(r_t = \mathbf r^ op \mathbf x\)
+\item
+  \textbf{end\_states}: A vector \(\{0, 1\}^{n_x}\) identifying which
+  states terminate a trial (aka episode)
+\item
+  \textbf{p\_start}: Initial state distribution
+\item
+  \textbf{label}: A string identifying a name for the task
+\item
+  \textbf{state\_labels}: A list or array of strings labeling the
+  different states (for plotting purposes)
+\item
+  \textbf{action\_labels}: A list or array of strings labeling the
+  different actions (for plotting purposes)
+\item
+  \textbf{rng}: \texttt{np.random.RandomState} object
+\item
+  \textbf{f\_reward}: A function whose first argument is a vector of
+  rewards for each state, and whose second argument is a state vector,
+  and whose output is a scalar reward
+\item
+  \textbf{cmap}: Matplotlib colormap for plotting.
+\end{itemize}
+
+\hypertarget{notes}{%
+\paragraph{Notes}\label{notes}}
+
+There are two critical methods for the \texttt{Graph} class:
+\texttt{observation()} and \texttt{step}. All instances of a
+\texttt{Graph} must be able to call these functions. Let's say you have
+some bandit task \texttt{MyBanditTask} that inherits from
+\texttt{Graph}. To run such a task would look something like this:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{env }\OperatorTok{=}\NormalTok{ MyBanditTask()            }\CommentTok{# Instantiate your environment object}
+\NormalTok{agent }\OperatorTok{=}\NormalTok{ MyAgent()               }\CommentTok{# Some agent object (arbitrary, really)}
+\ControlFlowTok{for}\NormalTok{ t }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(ntrials):}
+\NormalTok{    x }\OperatorTok{=}\NormalTok{ env.observation()       }\CommentTok{# Samples initial state}
+\NormalTok{    u }\OperatorTok{=}\NormalTok{ agent.action(x)         }\CommentTok{# Choose some action}
+\NormalTok{    x_, r, done }\OperatorTok{=}\NormalTok{ agent.step(u) }\CommentTok{# Transition based on action}
+\end{Highlighting}
+\end{Shaded}
+
+What differentiates tasks are the transition tensor \(\mathsf T\),
+starting state distribution \(p(\mathbf x)\) and reward function
+\(\mathcal J\) (which here would include the reward vector
+\(\mathbf r\)).
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.adjacency_matrix_decomposition}{%
+\subsubsection{Graph.adjacency\_matrix\_decomposition}\label{graph.adjacency_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.get_graph_depth}{%
+\subsubsection{Graph.get\_graph\_depth}\label{graph.get_graph_depth}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.laplacian_matrix_decomposition}{%
+\subsubsection{Graph.laplacian\_matrix\_decomposition}\label{graph.laplacian_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.make_action_labels}{%
+\subsubsection{Graph.make\_action\_labels}\label{graph.make_action_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.make_digraph}{%
+\subsubsection{Graph.make\_digraph}\label{graph.make_digraph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.make_state_labels}{%
+\subsubsection{Graph.make\_state\_labels}\label{graph.make_state_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.make_undirected_graph}{%
+\subsubsection{Graph.make\_undirected\_graph}\label{graph.make_undirected_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.observation}{%
+\subsubsection{Graph.observation}\label{graph.observation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.plot_action_outcome_probabilities}{%
+\subsubsection{Graph.plot\_action\_outcome\_probabilities}\label{graph.plot_action_outcome_probabilities}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.plot_graph}{%
+\subsubsection{Graph.plot\_graph}\label{graph.plot_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.plot_spectral_properties}{%
+\subsubsection{Graph.plot\_spectral\_properties}\label{graph.plot_spectral_properties}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.random_action}{%
+\subsubsection{Graph.random\_action}\label{graph.random_action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{graph.step}{%
+\subsubsection{Graph.step}\label{graph.step}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit}{%
+\subsection{TwoArmedBandit}\label{twoarmedbandit}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.TwoArmedBandit()}
+\end{Highlighting}
+\end{Shaded}
+
+A simple 2-armed bandit task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.adjacency_matrix_decomposition}{%
+\subsubsection{TwoArmedBandit.adjacency\_matrix\_decomposition}\label{twoarmedbandit.adjacency_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.get_graph_depth}{%
+\subsubsection{TwoArmedBandit.get\_graph\_depth}\label{twoarmedbandit.get_graph_depth}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.laplacian_matrix_decomposition}{%
+\subsubsection{TwoArmedBandit.laplacian\_matrix\_decomposition}\label{twoarmedbandit.laplacian_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.make_action_labels}{%
+\subsubsection{TwoArmedBandit.make\_action\_labels}\label{twoarmedbandit.make_action_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.make_digraph}{%
+\subsubsection{TwoArmedBandit.make\_digraph}\label{twoarmedbandit.make_digraph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.make_state_labels}{%
+\subsubsection{TwoArmedBandit.make\_state\_labels}\label{twoarmedbandit.make_state_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.make_undirected_graph}{%
+\subsubsection{TwoArmedBandit.make\_undirected\_graph}\label{twoarmedbandit.make_undirected_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.observation}{%
+\subsubsection{TwoArmedBandit.observation}\label{twoarmedbandit.observation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.plot_action_outcome_probabilities}{%
+\subsubsection{TwoArmedBandit.plot\_action\_outcome\_probabilities}\label{twoarmedbandit.plot_action_outcome_probabilities}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.plot_graph}{%
+\subsubsection{TwoArmedBandit.plot\_graph}\label{twoarmedbandit.plot_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.plot_spectral_properties}{%
+\subsubsection{TwoArmedBandit.plot\_spectral\_properties}\label{twoarmedbandit.plot_spectral_properties}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.random_action}{%
+\subsubsection{TwoArmedBandit.random\_action}\label{twoarmedbandit.random_action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twoarmedbandit.step}{%
+\subsubsection{TwoArmedBandit.step}\label{twoarmedbandit.step}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo}{%
+\subsection{OrthogonalGoNoGo}\label{orthogonalgonogo}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.OrthogonalGoNoGo()}
+\end{Highlighting}
+\end{Shaded}
+
+The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.adjacency_matrix_decomposition}{%
+\subsubsection{OrthogonalGoNoGo.adjacency\_matrix\_decomposition}\label{orthogonalgonogo.adjacency_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.get_graph_depth}{%
+\subsubsection{OrthogonalGoNoGo.get\_graph\_depth}\label{orthogonalgonogo.get_graph_depth}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.laplacian_matrix_decomposition}{%
+\subsubsection{OrthogonalGoNoGo.laplacian\_matrix\_decomposition}\label{orthogonalgonogo.laplacian_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.make_action_labels}{%
+\subsubsection{OrthogonalGoNoGo.make\_action\_labels}\label{orthogonalgonogo.make_action_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.make_digraph}{%
+\subsubsection{OrthogonalGoNoGo.make\_digraph}\label{orthogonalgonogo.make_digraph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.make_state_labels}{%
+\subsubsection{OrthogonalGoNoGo.make\_state\_labels}\label{orthogonalgonogo.make_state_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.make_undirected_graph}{%
+\subsubsection{OrthogonalGoNoGo.make\_undirected\_graph}\label{orthogonalgonogo.make_undirected_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.observation}{%
+\subsubsection{OrthogonalGoNoGo.observation}\label{orthogonalgonogo.observation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.plot_action_outcome_probabilities}{%
+\subsubsection{OrthogonalGoNoGo.plot\_action\_outcome\_probabilities}\label{orthogonalgonogo.plot_action_outcome_probabilities}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.plot_graph}{%
+\subsubsection{OrthogonalGoNoGo.plot\_graph}\label{orthogonalgonogo.plot_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.plot_spectral_properties}{%
+\subsubsection{OrthogonalGoNoGo.plot\_spectral\_properties}\label{orthogonalgonogo.plot_spectral_properties}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.random_action}{%
+\subsubsection{OrthogonalGoNoGo.random\_action}\label{orthogonalgonogo.random_action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{orthogonalgonogo.step}{%
+\subsubsection{OrthogonalGoNoGo.step}\label{orthogonalgonogo.step}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep}{%
+\subsection{TwoStep}\label{twostep}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.TwoStep()}
+\end{Highlighting}
+\end{Shaded}
+
+An implementation of the Two-Step Task from Daw et al. (2011).
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{mu}: \texttt{float} identifying the drift of the
+  reward-determining Gaussian random walks
+\item
+  \textbf{sd}: \texttt{float} identifying the standard deviation of the
+  reward-determining Gaussian random walks
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.adjacency_matrix_decomposition}{%
+\subsubsection{TwoStep.adjacency\_matrix\_decomposition}\label{twostep.adjacency_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.f_reward}{%
+\subsubsection{TwoStep.f\_reward}\label{twostep.f_reward}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.get_graph_depth}{%
+\subsubsection{TwoStep.get\_graph\_depth}\label{twostep.get_graph_depth}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.laplacian_matrix_decomposition}{%
+\subsubsection{TwoStep.laplacian\_matrix\_decomposition}\label{twostep.laplacian_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.make_action_labels}{%
+\subsubsection{TwoStep.make\_action\_labels}\label{twostep.make_action_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.make_digraph}{%
+\subsubsection{TwoStep.make\_digraph}\label{twostep.make_digraph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.make_state_labels}{%
+\subsubsection{TwoStep.make\_state\_labels}\label{twostep.make_state_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.make_undirected_graph}{%
+\subsubsection{TwoStep.make\_undirected\_graph}\label{twostep.make_undirected_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.observation}{%
+\subsubsection{TwoStep.observation}\label{twostep.observation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.plot_action_outcome_probabilities}{%
+\subsubsection{TwoStep.plot\_action\_outcome\_probabilities}\label{twostep.plot_action_outcome_probabilities}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.plot_graph}{%
+\subsubsection{TwoStep.plot\_graph}\label{twostep.plot_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.plot_reward_paths}{%
+\subsubsection{TwoStep.plot\_reward\_paths}\label{twostep.plot_reward_paths}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_reward_paths(}\VariableTok{self}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.plot_spectral_properties}{%
+\subsubsection{TwoStep.plot\_spectral\_properties}\label{twostep.plot_spectral_properties}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.random_action}{%
+\subsubsection{TwoStep.random\_action}\label{twostep.random_action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{twostep.step}{%
+\subsubsection{TwoStep.step}\label{twostep.step}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep}{%
+\subsection{ReverseTwoStep}\label{reversetwostep}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.ReverseTwoStep()}
+\end{Highlighting}
+\end{Shaded}
+
+From Kool \& Gershman 2016.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.adjacency_matrix_decomposition}{%
+\subsubsection{ReverseTwoStep.adjacency\_matrix\_decomposition}\label{reversetwostep.adjacency_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.f_reward}{%
+\subsubsection{ReverseTwoStep.f\_reward}\label{reversetwostep.f_reward}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.get_graph_depth}{%
+\subsubsection{ReverseTwoStep.get\_graph\_depth}\label{reversetwostep.get_graph_depth}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.laplacian_matrix_decomposition}{%
+\subsubsection{ReverseTwoStep.laplacian\_matrix\_decomposition}\label{reversetwostep.laplacian_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.make_action_labels}{%
+\subsubsection{ReverseTwoStep.make\_action\_labels}\label{reversetwostep.make_action_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.make_digraph}{%
+\subsubsection{ReverseTwoStep.make\_digraph}\label{reversetwostep.make_digraph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.make_state_labels}{%
+\subsubsection{ReverseTwoStep.make\_state\_labels}\label{reversetwostep.make_state_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.make_undirected_graph}{%
+\subsubsection{ReverseTwoStep.make\_undirected\_graph}\label{reversetwostep.make_undirected_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.observation}{%
+\subsubsection{ReverseTwoStep.observation}\label{reversetwostep.observation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.plot_action_outcome_probabilities}{%
+\subsubsection{ReverseTwoStep.plot\_action\_outcome\_probabilities}\label{reversetwostep.plot_action_outcome_probabilities}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.plot_graph}{%
+\subsubsection{ReverseTwoStep.plot\_graph}\label{reversetwostep.plot_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.plot_spectral_properties}{%
+\subsubsection{ReverseTwoStep.plot\_spectral\_properties}\label{reversetwostep.plot_spectral_properties}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.random_action}{%
+\subsubsection{ReverseTwoStep.random\_action}\label{reversetwostep.random_action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{reversetwostep.step}{%
+\subsubsection{ReverseTwoStep.step}\label{reversetwostep.step}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit}{%
+\subsection{RandomContextualBandit}\label{randomcontextualbandit}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.RandomContextualBandit()}
+\end{Highlighting}
+\end{Shaded}
+
+Generates a random bandit task
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{nactions}: Number of actions
+\item
+  \textbf{noutcomes}: Number of outcomes
+\item
+  \textbf{nstates}: Number of contexts
+\item
+  \textbf{min\_actions\_per\_context}: Different contexts may have more
+  or fewer actions than others (never more than \texttt{nactions}). This
+  variable describes the minimum number of actions allowed in a context.
+\item
+  \textbf{alpha}:
+\item
+  \textbf{alpha\_start}:
+\item
+  \textbf{shift\_flip}:
+\item
+  \textbf{reward\_lb}: Lower bound for drifting rewards
+\item
+  \textbf{reward\_ub}: Upper bound for drifting rewards
+\item
+  \textbf{reward\_drift}: Values (\texttt{on} or \texttt{off})
+  determining whether rewards are allowed to drift
+\item
+  \textbf{drift\_mu}: Mean of the Gaussian random walk determining
+  reward
+\item
+  \textbf{drift\_sd}: Standard deviation of Gaussian random walk
+  determining reward
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.adjacency_matrix_decomposition}{%
+\subsubsection{RandomContextualBandit.adjacency\_matrix\_decomposition}\label{randomcontextualbandit.adjacency_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.f_reward}{%
+\subsubsection{RandomContextualBandit.f\_reward}\label{randomcontextualbandit.f_reward}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.get_graph_depth}{%
+\subsubsection{RandomContextualBandit.get\_graph\_depth}\label{randomcontextualbandit.get_graph_depth}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.laplacian_matrix_decomposition}{%
+\subsubsection{RandomContextualBandit.laplacian\_matrix\_decomposition}\label{randomcontextualbandit.laplacian_matrix_decomposition}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.make_action_labels}{%
+\subsubsection{RandomContextualBandit.make\_action\_labels}\label{randomcontextualbandit.make_action_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.make_digraph}{%
+\subsubsection{RandomContextualBandit.make\_digraph}\label{randomcontextualbandit.make_digraph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.make_state_labels}{%
+\subsubsection{RandomContextualBandit.make\_state\_labels}\label{randomcontextualbandit.make_state_labels}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.make_undirected_graph}{%
+\subsubsection{RandomContextualBandit.make\_undirected\_graph}\label{randomcontextualbandit.make_undirected_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.observation}{%
+\subsubsection{RandomContextualBandit.observation}\label{randomcontextualbandit.observation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.plot_action_outcome_probabilities}{%
+\subsubsection{RandomContextualBandit.plot\_action\_outcome\_probabilities}\label{randomcontextualbandit.plot_action_outcome_probabilities}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.plot_graph}{%
+\subsubsection{RandomContextualBandit.plot\_graph}\label{randomcontextualbandit.plot_graph}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.plot_spectral_properties}{%
+\subsubsection{RandomContextualBandit.plot\_spectral\_properties}\label{randomcontextualbandit.plot_spectral_properties}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.random_action}{%
+\subsubsection{RandomContextualBandit.random\_action}\label{randomcontextualbandit.random_action}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{randomcontextualbandit.step}{%
+\subsubsection{RandomContextualBandit.step}\label{randomcontextualbandit.step}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

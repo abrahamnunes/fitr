@@ -1,0 +1,193 @@
+\hypertarget{fitr.inference}{%
+\section{\texorpdfstring{\texttt{fitr.inference}}{fitr.inference}}\label{fitr.inference}}
+
+Methods for inferring the parameters of generative models for
+reinforcement learning data.
+
+\hypertarget{optimizationresult}{%
+\subsection{OptimizationResult}\label{optimizationresult}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.inference.optimization_result.OptimizationResult()}
+\end{Highlighting}
+\end{Shaded}
+
+Container for the results of an optimization run on a generative model
+of behavioural data
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{subject\_id}: \texttt{ndarray((nsubjects,))} or \texttt{None}
+  (default). Integer ids for subjects
+\item
+  \textbf{xmin}: \texttt{ndarray((nsubjects,nparams))} or \texttt{None}
+  (default). Parameters that minimize objective function
+\item
+  \textbf{fmin}: \texttt{ndarray((nsubjects,))} or \texttt{None}
+  (default). Value of objective function at minimum
+\item
+  \textbf{fevals}: \texttt{ndarray((nsubjects,))} or \texttt{None}
+  (default). Number of function evaluations required to minimize
+  objective function
+\item
+  \textbf{niters}: \texttt{ndarray((nsubjects,))} or \texttt{None}
+  (default). Number of iterations required to minimize objective
+  function
+\item
+  \textbf{lme}: \texttt{ndarray((nsubjects,))} or \texttt{None}
+  (default). Log model evidence
+\item
+  \textbf{bic}: \texttt{ndarray((nsubjects,))} or \texttt{None}
+  (default). Bayesian Information Criterion
+\item
+  \textbf{hess\_inv}: \texttt{ndarray((nsubjects,nparams,nparams))} or
+  \texttt{None} (default). Inverse Hessian at the optimum.
+\item
+  \textbf{err}: \texttt{ndarray((nsubjects,nparams))} or \texttt{None}
+  (default). Error of estimates at optimum.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{optimizationresult.transform_xmin}{%
+\subsubsection{OptimizationResult.transform\_xmin}\label{optimizationresult.transform_xmin}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.inference.optimization_result.transform_xmin(}\VariableTok{self}\NormalTok{, transforms, inplace}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Rescales the parameter estimates.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{transforms}: \texttt{list}. Transformation functions where
+  \texttt{len(transforms)\ ==\ self.xmin.shape{[}1{]}}
+\item
+  \textbf{inplace}: \texttt{bool}. Whether to change the values in
+  \texttt{self.xmin}. Default is \texttt{False}, which returns an
+  \texttt{ndarray((nsubjects,\ nparams))} of the transformed parameters.
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nsubjects,\ nparams))} of the transformed parameters if
+\texttt{inplace=False}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{mlepar}{%
+\subsection{mlepar}\label{mlepar}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.inference.mle_parallel.mlepar(f, data, nparams, minstarts}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{10}\NormalTok{, init_sd}\OperatorTok{=}\DecValTok{2}\NormalTok{, njobs}\OperatorTok{=-}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes maximum likelihood estimates using parallel CPU resources.
+
+Wraps over the \texttt{fitr.optimization.mle\_parallel.mle} function.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{f}: Likelihood function
+\item
+  \textbf{data}: A subscriptable object whose first dimension indexes
+  subjects
+\item
+  \textbf{optimizer}: Optimization function (currently only
+  \texttt{l\_bfgs\_b} supported)
+\item
+  \textbf{nparams}: \texttt{int} number of parameters to be estimated
+\item
+  \textbf{minstarts}: \texttt{int}. Minimum number of restarts with new
+  initial values
+\item
+  \textbf{maxstarts}: \texttt{int}. Maximum number of restarts with new
+  initial values
+\item
+  \textbf{init\_sd}: Standard deviation for Gaussian initial values
+\end{itemize}
+
+Returns:
+
+\texttt{fitr.inference.OptimizationResult}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{l_bfgs_b}{%
+\subsection{l\_bfgs\_b}\label{l_bfgs_b}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.inference.mle_parallel.l_bfgs_b(f, i, data, nparams, minstarts}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{10}\NormalTok{, init_sd}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Minimizes the negative log-probability of data with respect to some
+parameters under function \texttt{f} using the L-BFGS-B algorithm.
+
+This function is specified for use with parallel CPU resources.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{f}: Log likelihood function
+\item
+  \textbf{i}: \texttt{int}. Subject being optimized (slices first
+  dimension of \texttt{data})
+\item
+  \textbf{data}: Object subscriptable along first dimension to indicate
+  subject being optimized
+\item
+  \textbf{nparams}: \texttt{int}. Number of parameters in the model
+\item
+  \textbf{minstarts}: \texttt{int}. Minimum number of restarts with new
+  initial values
+\item
+  \textbf{maxstarts}: \texttt{int}. Maximum number of restarts with new
+  initial values
+\item
+  \textbf{init\_sd}: Standard deviation for Gaussian initial values
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{i}: \texttt{int}. Subject being optimized (slices first
+  dimension of \texttt{data})
+\item
+  \textbf{xmin}: \texttt{ndarray((nparams,))}. Parameter values at
+  optimum
+\item
+  \textbf{fmin}: Scalar objective function value at optimum
+\item
+  \textbf{fevals}: \texttt{int}. Number of function evaluations
+\item
+  \textbf{niters}: \texttt{int}. Number of iterations
+\item
+  \textbf{lme\_}: Scalar log-model evidence at optimum
+\item
+  \textbf{bic\_}: Scalar Bayesian Information Criterion at optimum
+\item
+  \textbf{hess\_inv}: \texttt{ndarray((nparams,\ nparams))}. Inv at
+  optimum
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

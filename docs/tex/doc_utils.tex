@@ -1,0 +1,193 @@
+\hypertarget{fitr.utils}{%
+\section{\texorpdfstring{\texttt{fitr.utils}}{fitr.utils}}\label{fitr.utils}}
+
+Functions used across \texttt{fitr}.
+
+\hypertarget{logsumexp}{%
+\subsection{logsumexp}\label{logsumexp}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.logsumexp(x)}
+\end{Highlighting}
+\end{Shaded}
+
+Numerically stable logsumexp.
+
+Computed as follows:
+
+\[
+\max x + \log \sum_x e^{x - \max x}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: `ndarray(shape=(nactions,))``
+\end{itemize}
+
+Returns:
+
+\texttt{float}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{relu}{%
+\subsection{relu}\label{relu}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.relu(x, a_max}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Rectified linearity
+
+\[
+\mathbf x' = \max (x_i, 0)_{i=1}^{|\mathbf x|}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: Vector of inputs
+\item
+  \textbf{a\_max}: Upper bound at which to clip values of \texttt{x}
+\end{itemize}
+
+Returns:
+
+Exponentiated values of \texttt{x}.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{scale_data}{%
+\subsection{scale\_data}\label{scale_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.scale_data(X, axis}\OperatorTok{=}\DecValTok{0}\NormalTok{, with_mean}\OperatorTok{=}\VariableTok{True}\NormalTok{, with_var}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Rescales data by subtracting mean and dividing by variance
+
+\[
+\mathbf x' = \frac{\mathbf x - \frac{1}{n} \mathbf 1^\top \mathbf x}{Var(\mathbf x)}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsamples,\ {[}nfeatures{]}))}. Data. May
+  be 1D or 2D.
+\item
+  \textbf{with\_mean}: \texttt{bool}. Whether to subtract the mean
+\item
+  \textbf{with\_var}: \texttt{bool}. Whether to divide by variance
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray(X.shape)}. Rescaled data.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{sigmoid}{%
+\subsection{sigmoid}\label{sigmoid}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.sigmoid(x, a_min}\OperatorTok{=-}\DecValTok{10}\NormalTok{, a_max}\OperatorTok{=}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Sigmoid function
+
+\[
+\sigma(x) = \frac{1}{1 + e^{-x}}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: Vector
+\item
+  \textbf{a\_min}: Lower bound at which to clip values of \texttt{x}
+\item
+  \textbf{a\_max}: Upper bound at which to clip values of \texttt{x}
+\end{itemize}
+
+Returns:
+
+Vector between 0 and 1 of size \texttt{x.shape}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{softmax}{%
+\subsection{softmax}\label{softmax}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.softmax(x)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the softmax function
+
+\[
+p(\mathbf{x}) = \frac{e^{\mathbf{x} - \max_i x_i}}{\mathbf{1}^\top e^{\mathbf{x} - \max_i x_i}}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: Softmax logits (\texttt{ndarray((N,))})
+\end{itemize}
+
+Returns:
+
+Vector of probabilities of size \texttt{ndarray((N,))}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{stable_exp}{%
+\subsection{stable\_exp}\label{stable_exp}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.stable_exp(x, a_min}\OperatorTok{=-}\DecValTok{10}\NormalTok{, a_max}\OperatorTok{=}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Clipped exponential function
+
+Avoids overflow by clipping input values.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: Vector of inputs
+\item
+  \textbf{a\_min}: Lower bound at which to clip values of \texttt{x}
+\item
+  \textbf{a\_max}: Upper bound at which to clip values of \texttt{x}
+\end{itemize}
+
+Returns:
+
+Exponentiated values of \texttt{x}.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

@@ -1,0 +1,221 @@
+\hypertarget{fitr.data}{%
+\section{\texorpdfstring{\texttt{fitr.data}}{fitr.data}}\label{fitr.data}}
+
+A module containing a generic class for behavioural data.
+
+\hypertarget{behaviouraldata}{%
+\subsection{BehaviouralData}\label{behaviouraldata}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.BehaviouralData()}
+\end{Highlighting}
+\end{Shaded}
+
+A flexible and generic object to store and process behavioural data
+across tasks
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ngroups}: Integer number of groups represented in the dataset.
+  Only \textgreater{} 1 if data are merged
+\item
+  \textbf{nsubjects}: Integer number of subjects in dataset
+\item
+  \textbf{ntrials}: Integer number of trials done by each subject
+\item
+  \textbf{dict}: Dictionary storage indexed by subject.
+\item
+  \textbf{params}: \texttt{ndarray((nsubjects,\ nparams\ +\ 1))}
+  parameters for each (simulated) subject
+\item
+  \textbf{meta}: Array of covariates of type
+  \texttt{ndarray((nsubjects,\ nmetadata\_features+1))}
+\item
+  \textbf{tensor}: Tensor representation of the behavioural data of type
+  \texttt{ndarray((nsubjects,\ ntrials,\ nfeatures))}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.add_subject}{%
+\subsubsection{BehaviouralData.add\_subject}\label{behaviouraldata.add_subject}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.add_subject(}\VariableTok{self}\NormalTok{, subject_index, parameters, subject_meta)}
+\end{Highlighting}
+\end{Shaded}
+
+Appends a new subject to the dataset
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{subject\_index}: Integer identification for subject
+\item
+  \textbf{parameters}: \texttt{list} of parameters for the subject
+\item
+  \textbf{subject\_meta}: Some covariates for the subject
+  (\texttt{list})
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.initialize_data_dictionary}{%
+\subsubsection{BehaviouralData.initialize\_data\_dictionary}\label{behaviouraldata.initialize_data_dictionary}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.initialize_data_dictionary(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.make_behavioural_ngrams}{%
+\subsubsection{BehaviouralData.make\_behavioural\_ngrams}\label{behaviouraldata.make_behavioural_ngrams}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.make_behavioural_ngrams(}\VariableTok{self}\NormalTok{, n)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates N-grams of behavioural data
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.make_cooccurrence_matrix}{%
+\subsubsection{BehaviouralData.make\_cooccurrence\_matrix}\label{behaviouraldata.make_cooccurrence_matrix}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.make_cooccurrence_matrix(}\VariableTok{self}\NormalTok{, k, dtype}\OperatorTok{=<}\KeywordTok{class} \StringTok{'numpy.float32'}\OperatorTok{>}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.make_tensor_representations}{%
+\subsubsection{BehaviouralData.make\_tensor\_representations}\label{behaviouraldata.make_tensor_representations}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.make_tensor_representations(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a tensor with all subjects' data
+
+\hypertarget{notes}{%
+\paragraph{Notes}\label{notes}}
+
+Assumes that all subjects did same number of trials.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.numpy_tensor_to_bdf}{%
+\subsubsection{BehaviouralData.numpy\_tensor\_to\_bdf}\label{behaviouraldata.numpy_tensor_to_bdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.numpy_tensor_to_bdf(}\VariableTok{self}\NormalTok{, X)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates \texttt{BehaviouralData} formatted set from a dataset stored in
+a numpy \texttt{ndarray}.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsubjects,\ ntrials,\ m))} with
+  \texttt{m} being the size of flattened single-trial data
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.unpack_tensor}{%
+\subsubsection{BehaviouralData.unpack\_tensor}\label{behaviouraldata.unpack_tensor}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.unpack_tensor(}\VariableTok{self}\NormalTok{, x_dim, u_dim, r_dim}\OperatorTok{=}\DecValTok{1}\NormalTok{, terminal_dim}\OperatorTok{=}\DecValTok{1}\NormalTok{, get}\OperatorTok{=}\StringTok{'sarsat'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Unpacks data stored in tensor format into separate arrays for states,
+actions, rewards, next states, and next actions.
+
+Arguments:
+
+x\_dim : Task state space dimensionality (\texttt{int}) u\_dim : Task
+action space dimensionality (\texttt{int}) r\_dim : Reward
+dimensionality (\texttt{int}, default=1) terminal\_dim : Dimensionality
+of the terminal state indicator (\texttt{int} , default=1) get : String
+indicating the order that data are stored in the array. Can also be
+shortened such that fewer elements are returned. For example, the
+default is \texttt{sarsat}.
+
+Returns:
+
+List with data, where each element is in the order of the argument
+\texttt{get}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{behaviouraldata.update}{%
+\subsubsection{BehaviouralData.update}\label{behaviouraldata.update}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.update(}\VariableTok{self}\NormalTok{, subject_index, behav_data)}
+\end{Highlighting}
+\end{Shaded}
+
+Adds behavioural data to the dataset
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{subject\_index}: Integer index for the subject
+\item
+  \textbf{behav\_data}: 1-dimensional \texttt{ndarray} of flattened data
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{merge_behavioural_data}{%
+\subsection{merge\_behavioural\_data}\label{merge_behavioural_data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.data.merge_behavioural_data(datalist)}
+\end{Highlighting}
+\end{Shaded}
+
+Combines BehaviouralData objects.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{datalist}: List of BehaviouralData objects
+\end{itemize}
+
+Returns:
+
+\texttt{BehaviouralData} with data from multiple groups merged.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

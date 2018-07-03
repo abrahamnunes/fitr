@@ -1,0 +1,41 @@
+\hypertarget{fitr.criticism}{%
+\section{\texorpdfstring{\texttt{fitr.criticism}}{fitr.criticism}}\label{fitr.criticism}}
+
+Methods for criticism of model fits.
+
+\hypertarget{actual_estimate}{%
+\subsection{actual\_estimate}\label{actual_estimate}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.criticism.plotting.actual_estimate(y_true, y_pred, xlabel}\OperatorTok{=}\StringTok{'Actual'}\NormalTok{, ylabel}\OperatorTok{=}\StringTok{'Estimate'}\NormalTok{, corr}\OperatorTok{=}\VariableTok{True}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots parameter estimates against the ground truth values.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{y\_true}: \texttt{ndarray(nsamples)}. Vector of ground truth
+  parameters
+\item
+  \textbf{y\_pred}: \texttt{ndarray(nsamples)}. Vector of parameter
+  estimates
+\item
+  \textbf{xlabel}: \texttt{str}. Label for x-axis
+\item
+  \textbf{ylabel}: \texttt{str}. Label for y-axis
+\item
+  \textbf{corr}: \texttt{bool}. Whether to plot correlation coefficient.
+\item
+  \textbf{figsize}: \texttt{tuple}. Figure size (inches).
+\end{itemize}
+
+Returns:
+
+\texttt{matplotlib.pyplot.Figure}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

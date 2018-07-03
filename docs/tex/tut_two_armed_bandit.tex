@@ -1,0 +1,44 @@
+\hypertarget{simulating-and-fitting-a-two-armed-bandit}{%
+\section{Simulating and Fitting a Two-Armed
+Bandit}\label{simulating-and-fitting-a-two-armed-bandit}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\ImportTok{from}\NormalTok{ fitr }\ImportTok{import}\NormalTok{ generate_behavioural_data}
+\ImportTok{from}\NormalTok{ fitr.environments }\ImportTok{import}\NormalTok{ TwoArmedBandit}
+\ImportTok{from}\NormalTok{ fitr.agents }\ImportTok{import}\NormalTok{ RWSoftmaxAgent}
+\ImportTok{from}\NormalTok{ fitr.inference }\ImportTok{import}\NormalTok{ mlepar}
+\ImportTok{from}\NormalTok{ fitr.utils }\ImportTok{import}\NormalTok{ sigmoid}
+\ImportTok{from}\NormalTok{ fitr.utils }\ImportTok{import}\NormalTok{ relu}
+\ImportTok{from}\NormalTok{ fitr.criticism.plotting }\ImportTok{import}\NormalTok{ actual_estimate}
+
+\NormalTok{N }\OperatorTok{=} \DecValTok{50}  \CommentTok{# number of subjects}
+\NormalTok{T }\OperatorTok{=} \DecValTok{200} \CommentTok{# number of trials}
+
+\CommentTok{# Generate synthetic data}
+\NormalTok{data }\OperatorTok{=}\NormalTok{ generate_behavioural_data(TwoArmedBandit, RWSoftmaxAgent, N, T)}
+
+\CommentTok{# Create log-likelihood function}
+\KeywordTok{def}\NormalTok{ log_prob(w, D):}
+\NormalTok{    lr  }\OperatorTok{=}\NormalTok{ sigmoid(w[}\DecValTok{0}\NormalTok{], a_min}\OperatorTok{=-}\DecValTok{6}\NormalTok{, a_max}\OperatorTok{=}\DecValTok{6}\NormalTok{)}
+\NormalTok{    ist }\OperatorTok{=}\NormalTok{ relu(w[}\DecValTok{1}\NormalTok{], a_max}\OperatorTok{=}\DecValTok{10}\NormalTok{)}
+\NormalTok{    agent }\OperatorTok{=}\NormalTok{ RWSoftmaxAgent(TwoArmedBandit(), lr, ist)}
+\NormalTok{    L }\OperatorTok{=} \DecValTok{0}
+    \ControlFlowTok{for}\NormalTok{ t }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(D.shape[}\DecValTok{0}\NormalTok{]):}
+\NormalTok{        x}\OperatorTok{=}\NormalTok{D[t,:}\DecValTok{3}\NormalTok{]}\OperatorTok{;}\NormalTok{ u}\OperatorTok{=}\NormalTok{D[t,}\DecValTok{3}\NormalTok{:}\DecValTok{5}\NormalTok{]}\OperatorTok{;}\NormalTok{ r}\OperatorTok{=}\NormalTok{D[t,}\DecValTok{5}\NormalTok{]}\OperatorTok{;}\NormalTok{ x_}\OperatorTok{=}\NormalTok{D[t,}\DecValTok{6}\NormalTok{:]}
+\NormalTok{        L }\OperatorTok{+=}\NormalTok{ u}\OperatorTok{@}\NormalTok{agent.log_prob(x)}
+\NormalTok{        agent.learning(x, u, r, x_, }\VariableTok{None}\NormalTok{)}
+    \ControlFlowTok{return}\NormalTok{ L}
+
+\CommentTok{# Fit model}
+\NormalTok{res }\OperatorTok{=}\NormalTok{ mlepar(log_prob, data.tensor, nparams}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{5}\NormalTok{)}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ res.transform_xmin([sigmoid, relu])}
+
+\CommentTok{# Criticism: Actual vs. Estimate Plots}
+\NormalTok{lr_fig  }\OperatorTok{=}\NormalTok{ actual_estimate(data.params[:,}\DecValTok{1}\NormalTok{], X[:,}\DecValTok{0}\NormalTok{])}\OperatorTok{;}\NormalTok{ plt.show()}
+\NormalTok{ist_fig }\OperatorTok{=}\NormalTok{ actual_estimate(data.params[:,}\DecValTok{2}\NormalTok{], X[:,}\DecValTok{1}\NormalTok{])}\OperatorTok{;}\NormalTok{ plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
