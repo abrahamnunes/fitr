@@ -4,6 +4,6 @@ tensorflow
 matplotlib
 joblib
 nltk
-networkx
+networkx==2.1
 pydot
 graphviz
