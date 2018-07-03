@@ -1,7 +1,7 @@
 numpy
 scipy
 tensorflow
-matplotlib
+matplotlib==2.2.2
 joblib
 nltk
 networkx
