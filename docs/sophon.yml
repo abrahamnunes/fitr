@@ -64,8 +64,10 @@ pages:
     - fitr.agents.agents.RandomBanditAgent
     - fitr.agents.agents.RandomMDPAgent
     - fitr.agents.agents.SARSASoftmaxAgent
+    - fitr.agents.agents.SARSAStickySoftmaxAgent
     - fitr.agents.agents.QLearningSoftmaxAgent
     - fitr.agents.agents.RWSoftmaxAgent
+    - fitr.agents.agents.RWStickySoftmaxAgent
     - fitr.agents.agents.RWSoftmaxAgentRewardSensitivity
 - page: doc_inference.md
   template: doc_inference.md

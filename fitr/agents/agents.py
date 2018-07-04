@@ -235,6 +235,73 @@ class SARSASoftmaxAgent(MDPAgent):
     def learning(self, state, action, reward, next_state, next_action):
         self.critic.update(state, action, reward, next_state, next_action)
 
+class SARSAStickySoftmaxAgent(MDPAgent):
+    """ An agent that uses the SARSA learning rule and a sticky softmax policy
+
+    The sticky softmax policy selects actions from a multinomial
+
+    $$
+    \mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\\varsigma(\mathbf v)),
+    $$
+
+    whose parameters are
+
+    $$
+    p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \\varsigma(\mathbf v, \mathbf u_{t-1}) = \\frac{e^{\\beta \mathbf v + \\beta^\\rho \mathbf u_{t-1}}}{\sum_{i}^{|\mathbf v|} e^{\\beta v_i + \\beta^\\rho u_{t-1}^{(i)}}}.
+    $$
+
+    The value function is SARSA:
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha \\big(r + \\gamma \mathbf u'^\\top \mathbf Q \mathbf x' - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf z,
+    $$
+
+    where $0 < \\alpha < 1$ is the learning rate, $0 \leq \\gamma \leq 1$ is a discount factor, and where the reward prediction error (RPE) is $\\delta = (r + \\gamma \mathbf u'^\\top \mathbf Q \mathbf x' - \mathbf u^\\top \mathbf Q \mathbf x)$. We have also included an eligibility trace $\mathbf z$ defined as
+
+    $$
+    \mathbf z = \mathbf u \mathbf x^\\top +  \\gamma \\lambda \mathbf z
+    $$
+
+    Arguments:
+
+        task: `fitr.environments.Graph`
+        learning_rate: Learning rate $\\alpha$
+        discount_factor: Discount factor $\\gamma$
+        trace_decay: Eligibility trace decay $\\lambda$
+        inverse_softmax_temp: Inverse softmax temperature $\\beta$
+        perseveration: Perseveration parameter $\\beta^\\rho$
+        rng: `np.random.RandomState`
+
+    """
+    def __init__(self,
+                 task,
+                 learning_rate=None,
+                 discount_factor=None,
+                 trace_decay=None,
+                 inverse_softmax_temp=None,
+                 perseveration=None,
+                 rng=np.random.RandomState()):
+        super().__init__(task)
+        self.meta = ['SARSAStickySoftmax']
+        if learning_rate is None: learning_rate = rng.uniform(0.01, 0.99)
+        if discount_factor is None: discount_factor = rng.uniform(0.8, 1.0)
+        if trace_decay is None: trace_decay = rng.uniform(0.8, 1.0)
+        if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10) 
+        if perseveration is None: perseveration = rng.uniform(0.01, 10)
+        self.params = [learning_rate, discount_factor, trace_decay, inverse_softmax_temp, perseveration]
+        self.actor  = StickySoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp, perseveration=perseveration)
+        self.critic = SARSALearner(task,
+                                   learning_rate=learning_rate,
+                                   discount_factor=discount_factor,
+                                   trace_decay=trace_decay)
+
+    def action(self, state):
+        return self.actor.sample(self.critic.Qx(state))
+
+    def learning(self, state, action, reward, next_state, next_action):
+        self.critic.update(state, action, reward, next_state, next_action)
+
+
 class QLearningSoftmaxAgent(MDPAgent):
     """ An agent that uses the Q-learning rule and a softmax policy
 

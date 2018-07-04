@@ -6,8 +6,10 @@ from fitr.agents.agents import MDPAgent
 from fitr.agents.agents import RandomBanditAgent
 from fitr.agents.agents import RandomMDPAgent
 from fitr.agents.agents import SARSASoftmaxAgent
+from fitr.agents.agents import SARSAStickySoftmaxAgent
 from fitr.agents.agents import QLearningSoftmaxAgent
 from fitr.agents.agents import RWSoftmaxAgent
+from fitr.agents.agents import RWStickySoftmaxAgent
 from fitr.agents.agents import RWSoftmaxAgentRewardSensitivity
 
 __all__ = ['policies',
@@ -18,6 +20,8 @@ __all__ = ['policies',
            'RandomBanditAgent',
            'RandomMDPAgent',
            'SARSASoftmaxAgent',
+           'SARSAStickySoftmaxAgent',
            'QLearningSoftmaxAgent',
            'RWSoftmaxAgent',
+           'RWStickySoftmaxAgent',
            'RWSoftmaxAgentRewardSensitivity']
