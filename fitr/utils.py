@@ -1,6 +1,22 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
+def I(x):
+    """ Identity transformation.
+
+    Mainly for convenience when using `fitr.utils.transform` with some vector element that should not be transformed, despite changing the coordinates of other variables.
+
+    Arguments:
+
+        x: `ndarray`
+
+    Returns:
+
+        `ndarray(shape=x.shape)`
+
+    """
+    return x
+
 def logsumexp(x):
     """ Numerically stable logsumexp.
 
@@ -120,3 +136,42 @@ def stable_exp(x, a_min=-10, a_max=10):
         Exponentiated values of `x`.
     """
     return np.exp(np.clip(x, a_min=a_min, a_max=a_max))
+
+def transform(x, f_list):
+    """ Transforms parameters from domain in `x` into some new domain defined by `f_list`
+
+    Arguments:
+
+        x: `ndarray((nparams,))`. Parameter vector in some domain.
+        f_list: `list` where `len(list) == nparams`. Functions defining coordinate transformations on each element of `x`.
+
+    Returns:
+
+        x_: `ndarray((nparams,))`. Parameter vector in new coordinates.
+
+    Examples:
+
+    Applying `fitr` transforms can be done as follows.
+
+    ``` python
+    import numpy as np
+    from fitr.utils import transform, sigmoid, relu
+
+    x = np.random.normal(0, 5, size=3)
+    x_= transform(x, [sigmoid, relu, relu])
+    ```
+
+    You can also apply other functions, so long as dimensions are equal for input and output.
+
+    ``` python
+    import numpy as np
+    from fitr.utils import transform
+
+    x  = np.random.normal(0, 10, size=3)
+    x_ = transform(x, [np.square, np.sqrt, np.exp])
+    ```
+    """
+    if x.ndim == 1:
+        x = np.stack(np.array([x_i]) for i, x_i in enumerate(x))
+    x_ = np.stack(f_list[i](x_i) for i, x_i in enumerate(x))
+    return x_
