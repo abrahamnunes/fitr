@@ -40,7 +40,7 @@ def relu(x, a_max=None):
 
     """
     if a_max is None: a_max=np.inf
-    x = np.clip(x, a_min=-50, a_max=a_max)
+    x = x.clip(max=a_max)
     return np.greater(x, 0)*x
 
 def scale_data(X, axis=0, with_mean=True, with_var=True):
