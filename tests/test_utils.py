@@ -37,4 +37,4 @@ def test_transform():
     x  = np.array([0, -10, 0, 55])
     x_ = transform(x, [sigmoid, relu, stable_exp, I])
     y  = np.array([0.5, 0, 1, 55])
-    assert np.all(np.equal(x_, y))
+    assert np.all(np.equal(x_.flatten(), y))
