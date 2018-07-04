@@ -1,10 +1,8 @@
-\hypertarget{fitr.environments}{%
-\section{\texorpdfstring{\texttt{fitr.environments}}{fitr.environments}}\label{fitr.environments}}
+\section{\texorpdfstring{\texttt{fitr.environments}}{fitr.environments}}\label{fitr.environments}
 
 Functions to synthesize data from behavioural tasks.
 
-\hypertarget{graph}{%
-\subsection{Graph}\label{graph}}
+\subsection{Graph}\label{graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -14,8 +12,7 @@ Functions to synthesize data from behavioural tasks.
 
 Base object that defines a reinforcement learning task.
 
-\hypertarget{definitions}{%
-\paragraph{Definitions}\label{definitions}}
+\paragraph{Definitions}\label{definitions}
 
 \begin{itemize}
 \tightlist
@@ -67,8 +64,7 @@ Arguments:
   \textbf{cmap}: Matplotlib colormap for plotting.
 \end{itemize}
 
-\hypertarget{notes}{%
-\paragraph{Notes}\label{notes}}
+\paragraph{Notes}\label{notes}
 
 There are two critical methods for the \texttt{Graph} class:
 \texttt{observation()} and \texttt{step}. All instances of a
@@ -94,8 +90,7 @@ starting state distribution \(p(\mathbf x)\) and reward function
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.adjacency_matrix_decomposition}{%
-\subsubsection{Graph.adjacency\_matrix\_decomposition}\label{graph.adjacency_matrix_decomposition}}
+\subsubsection{Graph.adjacency\_matrix\_decomposition}\label{graph.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -107,8 +102,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.get_graph_depth}{%
-\subsubsection{Graph.get\_graph\_depth}\label{graph.get_graph_depth}}
+\subsubsection{Graph.get\_graph\_depth}\label{graph.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -130,8 +124,7 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.laplacian_matrix_decomposition}{%
-\subsubsection{Graph.laplacian\_matrix\_decomposition}\label{graph.laplacian_matrix_decomposition}}
+\subsubsection{Graph.laplacian\_matrix\_decomposition}\label{graph.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -143,8 +136,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.make_action_labels}{%
-\subsubsection{Graph.make\_action\_labels}\label{graph.make_action_labels}}
+\subsubsection{Graph.make\_action\_labels}\label{graph.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -156,8 +148,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.make_digraph}{%
-\subsubsection{Graph.make\_digraph}\label{graph.make_digraph}}
+\subsubsection{Graph.make\_digraph}\label{graph.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -170,8 +161,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.make_state_labels}{%
-\subsubsection{Graph.make\_state\_labels}\label{graph.make_state_labels}}
+\subsubsection{Graph.make\_state\_labels}\label{graph.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -183,8 +173,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.make_undirected_graph}{%
-\subsubsection{Graph.make\_undirected\_graph}\label{graph.make_undirected_graph}}
+\subsubsection{Graph.make\_undirected\_graph}\label{graph.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -196,8 +185,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.observation}{%
-\subsubsection{Graph.observation}\label{graph.observation}}
+\subsubsection{Graph.observation}\label{graph.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -227,8 +215,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.plot_action_outcome_probabilities}{%
-\subsubsection{Graph.plot\_action\_outcome\_probabilities}\label{graph.plot_action_outcome_probabilities}}
+\subsubsection{Graph.plot\_action\_outcome\_probabilities}\label{graph.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -243,8 +230,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.plot_graph}{%
-\subsubsection{Graph.plot\_graph}\label{graph.plot_graph}}
+\subsubsection{Graph.plot\_graph}\label{graph.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -256,8 +242,7 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.plot_spectral_properties}{%
-\subsubsection{Graph.plot\_spectral\_properties}\label{graph.plot_spectral_properties}}
+\subsubsection{Graph.plot\_spectral\_properties}\label{graph.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -270,8 +255,7 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.random_action}{%
-\subsubsection{Graph.random\_action}\label{graph.random_action}}
+\subsubsection{Graph.random\_action}\label{graph.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -302,8 +286,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{graph.step}{%
-\subsubsection{Graph.step}\label{graph.step}}
+\subsubsection{Graph.step}\label{graph.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -331,8 +314,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit}{%
-\subsection{TwoArmedBandit}\label{twoarmedbandit}}
+\subsection{TwoArmedBandit}\label{twoarmedbandit}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -344,8 +326,7 @@ A simple 2-armed bandit task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.adjacency_matrix_decomposition}{%
-\subsubsection{TwoArmedBandit.adjacency\_matrix\_decomposition}\label{twoarmedbandit.adjacency_matrix_decomposition}}
+\subsubsection{TwoArmedBandit.adjacency\_matrix\_decomposition}\label{twoarmedbandit.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -357,8 +338,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.get_graph_depth}{%
-\subsubsection{TwoArmedBandit.get\_graph\_depth}\label{twoarmedbandit.get_graph_depth}}
+\subsubsection{TwoArmedBandit.get\_graph\_depth}\label{twoarmedbandit.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -380,8 +360,7 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.laplacian_matrix_decomposition}{%
-\subsubsection{TwoArmedBandit.laplacian\_matrix\_decomposition}\label{twoarmedbandit.laplacian_matrix_decomposition}}
+\subsubsection{TwoArmedBandit.laplacian\_matrix\_decomposition}\label{twoarmedbandit.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -393,8 +372,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.make_action_labels}{%
-\subsubsection{TwoArmedBandit.make\_action\_labels}\label{twoarmedbandit.make_action_labels}}
+\subsubsection{TwoArmedBandit.make\_action\_labels}\label{twoarmedbandit.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -406,8 +384,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.make_digraph}{%
-\subsubsection{TwoArmedBandit.make\_digraph}\label{twoarmedbandit.make_digraph}}
+\subsubsection{TwoArmedBandit.make\_digraph}\label{twoarmedbandit.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -420,8 +397,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.make_state_labels}{%
-\subsubsection{TwoArmedBandit.make\_state\_labels}\label{twoarmedbandit.make_state_labels}}
+\subsubsection{TwoArmedBandit.make\_state\_labels}\label{twoarmedbandit.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -433,8 +409,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.make_undirected_graph}{%
-\subsubsection{TwoArmedBandit.make\_undirected\_graph}\label{twoarmedbandit.make_undirected_graph}}
+\subsubsection{TwoArmedBandit.make\_undirected\_graph}\label{twoarmedbandit.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -446,8 +421,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.observation}{%
-\subsubsection{TwoArmedBandit.observation}\label{twoarmedbandit.observation}}
+\subsubsection{TwoArmedBandit.observation}\label{twoarmedbandit.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -477,8 +451,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.plot_action_outcome_probabilities}{%
-\subsubsection{TwoArmedBandit.plot\_action\_outcome\_probabilities}\label{twoarmedbandit.plot_action_outcome_probabilities}}
+\subsubsection{TwoArmedBandit.plot\_action\_outcome\_probabilities}\label{twoarmedbandit.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -493,8 +466,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.plot_graph}{%
-\subsubsection{TwoArmedBandit.plot\_graph}\label{twoarmedbandit.plot_graph}}
+\subsubsection{TwoArmedBandit.plot\_graph}\label{twoarmedbandit.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -506,8 +478,7 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.plot_spectral_properties}{%
-\subsubsection{TwoArmedBandit.plot\_spectral\_properties}\label{twoarmedbandit.plot_spectral_properties}}
+\subsubsection{TwoArmedBandit.plot\_spectral\_properties}\label{twoarmedbandit.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -520,8 +491,7 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.random_action}{%
-\subsubsection{TwoArmedBandit.random\_action}\label{twoarmedbandit.random_action}}
+\subsubsection{TwoArmedBandit.random\_action}\label{twoarmedbandit.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -552,8 +522,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twoarmedbandit.step}{%
-\subsubsection{TwoArmedBandit.step}\label{twoarmedbandit.step}}
+\subsubsection{TwoArmedBandit.step}\label{twoarmedbandit.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -581,8 +550,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo}{%
-\subsection{OrthogonalGoNoGo}\label{orthogonalgonogo}}
+\subsection{OrthogonalGoNoGo}\label{orthogonalgonogo}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -594,8 +562,7 @@ The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.adjacency_matrix_decomposition}{%
-\subsubsection{OrthogonalGoNoGo.adjacency\_matrix\_decomposition}\label{orthogonalgonogo.adjacency_matrix_decomposition}}
+\subsubsection{OrthogonalGoNoGo.adjacency\_matrix\_decomposition}\label{orthogonalgonogo.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -607,8 +574,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.get_graph_depth}{%
-\subsubsection{OrthogonalGoNoGo.get\_graph\_depth}\label{orthogonalgonogo.get_graph_depth}}
+\subsubsection{OrthogonalGoNoGo.get\_graph\_depth}\label{orthogonalgonogo.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -630,8 +596,7 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.laplacian_matrix_decomposition}{%
-\subsubsection{OrthogonalGoNoGo.laplacian\_matrix\_decomposition}\label{orthogonalgonogo.laplacian_matrix_decomposition}}
+\subsubsection{OrthogonalGoNoGo.laplacian\_matrix\_decomposition}\label{orthogonalgonogo.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -643,8 +608,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.make_action_labels}{%
-\subsubsection{OrthogonalGoNoGo.make\_action\_labels}\label{orthogonalgonogo.make_action_labels}}
+\subsubsection{OrthogonalGoNoGo.make\_action\_labels}\label{orthogonalgonogo.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -656,8 +620,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.make_digraph}{%
-\subsubsection{OrthogonalGoNoGo.make\_digraph}\label{orthogonalgonogo.make_digraph}}
+\subsubsection{OrthogonalGoNoGo.make\_digraph}\label{orthogonalgonogo.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -670,8 +633,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.make_state_labels}{%
-\subsubsection{OrthogonalGoNoGo.make\_state\_labels}\label{orthogonalgonogo.make_state_labels}}
+\subsubsection{OrthogonalGoNoGo.make\_state\_labels}\label{orthogonalgonogo.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -683,8 +645,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.make_undirected_graph}{%
-\subsubsection{OrthogonalGoNoGo.make\_undirected\_graph}\label{orthogonalgonogo.make_undirected_graph}}
+\subsubsection{OrthogonalGoNoGo.make\_undirected\_graph}\label{orthogonalgonogo.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -696,8 +657,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.observation}{%
-\subsubsection{OrthogonalGoNoGo.observation}\label{orthogonalgonogo.observation}}
+\subsubsection{OrthogonalGoNoGo.observation}\label{orthogonalgonogo.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -727,8 +687,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.plot_action_outcome_probabilities}{%
-\subsubsection{OrthogonalGoNoGo.plot\_action\_outcome\_probabilities}\label{orthogonalgonogo.plot_action_outcome_probabilities}}
+\subsubsection{OrthogonalGoNoGo.plot\_action\_outcome\_probabilities}\label{orthogonalgonogo.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -743,8 +702,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.plot_graph}{%
-\subsubsection{OrthogonalGoNoGo.plot\_graph}\label{orthogonalgonogo.plot_graph}}
+\subsubsection{OrthogonalGoNoGo.plot\_graph}\label{orthogonalgonogo.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -756,8 +714,7 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.plot_spectral_properties}{%
-\subsubsection{OrthogonalGoNoGo.plot\_spectral\_properties}\label{orthogonalgonogo.plot_spectral_properties}}
+\subsubsection{OrthogonalGoNoGo.plot\_spectral\_properties}\label{orthogonalgonogo.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -770,8 +727,7 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.random_action}{%
-\subsubsection{OrthogonalGoNoGo.random\_action}\label{orthogonalgonogo.random_action}}
+\subsubsection{OrthogonalGoNoGo.random\_action}\label{orthogonalgonogo.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -802,8 +758,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{orthogonalgonogo.step}{%
-\subsubsection{OrthogonalGoNoGo.step}\label{orthogonalgonogo.step}}
+\subsubsection{OrthogonalGoNoGo.step}\label{orthogonalgonogo.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -831,8 +786,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep}{%
-\subsection{TwoStep}\label{twostep}}
+\subsection{TwoStep}\label{twostep}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -856,8 +810,7 @@ Arguments:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.adjacency_matrix_decomposition}{%
-\subsubsection{TwoStep.adjacency\_matrix\_decomposition}\label{twostep.adjacency_matrix_decomposition}}
+\subsubsection{TwoStep.adjacency\_matrix\_decomposition}\label{twostep.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -869,8 +822,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.f_reward}{%
-\subsubsection{TwoStep.f\_reward}\label{twostep.f_reward}}
+\subsubsection{TwoStep.f\_reward}\label{twostep.f_reward}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -880,8 +832,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.get_graph_depth}{%
-\subsubsection{TwoStep.get\_graph\_depth}\label{twostep.get_graph_depth}}
+\subsubsection{TwoStep.get\_graph\_depth}\label{twostep.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -903,8 +854,7 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.laplacian_matrix_decomposition}{%
-\subsubsection{TwoStep.laplacian\_matrix\_decomposition}\label{twostep.laplacian_matrix_decomposition}}
+\subsubsection{TwoStep.laplacian\_matrix\_decomposition}\label{twostep.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -916,8 +866,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.make_action_labels}{%
-\subsubsection{TwoStep.make\_action\_labels}\label{twostep.make_action_labels}}
+\subsubsection{TwoStep.make\_action\_labels}\label{twostep.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -929,8 +878,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.make_digraph}{%
-\subsubsection{TwoStep.make\_digraph}\label{twostep.make_digraph}}
+\subsubsection{TwoStep.make\_digraph}\label{twostep.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -943,8 +891,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.make_state_labels}{%
-\subsubsection{TwoStep.make\_state\_labels}\label{twostep.make_state_labels}}
+\subsubsection{TwoStep.make\_state\_labels}\label{twostep.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -956,8 +903,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.make_undirected_graph}{%
-\subsubsection{TwoStep.make\_undirected\_graph}\label{twostep.make_undirected_graph}}
+\subsubsection{TwoStep.make\_undirected\_graph}\label{twostep.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -969,8 +915,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.observation}{%
-\subsubsection{TwoStep.observation}\label{twostep.observation}}
+\subsubsection{TwoStep.observation}\label{twostep.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1000,8 +945,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.plot_action_outcome_probabilities}{%
-\subsubsection{TwoStep.plot\_action\_outcome\_probabilities}\label{twostep.plot_action_outcome_probabilities}}
+\subsubsection{TwoStep.plot\_action\_outcome\_probabilities}\label{twostep.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1016,8 +960,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.plot_graph}{%
-\subsubsection{TwoStep.plot\_graph}\label{twostep.plot_graph}}
+\subsubsection{TwoStep.plot\_graph}\label{twostep.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1029,8 +972,7 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.plot_reward_paths}{%
-\subsubsection{TwoStep.plot\_reward\_paths}\label{twostep.plot_reward_paths}}
+\subsubsection{TwoStep.plot\_reward\_paths}\label{twostep.plot_reward_paths}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1040,8 +982,7 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.plot_spectral_properties}{%
-\subsubsection{TwoStep.plot\_spectral\_properties}\label{twostep.plot_spectral_properties}}
+\subsubsection{TwoStep.plot\_spectral\_properties}\label{twostep.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1054,8 +995,7 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.random_action}{%
-\subsubsection{TwoStep.random\_action}\label{twostep.random_action}}
+\subsubsection{TwoStep.random\_action}\label{twostep.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1086,8 +1026,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{twostep.step}{%
-\subsubsection{TwoStep.step}\label{twostep.step}}
+\subsubsection{TwoStep.step}\label{twostep.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1115,8 +1054,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep}{%
-\subsection{ReverseTwoStep}\label{reversetwostep}}
+\subsection{ReverseTwoStep}\label{reversetwostep}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1128,8 +1066,7 @@ From Kool \& Gershman 2016.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.adjacency_matrix_decomposition}{%
-\subsubsection{ReverseTwoStep.adjacency\_matrix\_decomposition}\label{reversetwostep.adjacency_matrix_decomposition}}
+\subsubsection{ReverseTwoStep.adjacency\_matrix\_decomposition}\label{reversetwostep.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1141,8 +1078,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.f_reward}{%
-\subsubsection{ReverseTwoStep.f\_reward}\label{reversetwostep.f_reward}}
+\subsubsection{ReverseTwoStep.f\_reward}\label{reversetwostep.f_reward}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1152,8 +1088,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.get_graph_depth}{%
-\subsubsection{ReverseTwoStep.get\_graph\_depth}\label{reversetwostep.get_graph_depth}}
+\subsubsection{ReverseTwoStep.get\_graph\_depth}\label{reversetwostep.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1175,8 +1110,7 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.laplacian_matrix_decomposition}{%
-\subsubsection{ReverseTwoStep.laplacian\_matrix\_decomposition}\label{reversetwostep.laplacian_matrix_decomposition}}
+\subsubsection{ReverseTwoStep.laplacian\_matrix\_decomposition}\label{reversetwostep.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1188,8 +1122,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.make_action_labels}{%
-\subsubsection{ReverseTwoStep.make\_action\_labels}\label{reversetwostep.make_action_labels}}
+\subsubsection{ReverseTwoStep.make\_action\_labels}\label{reversetwostep.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1201,8 +1134,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.make_digraph}{%
-\subsubsection{ReverseTwoStep.make\_digraph}\label{reversetwostep.make_digraph}}
+\subsubsection{ReverseTwoStep.make\_digraph}\label{reversetwostep.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1215,8 +1147,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.make_state_labels}{%
-\subsubsection{ReverseTwoStep.make\_state\_labels}\label{reversetwostep.make_state_labels}}
+\subsubsection{ReverseTwoStep.make\_state\_labels}\label{reversetwostep.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1228,8 +1159,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.make_undirected_graph}{%
-\subsubsection{ReverseTwoStep.make\_undirected\_graph}\label{reversetwostep.make_undirected_graph}}
+\subsubsection{ReverseTwoStep.make\_undirected\_graph}\label{reversetwostep.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1241,8 +1171,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.observation}{%
-\subsubsection{ReverseTwoStep.observation}\label{reversetwostep.observation}}
+\subsubsection{ReverseTwoStep.observation}\label{reversetwostep.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1272,8 +1201,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.plot_action_outcome_probabilities}{%
-\subsubsection{ReverseTwoStep.plot\_action\_outcome\_probabilities}\label{reversetwostep.plot_action_outcome_probabilities}}
+\subsubsection{ReverseTwoStep.plot\_action\_outcome\_probabilities}\label{reversetwostep.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1288,8 +1216,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.plot_graph}{%
-\subsubsection{ReverseTwoStep.plot\_graph}\label{reversetwostep.plot_graph}}
+\subsubsection{ReverseTwoStep.plot\_graph}\label{reversetwostep.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1301,8 +1228,7 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.plot_spectral_properties}{%
-\subsubsection{ReverseTwoStep.plot\_spectral\_properties}\label{reversetwostep.plot_spectral_properties}}
+\subsubsection{ReverseTwoStep.plot\_spectral\_properties}\label{reversetwostep.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1315,8 +1241,7 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.random_action}{%
-\subsubsection{ReverseTwoStep.random\_action}\label{reversetwostep.random_action}}
+\subsubsection{ReverseTwoStep.random\_action}\label{reversetwostep.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1347,8 +1272,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{reversetwostep.step}{%
-\subsubsection{ReverseTwoStep.step}\label{reversetwostep.step}}
+\subsubsection{ReverseTwoStep.step}\label{reversetwostep.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1376,8 +1300,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit}{%
-\subsection{RandomContextualBandit}\label{randomcontextualbandit}}
+\subsection{RandomContextualBandit}\label{randomcontextualbandit}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1424,8 +1347,7 @@ Arguments:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.adjacency_matrix_decomposition}{%
-\subsubsection{RandomContextualBandit.adjacency\_matrix\_decomposition}\label{randomcontextualbandit.adjacency_matrix_decomposition}}
+\subsubsection{RandomContextualBandit.adjacency\_matrix\_decomposition}\label{randomcontextualbandit.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1437,8 +1359,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.f_reward}{%
-\subsubsection{RandomContextualBandit.f\_reward}\label{randomcontextualbandit.f_reward}}
+\subsubsection{RandomContextualBandit.f\_reward}\label{randomcontextualbandit.f_reward}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1448,8 +1369,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.get_graph_depth}{%
-\subsubsection{RandomContextualBandit.get\_graph\_depth}\label{randomcontextualbandit.get_graph_depth}}
+\subsubsection{RandomContextualBandit.get\_graph\_depth}\label{randomcontextualbandit.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1471,8 +1391,7 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.laplacian_matrix_decomposition}{%
-\subsubsection{RandomContextualBandit.laplacian\_matrix\_decomposition}\label{randomcontextualbandit.laplacian_matrix_decomposition}}
+\subsubsection{RandomContextualBandit.laplacian\_matrix\_decomposition}\label{randomcontextualbandit.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1484,8 +1403,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.make_action_labels}{%
-\subsubsection{RandomContextualBandit.make\_action\_labels}\label{randomcontextualbandit.make_action_labels}}
+\subsubsection{RandomContextualBandit.make\_action\_labels}\label{randomcontextualbandit.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1497,8 +1415,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.make_digraph}{%
-\subsubsection{RandomContextualBandit.make\_digraph}\label{randomcontextualbandit.make_digraph}}
+\subsubsection{RandomContextualBandit.make\_digraph}\label{randomcontextualbandit.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1511,8 +1428,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.make_state_labels}{%
-\subsubsection{RandomContextualBandit.make\_state\_labels}\label{randomcontextualbandit.make_state_labels}}
+\subsubsection{RandomContextualBandit.make\_state\_labels}\label{randomcontextualbandit.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1524,8 +1440,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.make_undirected_graph}{%
-\subsubsection{RandomContextualBandit.make\_undirected\_graph}\label{randomcontextualbandit.make_undirected_graph}}
+\subsubsection{RandomContextualBandit.make\_undirected\_graph}\label{randomcontextualbandit.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1537,8 +1452,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.observation}{%
-\subsubsection{RandomContextualBandit.observation}\label{randomcontextualbandit.observation}}
+\subsubsection{RandomContextualBandit.observation}\label{randomcontextualbandit.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1568,8 +1482,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.plot_action_outcome_probabilities}{%
-\subsubsection{RandomContextualBandit.plot\_action\_outcome\_probabilities}\label{randomcontextualbandit.plot_action_outcome_probabilities}}
+\subsubsection{RandomContextualBandit.plot\_action\_outcome\_probabilities}\label{randomcontextualbandit.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1584,8 +1497,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.plot_graph}{%
-\subsubsection{RandomContextualBandit.plot\_graph}\label{randomcontextualbandit.plot_graph}}
+\subsubsection{RandomContextualBandit.plot\_graph}\label{randomcontextualbandit.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1597,8 +1509,7 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.plot_spectral_properties}{%
-\subsubsection{RandomContextualBandit.plot\_spectral\_properties}\label{randomcontextualbandit.plot_spectral_properties}}
+\subsubsection{RandomContextualBandit.plot\_spectral\_properties}\label{randomcontextualbandit.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1611,8 +1522,7 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.random_action}{%
-\subsubsection{RandomContextualBandit.random\_action}\label{randomcontextualbandit.random_action}}
+\subsubsection{RandomContextualBandit.random\_action}\label{randomcontextualbandit.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1643,8 +1553,7 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\hypertarget{randomcontextualbandit.step}{%
-\subsubsection{RandomContextualBandit.step}\label{randomcontextualbandit.step}}
+\subsubsection{RandomContextualBandit.step}\label{randomcontextualbandit.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
