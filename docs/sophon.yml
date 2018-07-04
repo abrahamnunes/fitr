@@ -39,12 +39,14 @@ pages:
   tags:
   - tag: utils
     functions:
+    - fitr.utils.I
     - fitr.utils.logsumexp
     - fitr.utils.relu
     - fitr.utils.scale_data
     - fitr.utils.sigmoid
     - fitr.utils.softmax
     - fitr.utils.stable_exp
+    - fitr.utils.transform
 - page: doc_agents.md
   template: doc_agents.md
   tags:

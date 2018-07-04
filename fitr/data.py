@@ -195,7 +195,7 @@ def merge_behavioural_data(datalist):
         datalist: List of BehaviouralData objects
 
     Returns:
-    
+
         `BehaviouralData` with data from multiple groups merged.
     """
     ngroups = len(datalist)
@@ -218,3 +218,28 @@ def merge_behavioural_data(datalist):
     data.meta[:,0] = newidx
     data.params[:,0] = newidx
     return data
+
+
+def fast_unpack(x, ranges):
+    """ Unpacks data stored in BDF tensor format (`ndarray(dim=1)`) quickly.
+
+    This function is useful for trial-by trial extraction of data in likelihood calculations.
+
+    Arguments:
+
+        x: `ndarray(nfeatures)`. Vector to be unpacked.
+        ranges: `list` of `ndarray` objects or more `list` objects. Each element is a range indexing the columns of x to be extracted.
+
+    Returns:
+
+        `list` with `ndarray` objects, where each element corresponds to the columns specified by respective elements of `ranges`.
+
+    Examples:
+
+    ```python
+    ranges = [np.arange(2), np.arange(2)+2, 4, 4+np.arange(2)]
+    D = np.outer(np.ones(5), np.arange(7))
+    x, u, r, x_ = fast_unpack(D[0], ranges)
+    ```
+    """
+    return [x[range_i] for i, range_i in enumerate(ranges)]
