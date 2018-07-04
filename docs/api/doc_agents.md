@@ -1762,6 +1762,133 @@ Arguments:
 
 
 
+## SARSAStickySoftmaxAgent
+
+```python
+fitr.agents.agents.SARSAStickySoftmaxAgent()
+```
+
+An agent that uses the SARSA learning rule and a sticky softmax policy
+
+The sticky softmax policy selects actions from a multinomial
+
+$$
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v)),
+$$
+
+whose parameters are
+
+$$
+p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \varsigma(\mathbf v, \mathbf u_{t-1}) = \frac{e^{\beta \mathbf v + \beta^\rho \mathbf u_{t-1}}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i + \beta^\rho u_{t-1}^{(i)}}}.
+$$
+
+The value function is SARSA:
+
+$$
+\mathbf Q \gets \mathbf Q + \alpha \big(r + \gamma \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf z,
+$$
+
+where $0 < \alpha < 1$ is the learning rate, $0 \leq \gamma \leq 1$ is a discount factor, and where the reward prediction error (RPE) is $\delta = (r + \gamma \mathbf u'^\top \mathbf Q \mathbf x' - \mathbf u^\top \mathbf Q \mathbf x)$. We have also included an eligibility trace $\mathbf z$ defined as
+
+$$
+\mathbf z = \mathbf u \mathbf x^\top +  \gamma \lambda \mathbf z
+$$
+
+Arguments:
+
+- **task**: `fitr.environments.Graph`
+- **learning_rate**: Learning rate $\alpha$
+- **discount_factor**: Discount factor $\gamma$
+- **trace_decay**: Eligibility trace decay $\lambda$
+- **inverse_softmax_temp**: Inverse softmax temperature $\beta$
+- **perseveration**: Perseveration parameter $\beta^\rho$
+- **rng**: `np.random.RandomState`
+
+---
+
+
+
+
+### SARSAStickySoftmaxAgent.action
+
+```python
+fitr.agents.agents.action(self, state)
+```
+
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and environment.
+
+Arguments:
+
+- **state**: `ndarray((nstates,))` one-hot state vector
+
+---
+
+
+
+
+### SARSAStickySoftmaxAgent.generate_data
+
+```python
+fitr.agents.agents.generate_data(self, ntrials)
+```
+
+For the parent agent, this function generates data from a Markov Decision Process (MDP) task
+
+Arguments:
+
+- **ntrials**: `int` number of trials
+
+Returns:
+
+`fitr.data.BehaviouralData`
+
+---
+
+
+
+
+### SARSAStickySoftmaxAgent.learning
+
+```python
+fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
+```
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and environment.
+
+Arguments:
+
+- **state**: `ndarray((nstates,))` one-hot state vector
+- **action**: `ndarray((nactions,))` one-hot action vector
+- **reward**: scalar reward
+- **next_state**: `ndarray((nstates,))` one-hot next-state vector
+- **next_action**: `ndarray((nactions,))` one-hot action vector
+
+---
+
+
+
+
+### SARSAStickySoftmaxAgent.reset_trace
+
+```python
+fitr.agents.agents.reset_trace(self, x, u=None)
+```
+
+For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+
+---
+
+
+
 ## QLearningSoftmaxAgent
 
 ```python
@@ -2015,6 +2142,150 @@ Returns:
 
 
 ### RWSoftmaxAgent.reset_trace
+
+```python
+fitr.agents.agents.reset_trace(self, x, u=None)
+```
+
+For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+
+---
+
+
+
+## RWStickySoftmaxAgent
+
+```python
+fitr.agents.agents.RWStickySoftmaxAgent()
+```
+
+An instrumental Rescorla-Wagner agent with a 'sticky' softmax policy
+
+The softmax policy selects actions from a multinomial
+
+$$
+\mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\varsigma(\mathbf v, \mathbf u_{t-1})).
+$$
+
+whose parameters are
+
+$$
+p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \varsigma(\mathbf v, \mathbf u_{t-1}) = \frac{e^{\beta \mathbf v + \beta^\rho \mathbf u_{t-1}}}{\sum_{i}^{|\mathbf v|} e^{\beta v_i + \beta^\rho u_{t-1}^{(i)}}}.
+$$
+
+The value function is the Rescorla-Wagner learning rule:
+
+$$
+\mathbf Q \gets \mathbf Q + \alpha \big(r - \mathbf u^\top \mathbf Q \mathbf x \big) \mathbf u \mathbf x^\top,
+$$
+
+where $0 < \alpha < 1$ is the learning rate, $0 \leq \gamma \leq 1$ is a discount factor, and where the reward prediction error (RPE) is $\delta = (r - \mathbf u^\top \mathbf Q \mathbf x)$.
+
+Arguments:
+
+- **task**: `fitr.environments.Graph`
+- **learning_rate**: Learning rate $\alpha$
+- **inverse_softmax_temp**: Inverse softmax temperature $\beta$
+- **perseveration**: Perseveration parameter $\beta^ho$
+- **rng**: `np.random.RandomState`
+
+---
+
+
+
+
+### RWStickySoftmaxAgent.action
+
+```python
+fitr.agents.agents.action(self, state)
+```
+
+Selects an action given the current state of environment.
+
+The implementation will vary depending on the type of agent and environment.
+
+Arguments:
+
+- **state**: `ndarray((nstates,))` one-hot state vector
+
+---
+
+
+
+
+### RWStickySoftmaxAgent.generate_data
+
+```python
+fitr.agents.agents.generate_data(self, ntrials)
+```
+
+For the parent agent, this function generates data from a bandit task
+
+Arguments:
+
+- **ntrials**: `int` number of trials
+
+Returns:
+
+`fitr.data.BehaviouralData`
+
+---
+
+
+
+
+### RWStickySoftmaxAgent.learning
+
+```python
+fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
+```
+
+Updates the model's parameters.
+
+The implementation will vary depending on the type of agent and environment.
+
+Arguments:
+
+- **state**: `ndarray((nstates,))` one-hot state vector
+- **action**: `ndarray((nactions,))` one-hot action vector
+- **reward**: scalar reward
+- **next_state**: `ndarray((nstates,))` one-hot next-state vector
+- **next_action**: `ndarray((nactions,))` one-hot action vector
+
+---
+
+
+
+
+### RWStickySoftmaxAgent.log_prob
+
+```python
+fitr.agents.agents.log_prob(self, state)
+```
+
+Computes the log-likelihood over actions for a given state under the present agent parameters.
+
+Presently this only works for the state-action value function. In all other cases, you should define your own log-likelihood function. However, this can be used as a template.
+
+Arguments:
+
+- **state**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+`ndarray((nactions,))` log-likelihood vector
+
+---
+
+
+
+
+### RWStickySoftmaxAgent.reset_trace
 
 ```python
 fitr.agents.agents.reset_trace(self, x, u=None)
