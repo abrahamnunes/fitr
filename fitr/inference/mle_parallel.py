@@ -46,6 +46,7 @@ def l_bfgs_b(f,
     niters  = 0
     nstarts = 0
     done    = False
+    succeeded = False
     while not done:
         xinit = np.random.normal(0, init_sd, size=nparams)
         res = minimize(nlog_prob, xinit, method='L-BFGS-B')
@@ -62,9 +63,12 @@ def l_bfgs_b(f,
                 hess_inv = res.hess_inv.todense()
                 lme_ = lme(fmin, nparams, hess_inv)
                 bic_ = bic(fmin, nparams, data[i].shape[1])
+                succeeded = True
         else:
             done = True
             print('Subject %s Fit | %s Starts | lp_= %s' %(i, nstarts, fmin))
+    if succeeded is False:
+        raise(ValueError('Failed to converge'))
 
     return i, xmin, fmin, fevals, niters, lme_, bic_, hess_inv
 
