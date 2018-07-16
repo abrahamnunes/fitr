@@ -1,6 +1,26 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
+def batch_softmax(X, axis=1):
+    """ Computes the softmax function for a batch of samples
+
+    $$
+    p(\mathbf{x}) = \\frac{e^{\mathbf{x} - \max_i x_i}}{\mathbf{1}^\\top e^{\mathbf{x} - \max_i x_i}}
+    $$
+
+    Arguments:
+
+        x: Softmax logits (`ndarray((nsamples,nfeatures))`)
+
+    Returns:
+
+        Matrix of probabilities of size `ndarray((nsamples,nfeatures))` such that sum over `nfeatures` is 1.
+    """
+    xmax = reduce_then_tile(X, np.max, axis=axis)
+    expx = np.exp(X - xmax)
+    y = expx/reduce_then_tile(expx, np.sum, axis=axis)
+    return y
+
 def I(x):
     """ Identity transformation.
 
@@ -36,6 +56,40 @@ def logsumexp(x):
     """
     xmax = np.max(x)
     y = xmax + np.log(np.sum(np.exp(x-xmax)))
+    return y
+
+def reduce_then_tile(X, f, axis=1):
+    """ Computes some reduction function over an axis, then tiles that vector to create matrix of original size
+
+    Arguments:
+
+        X: `ndarray((n, m))`. Matrix.
+        f: `function` that reduces data across some axis (e.g. `np.sum()`, `np.max()`)
+        axis: `int` which axis the data should be reduced over (only goes over 2 axes for now)
+
+    Returns:res
+
+        `ndarray((n, m))`
+
+    Examples:
+
+    Here is one way to compute a softmax function over the columns of `X`, for each row.
+
+    ```
+    import numpy as np
+    X = np.random.normal(0, 1, size=(10, 3))**2
+    max_x = reduce_then_tile(X, np.max, axis=1)
+    exp_x = np.exp(X - max_x)
+    sum_exp_x = reduce_then_tile(exp_x, np.sum, axis=1)
+    y = exp_x/sum_exp_x
+    ```
+
+    """
+    y = f(X, axis=axis)
+    if axis==1:
+        y = np.tile(y.reshape(-1, 1), [1, X.shape[1]])
+    elif axis==0:
+        y = np.tile(y.reshape(1, -1), [X.shape[0], 1])
     return y
 
 def relu(x, a_max=None):

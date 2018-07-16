@@ -2,6 +2,63 @@
 
 Functions used across \texttt{fitr}.
 
+\subsection{batch\_softmax}\label{batch_softmax}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.batch_softmax(X, axis}\OperatorTok{=}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the softmax function for a batch of samples
+
+\[
+p(\mathbf{x}) = \frac{e^{\mathbf{x} - \max_i x_i}}{\mathbf{1}^\top e^{\mathbf{x} - \max_i x_i}}
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: Softmax logits (\texttt{ndarray((nsamples,nfeatures))})
+\end{itemize}
+
+Returns:
+
+Matrix of probabilities of size \texttt{ndarray((nsamples,nfeatures))}
+such that sum over \texttt{nfeatures} is 1.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{I}\label{i}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.I(x)}
+\end{Highlighting}
+\end{Shaded}
+
+Identity transformation.
+
+Mainly for convenience when using \texttt{fitr.utils.transform} with
+some vector element that should not be transformed, despite changing the
+coordinates of other variables.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray}
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray(shape=x.shape)}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsection{logsumexp}\label{logsumexp}
 
 \begin{Shaded}
@@ -29,6 +86,51 @@ Arguments:
 Returns:
 
 \texttt{float}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{reduce\_then\_tile}\label{reduce_then_tile}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.reduce_then_tile(X, f, axis}\OperatorTok{=}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes some reduction function over an axis, then tiles that vector to
+create matrix of original size
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((n,\ m))}. Matrix.
+\item
+  \textbf{f}: \texttt{function} that reduces data across some axis (e.g.
+  \texttt{np.sum()}, \texttt{np.max()})
+\item
+  \textbf{axis}: \texttt{int} which axis the data should be reduced over
+  (only goes over 2 axes for now)
+\end{itemize}
+
+Returns:res
+
+\texttt{ndarray((n,\ m))}
+
+Examples:
+
+Here is one way to compute a softmax function over the columns of
+\texttt{X}, for each row.
+
+\begin{verbatim}
+import numpy as np
+X = np.random.normal(0, 1, size=(10, 3))**2
+max_x = reduce_then_tile(X, np.max, axis=1)
+exp_x = np.exp(X - max_x)
+sum_exp_x = reduce_then_tile(exp_x, np.sum, axis=1)
+y = exp_x/sum_exp_x
+\end{verbatim}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -182,5 +284,67 @@ Arguments:
 Returns:
 
 Exponentiated values of \texttt{x}.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{transform}\label{transform}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.transform(x, f_list)}
+\end{Highlighting}
+\end{Shaded}
+
+Transforms parameters from domain in \texttt{x} into some new domain
+defined by \texttt{f\_list}
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nparams,))}. Parameter vector in some
+  domain.
+\item
+  \textbf{f\_list}: \texttt{list} where \texttt{len(list)\ ==\ nparams}.
+  Functions defining coordinate transformations on each element of
+  \texttt{x}.
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x\_}: \texttt{ndarray((nparams,))}. Parameter vector in new
+  coordinates.
+\end{itemize}
+
+Examples:
+
+Applying \texttt{fitr} transforms can be done as follows.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ fitr.utils }\ImportTok{import}\NormalTok{ transform, sigmoid, relu}
+
+\NormalTok{x }\OperatorTok{=}\NormalTok{ np.random.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{5}\NormalTok{, size}\OperatorTok{=}\DecValTok{3}\NormalTok{)}
+\NormalTok{x_}\OperatorTok{=}\NormalTok{ transform(x, [sigmoid, relu, relu])}
+\end{Highlighting}
+\end{Shaded}
+
+You can also apply other functions, so long as dimensions are equal for
+input and output.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ fitr.utils }\ImportTok{import}\NormalTok{ transform}
+
+\NormalTok{x  }\OperatorTok{=}\NormalTok{ np.random.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, size}\OperatorTok{=}\DecValTok{3}\NormalTok{)}
+\NormalTok{x_ }\OperatorTok{=}\NormalTok{ transform(x, [np.square, np.sqrt, np.exp])}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

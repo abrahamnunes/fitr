@@ -1,13 +1,24 @@
 import numpy as np
 from scipy.special import logsumexp as scipy_logsumexp
+from fitr.utils import batch_softmax
 from fitr.utils import I
 from fitr.utils import logsumexp
+from fitr.utils import reduce_then_tile
 from fitr.utils import relu
 from fitr.utils import scale_data
 from fitr.utils import sigmoid
 from fitr.utils import softmax
 from fitr.utils import stable_exp
 from fitr.utils import transform
+
+def test_batch_softmax():
+    X = np.random.randint(1, 10, size=(10, 5))
+    p0 = np.stack(softmax(x_) for i, x_ in enumerate(X))
+    p1 = batch_softmax(X, axis=1)
+    p0_0 = np.stack(softmax(x_) for i, x_ in enumerate(X.T))
+    p1_0 = batch_softmax(X, axis=0)
+    assert np.all(np.equal(p0, p1))
+    assert np.all(np.equal(p0_0.round(4), p1_0.round(4).T))
 
 def test_I():
     x = np.ones(5)
@@ -16,6 +27,15 @@ def test_I():
 def test_logsumexp():
     x = np.arange(5)
     assert np.equal(logsumexp(x), scipy_logsumexp(x))
+
+def test_reduce_then_tile():
+    X = np.random.randint(1, 10, size=(10, 5))
+    p0 = np.stack(softmax(x_) for i, x_ in enumerate(X))
+    max_x = reduce_then_tile(X, np.max, axis=1)
+    exp_x = np.exp(X - max_x)
+    sum_exp_x = reduce_then_tile(exp_x, np.sum, axis=1)
+    p1 = exp_x/sum_exp_x
+    assert np.all(np.equal(p0, p1))
 
 def test_relu():
     x  = np.linspace(-20, 20)

@@ -112,3 +112,48 @@ Returns:
 ---
 
 
+
+## bms
+
+```python
+fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7fb569725990>, verbose=True)
+```
+
+Implements variational Bayesian Model Selection as per Rigoux et al. (2014).
+
+Arguments:
+
+- **L**: `ndarray((nsubjects, nmodels))`. Log model evidence
+- **ftol**: `float`. Threshold for convergence of prediction error
+- **nsamples**: `int>0`. Number of samples to draw from Dirichlet distribution for computation of exceedence probabilities
+- **rng**: `np.random.RandomState`
+- **verbose**: `bool (default=True)`. If `False`, no output provided.
+
+Returns:
+- **pxp**: `ndarray(nmodels)`. Protected exceedance probabilities
+- **xp**: `ndarray(nmodels)`. Exceedance probabilities
+- **bor**: `ndarray(nmodels)`. Bayesian Omnibus Risk
+- **pe**: `ndarray(niter)`. Prediction error time series throughout optimization
+- **q_m**: `ndarray((nsubjects, nmodels))`. Posterior distribution over models for each subject
+- **alpha**: `ndarray(nmodels)`. Posterior estimates of Dirichlet parameters
+- **f0**: `float`. Free energy of null model
+- **f1**: `float`. Free energy of alternative model
+- **niter**: `int`. Number of iterations of posterior optimization
+
+Examples:
+
+Assuming one is given a matrix of (log-) model evidence values `L` of type `ndarray((nsubjects, nmodels))`,
+
+```
+from fitr.inference import spm_bms
+
+pxp, xp, bor, q_m, alpha, f0, f1, niter = bms(L)
+```
+
+Todos:
+
+- [ ] Add notes on derivation
+
+---
+
+
