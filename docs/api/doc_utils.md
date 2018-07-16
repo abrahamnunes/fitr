@@ -4,6 +4,52 @@ Functions used across `fitr`.
 
 
 
+## batch_softmax
+
+```python
+fitr.utils.batch_softmax(X, axis=1)
+```
+
+Computes the softmax function for a batch of samples
+
+$$
+p(\mathbf{x}) = \frac{e^{\mathbf{x} - \max_i x_i}}{\mathbf{1}^\top e^{\mathbf{x} - \max_i x_i}}
+$$
+
+Arguments:
+
+- **x**: Softmax logits (`ndarray((nsamples,nfeatures))`)
+
+Returns:
+
+Matrix of probabilities of size `ndarray((nsamples,nfeatures))` such that sum over `nfeatures` is 1.
+
+---
+
+
+
+## I
+
+```python
+fitr.utils.I(x)
+```
+
+Identity transformation.
+
+Mainly for convenience when using `fitr.utils.transform` with some vector element that should not be transformed, despite changing the coordinates of other variables.
+
+Arguments:
+
+- **x**: `ndarray`
+
+Returns:
+
+`ndarray(shape=x.shape)`
+
+---
+
+
+
 ## logsumexp
 
 ```python
@@ -25,6 +71,41 @@ Arguments:
 Returns:
 
 `float`
+
+---
+
+
+
+## reduce_then_tile
+
+```python
+fitr.utils.reduce_then_tile(X, f, axis=1)
+```
+
+Computes some reduction function over an axis, then tiles that vector to create matrix of original size
+
+Arguments:
+
+- **X**: `ndarray((n, m))`. Matrix.
+- **f**: `function` that reduces data across some axis (e.g. `np.sum()`, `np.max()`)
+- **axis**: `int` which axis the data should be reduced over (only goes over 2 axes for now)
+
+Returns:res
+
+`ndarray((n, m))`
+
+Examples:
+
+Here is one way to compute a softmax function over the columns of `X`, for each row.
+
+```
+import numpy as np
+X = np.random.normal(0, 1, size=(10, 3))**2
+max_x = reduce_then_tile(X, np.max, axis=1)
+exp_x = np.exp(X - max_x)
+sum_exp_x = reduce_then_tile(exp_x, np.sum, axis=1)
+y = exp_x/sum_exp_x
+```
 
 ---
 
@@ -150,6 +231,49 @@ Arguments:
 Returns:
 
 Exponentiated values of `x`.
+
+---
+
+
+
+## transform
+
+```python
+fitr.utils.transform(x, f_list)
+```
+
+Transforms parameters from domain in `x` into some new domain defined by `f_list`
+
+Arguments:
+
+- **x**: `ndarray((nparams,))`. Parameter vector in some domain.
+- **f_list**: `list` where `len(list) == nparams`. Functions defining coordinate transformations on each element of `x`.
+
+Returns:
+
+- **x_**: `ndarray((nparams,))`. Parameter vector in new coordinates.
+
+Examples:
+
+Applying `fitr` transforms can be done as follows.
+
+``` python
+import numpy as np
+from fitr.utils import transform, sigmoid, relu
+
+x = np.random.normal(0, 5, size=3)
+x_= transform(x, [sigmoid, relu, relu])
+```
+
+You can also apply other functions, so long as dimensions are equal for input and output.
+
+``` python
+import numpy as np
+from fitr.utils import transform
+
+x  = np.random.normal(0, 10, size=3)
+x_ = transform(x, [np.square, np.sqrt, np.exp])
+```
 
 ---
 

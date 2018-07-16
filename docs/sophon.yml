@@ -39,8 +39,10 @@ pages:
   tags:
   - tag: utils
     functions:
+    - fitr.utils.batch_softmax
     - fitr.utils.I
     - fitr.utils.logsumexp
+    - fitr.utils.reduce_then_tile
     - fitr.utils.relu
     - fitr.utils.scale_data
     - fitr.utils.sigmoid
@@ -80,6 +82,7 @@ pages:
     functions:
     - fitr.inference.mlepar
     - fitr.inference.mle_parallel.l_bfgs_b
+    - fitr.inference.bms
 - page: doc_criticism.md
   template: doc_criticism.md
   tags:
