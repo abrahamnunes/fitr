@@ -137,6 +137,26 @@ def stable_exp(x, a_min=-10, a_max=10):
     """
     return np.exp(np.clip(x, a_min=a_min, a_max=a_max))
 
+def tanh(x, a_min=-10, a_max=10):
+    """ Hyperbolic tangent function
+
+    $$
+    \tanh(x) = \\frac{e^x-e^{-x}}{e^x + e^{-x}}
+    $$
+
+    Arguments:
+
+        x: Vector
+        a_min: Lower bound at which to clip values of `x`
+        a_max: Upper bound at which to clip values of `x`
+
+    Returns:
+
+        Vector between -1 and 1 of size `x.shape`
+    """
+    tanhvals = np.clip(x, a_min=a_min, a_max=a_max)
+    return np.tanh(tanhvals)
+
 def transform(x, f_list):
     """ Transforms parameters from domain in `x` into some new domain defined by `f_list`
 
