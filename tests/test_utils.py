@@ -10,6 +10,7 @@ from fitr.utils import sigmoid
 from fitr.utils import softmax
 from fitr.utils import stable_exp
 from fitr.utils import transform
+from fitr.utils import tanh
 
 def test_batch_softmax():
     X = np.random.randint(1, 10, size=(10, 5))
@@ -54,7 +55,14 @@ def test_softmax():
                           np.all(np.less_equal(p, 1)))
 
 def test_transform():
-    x  = np.array([0, -10, 0, 55])
-    x_ = transform(x, [sigmoid, relu, stable_exp, I])
-    y  = np.array([0.5, 0, 1, 55])
+    x  = np.array([0, 0, -10, 0, 55])
+    x_ = transform(x, [sigmoid, tanh, relu, stable_exp, I])
+    y  = np.array([0.5, 0, 0, 1, 55])
     assert np.all(np.equal(x_.flatten(), y))
+
+def test_tanh():
+    assert tanh(-1) < 0
+    assert tanh(0) == 0
+    assert tanh(1) > 0
+    assert tanh(8, a_max=8) == tanh(10, a_max=8)
+    assert tanh(-3, a_min=-3) == tanh(-7, a_min=-3)
