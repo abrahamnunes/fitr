@@ -146,13 +146,13 @@ def tanh(x, a_min=-10, a_max=10):
 
     Arguments:
 
-        x: Vector
-        a_min: Lower bound at which to clip values of `x`
-        a_max: Upper bound at which to clip values of `x`
+        x: `ndarray((n, m))`. Values to transform
+        a_min: `int`. Lower bound at which to clip values of `x`
+        a_max: `int`. Upper bound at which to clip values of `x`
 
     Returns:
 
-        Vector between -1 and 1 of size `x.shape`
+        `ndarray(x.shape)`. Transformed values between -1 and 1 of size `x.shape`
     """
     tanhvals = np.clip(x, a_min=a_min, a_max=a_max)
     return np.tanh(tanhvals)
