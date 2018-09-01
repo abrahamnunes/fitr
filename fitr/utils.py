@@ -124,7 +124,7 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
 
         X: `ndarray((nsamples, [nfeatures]))`. Data. May be 1D or 2D.
         with_mean: `bool`. Whether to subtract the mean
-        with_var: `bool`. Whether to divide by variance
+        with_var: `bool`. Whether to normalize for variance 
 
     Returns:
 
@@ -132,7 +132,7 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
     """
     if X.ndim == 1: X = X.reshape(-1, 1)
     if with_mean: X -= np.tile(np.mean(X, axis).reshape(1, -1), [X.shape[0], 1])
-    if with_var: X /= np.tile(np.var(X, axis).reshape(1, -1), [X.shape[0], 1])
+    if with_var: X /= np.tile(np.std(X, axis).reshape(1, -1), [X.shape[0], 1])
     return X
 
 def sigmoid(x, a_min=-10, a_max=10):
