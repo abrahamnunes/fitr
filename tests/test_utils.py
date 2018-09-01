@@ -51,7 +51,7 @@ def test_scale_data():
     x = np.arange(10).reshape(-1, 1)
     x = np.outer(x, np.ones(5))
     x = scale_data(x, with_mean=True, with_var=True)
-    assert(np.var(x, 0) == np.ones(x.shape[1]))
+    assert(np.all(np.equal(np.var(x, 0), np.ones(x.shape[1]))))
 
 def test_softmax():
     x = np.arange(10)
