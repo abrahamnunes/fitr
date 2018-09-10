@@ -1,5 +1,6 @@
 import numpy as np
 from fitr.utils import logsumexp
+import fitr.gradients as grad
 
 class SoftmaxPolicy(object):
     """ Action selection by sampling from a multinomial whose parameters are given by a softmax.
@@ -46,6 +47,35 @@ class SoftmaxPolicy(object):
         LSE = logsumexp(Bx)
         if not np.isfinite(LSE): LSE = 0.
         return Bx - LSE
+
+    def grad_log_prob(self, x):
+        """ Computes the gradient of the log-probability of an action $\mathbf u$ with
+
+        The gradient of the softmax log-probability with respect to a function $\\beta \mathbf x$ is
+
+        $$
+        \\nabla_{\mathbf x} \log p(\mathbf x) = \\beta - \\beta \\frac{e^{\\beta \mathbf x}}{\sum_i (e^{\\beta \mathbf x})_i}.
+        $$
+
+        The partial derivative of the softmax log-probability with respect to a function $\\beta \mathbf x$ is
+
+        $$
+        \\frac{\\partial}{\\partial \\beta} \log 
+        $$
+        """
+        gradients = []
+
+        x = x - np.max(x)
+        Bx = self.inverse_softmax_temp*x
+        Dlogsumexp = grad.logsumexp(Bx)
+
+        # Partial derivative with respect to inverse softmax temp
+        Dbeta = x - np.dot(Dlogsumexp, x)
+
+        # Gradient with respect to x
+        Dx = self.inverse_softmax_temp - self.inverse_softmax_temp*Dlogsumexp
+
+        return [Dbeta, Dx]
 
     def action_prob(self, x):
         """ Computes the softmax """
