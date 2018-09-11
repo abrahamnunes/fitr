@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np
 
 class ValueFunction(object):
     """ A general value function object.
@@ -40,6 +40,29 @@ class ValueFunction(object):
             `ndarray((nactions,))` vector of values for actions in the given state
         """
         return np.einsum('as,s->a', self.Q, x)
+
+    def grad_Qx(self, x):
+        """ Compute gradient of action values for a given state
+
+        $$
+        \mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+        $$
+
+        \noindent where the gradient is defined as
+
+        $$
+        \frac{\\partial}{\\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\\top,
+        $$
+
+        Arguments:
+
+            x: `ndarray((nstates,))` one-hot state vector
+
+        Returns:
+
+            `ndarray((nactions,))` vector of values for actions in the given state
+        """
+        return np.tile(x, [self.nactions, 1])
 
     def Qmax(self, x):
         """ Return maximal action value for given state
@@ -93,6 +116,30 @@ class ValueFunction(object):
         """
         return np.einsum('a,as,s->', u, self.Q, x)
 
+    def grad_uQx(self, u, x):
+        """ Compute derivative of value of taking action $\mathbf u$ in state $\mathbf x$ with respect to value function parameters $\mathbf Q$
+
+        $$
+        \mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\\top \mathbf Q \mathbf x,
+        $$
+
+        \noindent where the derivative is defined as
+
+        $$
+        \\frac{\\partial}{\\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\\top,
+        $$
+
+        Arguments:
+
+            u: `ndarray((nactions,))` one-hot action vector
+            x: `ndarray((nstates,))` one-hot state vector
+
+        Returns:
+
+            Scalar value of action $\mathbf u$ in state $\mathbf x$
+        """
+        return np.einsum('i,j->ij', u, x)
+
     def Vx(self, x):
         """ Compute value of state $\mathbf x$
 
@@ -109,6 +156,29 @@ class ValueFunction(object):
             Scalar value of state $\mathbf x$
         """
         return np.einsum('s,s->', self.V, x)
+
+    def grad_Vx(self, x):
+        """ Compute the gradient of state value function with respect to parameters $\mathbf v$
+
+        $$
+        \mathcal V(\mathbf x) = \mathbf v^\\top \mathbf x,
+        $$
+
+        \noindent where the gradient is defined as
+
+        $$
+        \nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+        $$
+
+        Arguments:
+
+            x: `ndarray((nstates,))` one-hot state vector
+
+        Returns:
+
+            Scalar value of state $\mathbf x$
+        """
+        return x
 
     def update(self, x, u, r, x_, u_):
         """ Updates the value function

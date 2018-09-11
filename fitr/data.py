@@ -21,7 +21,7 @@
 #
 # ============================================================================
 import re
-import numpy as np
+import autograd.numpy as np
 from nltk.util import skipgrams
 
 class BehaviouralData(object):

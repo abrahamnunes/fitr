@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np
 from fitr.utils import scale_data
 
 def bic(log_prob, nparams, ntrials):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import numpy as np
+import autograd.numpy as np
 from fitr.agents.policies import *
 from fitr.agents.value_functions import *
 from fitr.data import BehaviouralData
@@ -286,7 +286,7 @@ class SARSAStickySoftmaxAgent(MDPAgent):
         if learning_rate is None: learning_rate = rng.uniform(0.01, 0.99)
         if discount_factor is None: discount_factor = rng.uniform(0.8, 1.0)
         if trace_decay is None: trace_decay = rng.uniform(0.8, 1.0)
-        if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10) 
+        if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
         if perseveration is None: perseveration = rng.uniform(0.01, 10)
         self.params = [learning_rate, discount_factor, trace_decay, inverse_softmax_temp, perseveration]
         self.actor  = StickySoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp, perseveration=perseveration)

@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np
 from fitr.utils import logsumexp
 import fitr.gradients as grad
 
@@ -49,33 +49,33 @@ class SoftmaxPolicy(object):
         return Bx - LSE
 
     def grad_log_prob(self, x):
-        """ Computes the gradient of the log-probability of an action $\mathbf u$ with
+        """ Computes the gradients for the softmax policy
 
-        The gradient of the softmax log-probability with respect to a function $\\beta \mathbf x$ is
+        - [ ] TODO: Insert gradient definitions
 
-        $$
-        \\nabla_{\mathbf x} \log p(\mathbf x) = \\beta - \\beta \\frac{e^{\\beta \mathbf x}}{\sum_i (e^{\\beta \mathbf x})_i}.
-        $$
+        Arguments:
 
-        The partial derivative of the softmax log-probability with respect to a function $\\beta \mathbf x$ is
+            x: State vector of type `ndarray((nstates,))`
 
-        $$
-        \\frac{\\partial}{\\partial \\beta} \log 
-        $$
+        Returns:
+
+            dict: Gradients indexed by `inverse_softmax_temp` or `x`
         """
-        gradients = []
+        gradients = {}
 
-        x = x - np.max(x)
+        #x = x - np.max(x)
         Bx = self.inverse_softmax_temp*x
         Dlogsumexp = grad.logsumexp(Bx)
 
         # Partial derivative with respect to inverse softmax temp
-        Dbeta = x - np.dot(Dlogsumexp, x)
+        gradients['inverse_softmax_temp'] = x - np.dot(Dlogsumexp, x)
 
         # Gradient with respect to x
-        Dx = self.inverse_softmax_temp - self.inverse_softmax_temp*Dlogsumexp
+        Bdiag = np.eye(x.size)*self.inverse_softmax_temp
+        Dlsetile = np.tile(self.inverse_softmax_temp*Dlogsumexp, [x.size, 1])
+        gradients['x'] = Bdiag - Dlsetile
 
-        return [Dbeta, Dx]
+        return gradients
 
     def action_prob(self, x):
         """ Computes the softmax """
@@ -125,32 +125,62 @@ class StickySoftmaxPolicy(object):
 
         Arguments:
 
-            x: State vector of type `ndarray((nstates,))`
+            x: State vector of type `ndarray((nactions,))`
 
         Returns:
 
             Scalar log-probability
         """
         Bx = self.inverse_softmax_temp*x
-        stickiness = self.perseveration*np.inner(self.a_last, self.a_last)
+        stickiness = self.perseveration*self.a_last
         x  = Bx + stickiness
         x  = x - np.max(x)
         LSE = logsumexp(x)
         if not np.isfinite(LSE): LSE = 0.
         return x - LSE
 
+    def grad_log_prob(self, x):
+        """ Computes the gradients of the log probability of the sticky softmax observation function
+
+        - [ ] TODO: Insert gradient definitions
+
+        Arguments:
+
+            x: State vector of type `ndarray((nactions,))`
+
+        Returns:
+
+            Scalar log-probability
+        """
+        gradients = {}
+
+        #x = x - np.max(x)
+        logits = self.inverse_softmax_temp*x + self.perseveration*self.a_last
+        Dlogsumexp = grad.logsumexp(logits)
+
+        # Partial derivative with respect to inverse softmax temp
+        gradients['inverse_softmax_temp'] = x - np.dot(Dlogsumexp, x)
+        gradients['perseveration'] = self.a_last - np.dot(Dlogsumexp, self.a_last)
+
+        # Gradient with respect to x
+        Bdiag = np.eye(x.size)*self.inverse_softmax_temp
+        Dlsetile = np.tile(self.inverse_softmax_temp*Dlogsumexp, [x.size, 1])
+        gradients['x'] = Bdiag - Dlsetile
+
+        return gradients
+
     def action_prob(self, x):
         """ Computes the softmax
 
         Arguments:
 
-            x: `ndarray((nstates,))` one-hot state vector
+            x: `ndarray((nactions,))` one-hot state vector
 
         Returns:
 
-            `ndarray((nstates,))` vector of action probabilities
+            `ndarray((nactions,))` vector of action probabilities
         """
-        stickiness = self.perseveration*np.inner(self.a_last, self.a_last)
+        stickiness = self.perseveration*self.a_last
         exp_x  = np.exp(self.inverse_softmax_temp*x + stickiness)
         return exp_x/np.sum(exp_x)
 
@@ -159,11 +189,11 @@ class StickySoftmaxPolicy(object):
 
         Arguments:
 
-            x: `ndarray((nstates,))` one-hot state vector
+            x: `ndarray((nactions,))` one-hot state vector
 
         Returns:
 
-            `ndarray((nstates,))` one-hot action vector
+            `ndarray((nactions,))` one-hot action vector
         """
         a_new = self.rng.multinomial(1, pvals=self.action_prob(x))
         self.a_last = a_new

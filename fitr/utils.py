@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import numpy as np
+import autograd.numpy as np
 
 def batch_softmax(X, axis=1):
     """ Computes the softmax function for a batch of samples
@@ -124,7 +124,7 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
 
         X: `ndarray((nsamples, [nfeatures]))`. Data. May be 1D or 2D.
         with_mean: `bool`. Whether to subtract the mean
-        with_var: `bool`. Whether to normalize for variance 
+        with_var: `bool`. Whether to normalize for variance
 
     Returns:
 

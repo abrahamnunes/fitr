@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np
 from scipy.special import logsumexp as scipy_logsumexp
 from fitr.utils import batch_softmax
 from fitr.utils import I
@@ -47,7 +47,7 @@ def test_relu():
     assert np.max(y2) == 10
     assert np.min(y2) == 0
 
-def test_scale_data(): 
+def test_scale_data():
     x = np.arange(10).reshape(-1, 1)
     x = np.outer(x, np.ones(5))
     x = scale_data(x, with_mean=True, with_var=True)

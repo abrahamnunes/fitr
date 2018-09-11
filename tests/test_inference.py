@@ -1,5 +1,5 @@
 import pytest
-import numpy as np
+import autograd.numpy as np
 from fitr.inference import mlepar
 from fitr.inference import bms
 
