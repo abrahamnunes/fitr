@@ -230,9 +230,39 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         self.learning_rate = learning_rate
         super().__init__(env)
 
+        # Store gradient of learning rule with respect to learning rate
+        self.dQ_dlearningrate = np.zeros(self.Q.shape)
+
     def update(self, x, u, r, x_, u_):
         rpe    = r - self.uQx(u, x)
         self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
+
+    def grad_update(self, x, u, r, x_, u_):
+        """ Computes the derivative of the instrumental Rescorla-Wagner learning rule with respect to the learning rate.
+
+        This derivative is defined as
+
+        $$
+        \\frac{\\partial}{\\partial \\alpha} \\mathbf Q = r \mathbf u \mathbf x^\\top + \\frac{\\partial}{\\partial \\alpha} \\mathbf Q (1 - \mathbf Q \\odot \mathbf u \mathbf x^\\top)
+        $$
+
+        Arguments:
+
+            x: `ndarray((nstates, ))`. For compatibility
+            u: `ndarray((nactions, ))`. For compatibility
+            r: `float`. Reward received
+            x_: `ndarray((nstates, ))`. For compatibility
+            u_: `ndarray((nactions, ))`. For compatibility
+
+        Returns:
+
+            `ndarray((nactions, nstates))`. Derivative of present value with respect to learning rate
+        """
+        rpe = r - self.uQx(u, x)
+        z = np.outer(u, x)
+        self.dQ_dlearningrate = rpe*z + self.dQ_dlearningrate*(1 - self.learning_rate*z)
+        return self.dQ_dlearningrate
+
 
 class QLearner(ValueFunction):
     """ Learns an instrumental control policy through Q-learning
