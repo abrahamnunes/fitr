@@ -150,7 +150,7 @@ class StickySoftmaxPolicy(object):
 
         Returns:
 
-            Scalar log-probability
+            dict
         """
         gradients = {}
 

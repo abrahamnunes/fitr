@@ -5,6 +5,7 @@ from fitr import utils
 from fitr import gradients as grad
 from fitr.environments import TwoArmedBandit
 from fitr.agents.policies import SoftmaxPolicy
+from fitr.agents.policies import StickySoftmaxPolicy
 from fitr.agents.value_functions import ValueFunction
 from scipy.optimize import approx_fprime
 
@@ -29,6 +30,42 @@ def test_softmaxpolicy_gradients():
     fB = lambda B: SoftmaxPolicy(B).log_prob(x)
     ag_B = jacobian(fB)(B)
     assert(np.linalg.norm(ag_B-gB(B)) < 1e-5)
+
+def test_stickysoftmaxpolicy_gradients():
+    x = np.array([0., 1., 0., 0.])
+    u = np.array([0., 0., 1., 0.])
+    B = 1.
+    p = 0.01
+    policy = StickySoftmaxPolicy(B, p)
+    policy.a_last = u
+
+    def fB(B):
+        policy = StickySoftmaxPolicy(B, p)
+        policy.a_last = u
+        return policy.log_prob(x)
+
+    def fp(p):
+        policy = StickySoftmaxPolicy(B, p)
+        policy.a_last = u
+        return policy.log_prob(x)
+
+    def fx(x):
+        policy = StickySoftmaxPolicy(B, p)
+        policy.a_last = u
+        return policy.log_prob(x)
+
+    fitr_grads = policy.grad_log_prob(x)
+    fitr_gxB = fitr_grads['inverse_softmax_temp']
+    fitr_gxp = fitr_grads['perseveration']
+    fitr_gxx = fitr_grads['x']
+
+    ag_gxB = jacobian(fB)(B)
+    ag_gxp = jacobian(fp)(p)
+    ag_gxx = jacobian(fx)(x)
+
+assert(np.linalg.norm(ag_gxB-fitr_gxB) < 1e-5)
+assert(np.linalg.norm(ag_gxp-fitr_gxp) < 1e-5)
+assert(np.linalg.norm(ag_gxx-fitr_gxx) < 1e-5)
 
 def test_grad_Qx():
     x = np.array([1., 0., 0.])
