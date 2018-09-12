@@ -402,6 +402,7 @@ class SARSALearner(ValueFunction):
         }
 
     def update(self, x, u, r, x_, u_):
+        """ Computes value function updates and their derivatives for the SARSA model """
         # ELIGIBILITY TRACE
         # Reset derivatives if eligibility trace was reset at start of trial
         if np.all(np.equal(self.etrace, 0)):
@@ -423,7 +424,7 @@ class SARSALearner(ValueFunction):
         d_rpe_tracedecay = np.sum(self.dQ['trace_decay']*d_rpe_Q)
 
         # Compute RPE
-        rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
+        rpe = r + self.discount_factor*self.uQx(u_, x_) - self.uQx(u, x)
 
         # Q PARAMETERS
         # Compute derivatives
@@ -435,6 +436,10 @@ class SARSALearner(ValueFunction):
         self.Q += self.learning_rate*rpe*self.etrace
 
     def _update_noderivatives(self, x, u, r, x_, u_):
+        """ Computes value function updates without computing derivatives.
+
+        This function is identical to `.update()` method except without the derivative computations. It is implemented solely for the purpose of unit testing the gradient calculations against `autograd`.
+        """
         self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
-        rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
+        rpe = r + self.discount_factor*self.uQx(u_, x_) - self.uQx(u, x)
         self.Q += self.learning_rate*rpe*self.etrace

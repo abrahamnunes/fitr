@@ -230,51 +230,52 @@ def test_grad_sarsalearnerupdate():
         U1 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
         U2 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
         X3 = rng.multinomial(1, pvals=[0., 0., 0., 0.5, 0.5], size=ntrials)
+        U3 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
         R  = np.array([0., 0., 0., 1., 0.])
-        return X1, X2, U1, U2, X3, R
+        return X1, X2, U1, U2, X3, U3, R
 
     # GRADIENTS WITH FITR
-    X1, X2, U1, U2, X3, R = make_mdp_trials()
+    X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
     q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=0.95)
     for i in range(ntrials):
         q.etrace = np.zeros(q.Q.shape)
         x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
         q.update(x, u, r, x_, u_)
-        x = x_; u = u_; x_ = X3[i]; r  = R@x_
-        q.update(x, u, r, x_, np.array([0.5, 0.5]))
+        x = x_; u = u_; x_ = X3[i]; u_ = U3[i]; r  = R@x_
+        q.update(x, u, r, x_, u_)
 
     # AUTOGRAD
     def agf_lr(lr):
-        X1, X2, U1, U2, X3, R = make_mdp_trials()
+        X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
         q = SARSALearner(TwoStep(), learning_rate=lr, discount_factor=0.9, trace_decay=0.95)
         for i in range(ntrials):
             q.etrace = np.zeros(q.Q.shape)
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
             q._update_noderivatives(x, u, r, x_, u_)
-            x = x_; u = u_; x_ = X3[i]; r  = R@x_
-            q._update_noderivatives(x, u, r, x_, np.array([0.5, 0.5]))
+            x = x_; u = u_; x_ = X3[i];  u_ = U3[i]; r  = R@x_
+            q._update_noderivatives(x, u, r, x_, u_)
         return q.Q
 
     def agf_dc(dc):
-        X1, X2, U1, U2, X3, R = make_mdp_trials()
+        X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
         q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=dc, trace_decay=0.95)
         for i in range(ntrials):
             q.etrace = np.zeros(q.Q.shape)
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
             q._update_noderivatives(x, u, r, x_, u_)
-            x = x_; u = u_; x_ = X3[i]; r  = R@x_
-            q._update_noderivatives(x, u, r, x_, np.array([0.5, 0.5]))
+            x = x_; u = u_; x_ = X3[i];  u_ = U3[i]; r  = R@x_
+            q._update_noderivatives(x, u, r, x_, u_)
         return q.Q
 
     def agf_et(et):
-        X1, X2, U1, U2, X3, R = make_mdp_trials()
+        X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
         q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=et)
         for i in range(ntrials):
             q.etrace = np.zeros(q.Q.shape)
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
             q._update_noderivatives(x, u, r, x_, u_)
-            x = x_; u = u_; x_ = X3[i]; r  = R@x_
-            q._update_noderivatives(x, u, r, x_, np.array([0.5, 0.5]))
+            x = x_; u = u_; x_ = X3[i];  u_ = U3[i]; r  = R@x_
+            q._update_noderivatives(x, u, r, x_, u_)
         return q.Q
 
     # Ensure all are producing same value functions
@@ -286,6 +287,6 @@ def test_grad_sarsalearnerupdate():
 
     # Check partial derivative of Q with respect to discount factor
     assert(np.linalg.norm(q.dQ['discount_factor']-jacobian(agf_dc)(0.9)) < 1e-6)
-    
+
     # Check partial derivative of Q with respect to trace decay
     assert(np.linalg.norm(q.dQ['trace_decay']-jacobian(agf_et)(0.95)) < 1e-6)
