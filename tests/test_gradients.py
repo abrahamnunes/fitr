@@ -389,7 +389,6 @@ def test_rwstickysoftmaxagent():
     fitr_lrgrad = q.d_logprob['learning_rate']
     fitr_istgrad= q.d_logprob['inverse_softmax_temp']
     fitr_pgrad  = q.d_logprob['perseveration']
-    q.d_logprob
 
     def fq(lr):
         m = RWStickySoftmaxAgent(task,

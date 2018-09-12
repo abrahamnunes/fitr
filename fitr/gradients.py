@@ -21,7 +21,7 @@
 #
 # ============================================================================
 import numpy as np
-from fitr import utils
+import fitr.utils as fu
 
 def logsumexp(x):
     """ Gradient for the logsumexp function taken at point $x$:
@@ -39,10 +39,7 @@ def logsumexp(x):
         `ndarray((n,))`
 
     """
-    n = x.size
-    expx = np.exp(x)
-    sumexpx = np.sum(expx)
-    return expx/sumexpx
+    return fu.softmax(x)
 
 def max(x):
     """ Gradient of a max reduction over a vector, with respect to that vector

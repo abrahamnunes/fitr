@@ -1,5 +1,5 @@
 import autograd.numpy as np
-from fitr import utils
+import fitr.utils as fu
 import fitr.gradients as grad
 
 class SoftmaxPolicy(object):
@@ -62,7 +62,7 @@ class SoftmaxPolicy(object):
         self.d_logprob['action_values'] = B - Dlsetile
 
         # Compute log-probability of actions
-        LSE = utils.logsumexp(Bx)
+        LSE = fu.logsumexp(Bx)
         if not np.isfinite(LSE): LSE = 0.
         return Bx - LSE
 
@@ -75,14 +75,13 @@ class SoftmaxPolicy(object):
         Bx  = self.inverse_softmax_temp*x
 
         # Compute log-probability of actions
-        LSE = utils.logsumexp(Bx)
+        LSE = fu.logsumexp(Bx)
         if not np.isfinite(LSE): LSE = 0.
         return Bx - LSE
 
     def action_prob(self, x):
         """ Computes the softmax """
-        exp_x  = np.exp(self.inverse_softmax_temp*x)
-        return exp_x/np.sum(exp_x)
+        return fu.softmax(self.inverse_softmax_temp*x)
 
     def sample(self, x):
         """ Samples from the action distribution """
@@ -156,7 +155,7 @@ class StickySoftmaxPolicy(object):
         Dlsetile = np.tile(self.inverse_softmax_temp*Dlse, [x.size, 1])
         self.d_logprob['action_values'] = B - Dlsetile
 
-        LSE = utils.logsumexp(logits)
+        LSE = fu.logsumexp(logits)
         if not np.isfinite(LSE): LSE = 0.
         return logits - LSE
 
@@ -169,7 +168,7 @@ class StickySoftmaxPolicy(object):
         Bx  = self.inverse_softmax_temp*x
         stickiness = self.perseveration*self.a_last
         logits = Bx + stickiness
-        LSE = utils.logsumexp(logits)
+        LSE = fu.logsumexp(logits)
         if not np.isfinite(LSE): LSE = 0.
         return logits - LSE
 
@@ -216,8 +215,7 @@ class StickySoftmaxPolicy(object):
             `ndarray((nactions,))` vector of action probabilities
         """
         stickiness = self.perseveration*self.a_last
-        exp_x  = np.exp(self.inverse_softmax_temp*x + stickiness)
-        return exp_x/np.sum(exp_x)
+        return fu.softmax(self.inverse_softmax_temp*x + stickiness)
 
     def sample(self, x):
         """ Samples from the action distribution
