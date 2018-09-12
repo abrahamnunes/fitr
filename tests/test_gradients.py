@@ -10,6 +10,7 @@ from fitr.agents.policies import StickySoftmaxPolicy
 from fitr.agents.value_functions import ValueFunction
 from fitr.agents.value_functions import InstrumentalRescorlaWagnerLearner
 from fitr.agents.value_functions import QLearner
+from fitr.agents.value_functions import SARSALearner
 
 def test_logsumexp():
     x = np.array([1., 0., 0.])
@@ -151,8 +152,8 @@ def test_grad_instrumantalrwupdate():
     assert(np.linalg.norm(fitr_grad-agQ) < 1e-6)
 
 def test_grad_qlearnerupdate():
+    ntrials = 7
     def make_mdp_trials():
-        ntrials = 7
         rng = np.random.RandomState(3256)
         X1 = np.tile(np.array([1., 0., 0., 0., 0.]), [ntrials, 1])
         X2 = rng.multinomial(1, pvals=[0., 0.5, 0.5, 0., 0.], size=ntrials)
@@ -216,5 +217,75 @@ def test_grad_qlearnerupdate():
     # Check partial derivative of Q with respect to discount factor
     assert(np.linalg.norm(q.dQ['discount_factor']-jacobian(agf_dc)(0.9)) < 1e-6)
 
+    # Check partial derivative of Q with respect to trace decay
+    assert(np.linalg.norm(q.dQ['trace_decay']-jacobian(agf_et)(0.95)) < 1e-6)
+
+
+def test_grad_sarsalearnerupdate():
+    ntrials = 7
+    def make_mdp_trials():
+        rng = np.random.RandomState(3256)
+        X1 = np.tile(np.array([1., 0., 0., 0., 0.]), [ntrials, 1])
+        X2 = rng.multinomial(1, pvals=[0., 0.5, 0.5, 0., 0.], size=ntrials)
+        U1 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
+        U2 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
+        X3 = rng.multinomial(1, pvals=[0., 0., 0., 0.5, 0.5], size=ntrials)
+        R  = np.array([0., 0., 0., 1., 0.])
+        return X1, X2, U1, U2, X3, R
+
+    # GRADIENTS WITH FITR
+    X1, X2, U1, U2, X3, R = make_mdp_trials()
+    q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=0.95)
+    for i in range(ntrials):
+        q.etrace = np.zeros(q.Q.shape)
+        x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
+        q.update(x, u, r, x_, u_)
+        x = x_; u = u_; x_ = X3[i]; r  = R@x_
+        q.update(x, u, r, x_, np.array([0.5, 0.5]))
+
+    # AUTOGRAD
+    def agf_lr(lr):
+        X1, X2, U1, U2, X3, R = make_mdp_trials()
+        q = SARSALearner(TwoStep(), learning_rate=lr, discount_factor=0.9, trace_decay=0.95)
+        for i in range(ntrials):
+            q.etrace = np.zeros(q.Q.shape)
+            x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
+            q._update_noderivatives(x, u, r, x_, u_)
+            x = x_; u = u_; x_ = X3[i]; r  = R@x_
+            q._update_noderivatives(x, u, r, x_, np.array([0.5, 0.5]))
+        return q.Q
+
+    def agf_dc(dc):
+        X1, X2, U1, U2, X3, R = make_mdp_trials()
+        q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=dc, trace_decay=0.95)
+        for i in range(ntrials):
+            q.etrace = np.zeros(q.Q.shape)
+            x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
+            q._update_noderivatives(x, u, r, x_, u_)
+            x = x_; u = u_; x_ = X3[i]; r  = R@x_
+            q._update_noderivatives(x, u, r, x_, np.array([0.5, 0.5]))
+        return q.Q
+
+    def agf_et(et):
+        X1, X2, U1, U2, X3, R = make_mdp_trials()
+        q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=et)
+        for i in range(ntrials):
+            q.etrace = np.zeros(q.Q.shape)
+            x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
+            q._update_noderivatives(x, u, r, x_, u_)
+            x = x_; u = u_; x_ = X3[i]; r  = R@x_
+            q._update_noderivatives(x, u, r, x_, np.array([0.5, 0.5]))
+        return q.Q
+
+    # Ensure all are producing same value functions
+    qlist = [agf_lr(0.1), agf_dc(0.9), agf_et(0.95), q.Q]
+    assert(np.all(np.stack(np.all(np.equal(a, b)) for a in qlist for b in qlist)))
+
+    # Check partial derivative of Q with respect to learning rate
+    assert(np.linalg.norm(q.dQ['learning_rate']-jacobian(agf_lr)(0.1)) < 1e-6)
+
+    # Check partial derivative of Q with respect to discount factor
+    assert(np.linalg.norm(q.dQ['discount_factor']-jacobian(agf_dc)(0.9)) < 1e-6)
+    
     # Check partial derivative of Q with respect to trace decay
     assert(np.linalg.norm(q.dQ['trace_decay']-jacobian(agf_et)(0.95)) < 1e-6)

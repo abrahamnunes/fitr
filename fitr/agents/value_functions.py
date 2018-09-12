@@ -271,8 +271,6 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         z = np.outer(u, x)
         self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
 
-
-
 class QLearner(ValueFunction):
     """ Learns an instrumental control policy through Q-learning
 
@@ -398,19 +396,12 @@ class SARSALearner(ValueFunction):
             'discount_factor': np.zeros(self.Q.shape),
             'trace_decay': np.zeros(self.Q.shape)
         }
-        self.detrace = {
+        self.d_etrace = {
             'trace_decay': np.zeros(self.Q.shape),
             'discount_factor': np.zeros(self.Q.shape)
         }
 
     def update(self, x, u, r, x_, u_):
-        target = r + self.discount_factor*self.uQx(u_, x_)
-        self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
-        rpe    = target - self.uQx(u, x)
-        self.Q += self.learning_rate*rpe*self.etrace
-
-
-
         # ELIGIBILITY TRACE
         # Reset derivatives if eligibility trace was reset at start of trial
         if np.all(np.equal(self.etrace, 0)):
@@ -426,10 +417,9 @@ class SARSALearner(ValueFunction):
 
         # REWARD PREDICTION ERROR
         # Compute derivatives
-        dmaxQx_ = grad.max(self.Qx(x_))
-        d_rpe_Q = self.discount_factor*np.outer(dmaxQx_, x_) - np.outer(u, x)
+        d_rpe_Q = self.discount_factor*np.outer(u_, x_) - np.outer(u, x)
         d_rpe_learningrate = np.sum(self.dQ['learning_rate']*d_rpe_Q)
-        d_rpe_discount = np.sum(self.dQ['discount_factor']*d_rpe_Q) + self.Qmax(x_)
+        d_rpe_discount = np.sum(self.dQ['discount_factor']*d_rpe_Q) + self.uQx(u_, x_)
         d_rpe_tracedecay = np.sum(self.dQ['trace_decay']*d_rpe_Q)
 
         # Compute RPE
@@ -442,4 +432,9 @@ class SARSALearner(ValueFunction):
         self.dQ['trace_decay'] += self.learning_rate*(d_rpe_tracedecay*self.etrace + rpe*self.d_etrace['trace_decay'])
 
         # Update value function
+        self.Q += self.learning_rate*rpe*self.etrace
+
+    def _update_noderivatives(self, x, u, r, x_, u_):
+        self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
+        rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
         self.Q += self.learning_rate*rpe*self.etrace
