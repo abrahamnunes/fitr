@@ -17,6 +17,15 @@ def test_logsumexp():
     err = np.linalg.norm(grad_fitr-grad_autograd)
     assert(err < 1e-5)
 
+def test_max():
+    rng = np.random.RandomState(236)
+    ag_max = jacobian(np.max)
+    for i in range(20):
+        x = rng.normal(size=5)**2
+        ag_grad = ag_max(x)
+        fitr_grad = grad.max(x)
+        assert(np.linalg.norm(ag_grad-fitr_grad) < 1e-6)
+
 def test_softmaxpolicy_gradients():
     x = np.array([0., 1., 0., 0.])
     B = 1.
@@ -120,16 +129,17 @@ def test_grad_instrumantalrwupdate():
     r1 = 1.0
     r2 = 0.0
 
-    fitr_grad = q.grad_update(x, u1, r1, x_1, None)
+    q.grad_update(x, u1, r1, x_1, None)
     q.update(x, u1, r1, x_1, None)
-    fitr_grad = q.grad_update(x, u2, r2, x_2, None)
+    q.grad_update(x, u2, r2, x_2, None)
     q.update(x, u2, r2, x_2, None)
-    fitr_grad = q.grad_update(x, u2, r1, x_1, None)
+    q.grad_update(x, u2, r1, x_1, None)
     q.update(x, u2, r1, x_1, None)
-    fitr_grad = q.grad_update(x, u1, r2, x_2, None)
+    q.grad_update(x, u1, r2, x_2, None)
     q.update(x, u1, r2, x_2, None)
-    fitr_grad = q.grad_update(x, u1, r1, x_1, None)
+    q.grad_update(x, u1, r1, x_1, None)
     q.update(x, u1, r1, x_1, None)
+    fitr_grad = q.dQ['learning_rate']
 
     def fq(lr):
         m = InstrumentalRescorlaWagnerLearner(task, learning_rate=lr)
@@ -140,4 +150,5 @@ def test_grad_instrumantalrwupdate():
         m.update(x, u1, r1, x_1, None)
         return m.Q
     agQ = jacobian(fq)(lr)
+
     assert(np.linalg.norm(fitr_grad-agQ) < 1e-6)

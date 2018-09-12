@@ -1,4 +1,5 @@
 import autograd.numpy as np
+import fitr.gradients as grad
 
 class ValueFunction(object):
     """ A general value function object.
@@ -10,6 +11,8 @@ class ValueFunction(object):
     - `V`: State value function $\mathbf v = \mathcal V(\mathbf x)$
     - `Q`: State-action value function $\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)$
     - `etrace`: An eligibility trace (optional)
+    - `dV`: A dictionary storing gradients with respect to parameters (named keys)
+    - `dQ`: A dictionary storing gradients with respect to parameters (named keys)
 
     Note that in general we rely on matrix-vector notation for value functions, rather than function notation. Vectors in the mathematical typesetting are by default column vectors.
 
@@ -23,6 +26,8 @@ class ValueFunction(object):
         self.V = np.zeros(self.nstates)
         self.Q = np.zeros((self.nactions, self.nstates))
         self.etrace = None
+        self.dV = {}
+        self.dQ = {}
 
     def Qx(self, x):
         """ Compute action values for a given state
@@ -231,7 +236,7 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         super().__init__(env)
 
         # Store gradient of learning rule with respect to learning rate
-        self.dQ_dlearningrate = np.zeros(self.Q.shape)
+        self.dQ = {'learning_rate': np.zeros(self.Q.shape)}
 
     def update(self, x, u, r, x_, u_):
         rpe    = r - self.uQx(u, x)
@@ -243,25 +248,21 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         This derivative is defined as
 
         $$
-        \\frac{\\partial}{\\partial \\alpha} \\mathbf Q = r \mathbf u \mathbf x^\\top + \\frac{\\partial}{\\partial \\alpha} \\mathbf Q (1 - \mathbf Q \\odot \mathbf u \mathbf x^\\top)
+        \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) = \\delta \mathbf u \mathbf x^\\top + \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) (1-\\alpha \mathbf u \mathbf x^\\top)
         $$
 
         Arguments:
 
-            x: `ndarray((nstates, ))`. For compatibility
-            u: `ndarray((nactions, ))`. For compatibility
+            x: `ndarray((nstates, ))`. State vector
+            u: `ndarray((nactions, ))`. Action vector
             r: `float`. Reward received
             x_: `ndarray((nstates, ))`. For compatibility
             u_: `ndarray((nactions, ))`. For compatibility
 
-        Returns:
-
-            `ndarray((nactions, nstates))`. Derivative of present value with respect to learning rate
         """
         rpe = r - self.uQx(u, x)
         z = np.outer(u, x)
-        self.dQ_dlearningrate = rpe*z + self.dQ_dlearningrate*(1 - self.learning_rate*z)
-        return self.dQ_dlearningrate
+        self.dQ['learning_rate'] = rpe*z + self.dQ['learning_rate']*(1 - self.learning_rate*z)
 
 
 class QLearner(ValueFunction):
@@ -301,6 +302,32 @@ class QLearner(ValueFunction):
         self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
         rpe    = target - self.uQx(u, x)
         self.Q += self.learning_rate*rpe*self.etrace
+
+    def grad_update(self, x, u, r, x_, u_):
+        """ Computes the derivative of the Q-learning rule with respect to the learning rate, discount factor, and eligibility trace parameters
+
+        This derivative with respect to learning rate is
+
+        $$
+        \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) = \\delta \mathbf u \mathbf x^\\top + \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) (1-\\alpha \mathbf u \mathbf x^\\top)
+        $$
+
+        The derivative with respect to discount factor is
+
+        The derivative with respect to the eligibility trace is
+
+        Arguments:
+
+            x: `ndarray((nstates, ))`. State vector
+            u: `ndarray((nactions, ))`. Action vector
+            r: `float`. Reward received
+            x_: `ndarray((nstates, ))`. For compatibility
+            u_: `ndarray((nactions, ))`. For compatibility
+
+        """
+        rpe = r - self.uQx(u, x)
+        z = np.outer(u, x)
+        self.dQ['learning_rate'] = rpe*z + self.dQ['learning_rate']*(1 - self.learning_rate*z)
 
 class SARSALearner(ValueFunction):
     """ Learns an instrumental control policy through the SARSA learning rule
