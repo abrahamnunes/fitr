@@ -17,6 +17,7 @@ class Agent(object):
         self.task = task
         self.meta = ['Agent']
         self.params = []
+        self.logprob_ = 0
 
     def reset_trace(self, x, u=None):
         """ For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
@@ -435,7 +436,7 @@ class RWSoftmaxAgent(BanditAgent):
             `float`
 
         """
-        lp = self.actor.log_prob(self.critic.Qx(x))
+        self.logprob_ += np.dot(action, self.actor.log_prob(self.critic.Qx(state)))
 
         # Partial derivative of log probability with respect to inverse softmax temperature
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
@@ -443,10 +444,23 @@ class RWSoftmaxAgent(BanditAgent):
         # Partial derivative of log probability with respect to learning rate
         #   Requires application of the chain rule
         dQ_dlr = self.critic.dQ['learning_rate']
-        dq_dQ = self.critic.grad_Qx(x)
+        dq_dQ = self.critic.grad_Qx(state)
         dlp_dq = self.actor.d_logprob['action_values']
         dlp_dlr = np.dot(dlp_dq, np.sum(dq_dQ*dQ_dlr, axis=1))
         self.d_logprob['learning_rate'] += np.dot(action, dlp_dlr)
+
+    def _log_prob_noderivatives(self, state, action):
+        """ Computes the log-probability of an action taken by the agent in a given state without updating partial derivatives with respect to the parameters.
+
+        This function is only implemented for purposes of unit testing for comparison with `autograd` package.
+
+        Arguments:
+
+            action: `ndarray(nactions)`. One-hot action vector
+            state: `ndarray(nstates)`. One-hot state vector
+
+        """
+        self.logprob_ += np.dot(action, self.actor._log_prob_noderivatives(self.critic.Qx(state)))
 
 
 class RWStickySoftmaxAgent(BanditAgent):
