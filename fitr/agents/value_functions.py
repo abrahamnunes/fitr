@@ -296,38 +296,63 @@ class QLearner(ValueFunction):
         self.discount_factor = discount_factor
         self.trace_decay     = trace_decay
         super().__init__(env)
+        self.etrace = np.zeros(self.Q.shape)
+        self.dQ = {
+            'learning_rate': np.zeros(self.Q.shape),
+            'discount_factor': np.zeros(self.Q.shape),
+            'trace_decay': np.zeros(self.Q.shape)
+        }
+        self.d_etrace = {
+            'trace_decay': np.zeros(self.Q.shape),
+            'discount_factor': np.zeros(self.Q.shape)
+        }
 
     def update(self, x, u, r, x_, u_):
-        target = r + self.discount_factor*self.Qmax(x_)
+        """ Computes value function updates and their derivatives for the Q-learning model """
+
+        # ELIGIBILITY TRACE
+        # Reset derivatives if eligibility trace was reset at start of trial
+        if np.all(np.equal(self.etrace, 0)):
+            self.d_etrace['discount_factor'] = np.zeros(self.etrace.shape)
+            self.d_etrace['trace_decay'] = np.zeros(self.etrace.shape)
+
+        # Compute derivatives
+        self.d_etrace['discount_factor'] = self.trace_decay*(self.etrace + self.discount_factor*self.d_etrace['discount_factor'])
+        self.d_etrace['trace_decay'] = self.discount_factor*(self.etrace + self.trace_decay*self.d_etrace['trace_decay'])
+
+        # Update trace
         self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
-        rpe    = target - self.uQx(u, x)
+
+        # REWARD PREDICTION ERROR
+        # Compute derivatives
+        dmaxQx_ = grad.max(self.Qx(x_))
+        d_rpe_Q = self.discount_factor*np.outer(dmaxQx_, x_) - np.outer(u, x)
+        d_rpe_learningrate = np.sum(self.dQ['learning_rate']*d_rpe_Q)
+        d_rpe_discount = np.sum(self.dQ['discount_factor']*d_rpe_Q) + self.Qmax(x_)
+        d_rpe_tracedecay = np.sum(self.dQ['trace_decay']*d_rpe_Q)
+
+        # Compute RPE
+        rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
+
+        # Q PARAMETERS
+        # Compute derivatives
+        self.dQ['learning_rate'] += (rpe + self.learning_rate*d_rpe_learningrate)*self.etrace
+        self.dQ['discount_factor'] += self.learning_rate*(d_rpe_discount*self.etrace + rpe*self.d_etrace['discount_factor'])
+        self.dQ['trace_decay'] += self.learning_rate*(d_rpe_tracedecay*self.etrace + rpe*self.d_etrace['trace_decay'])
+
+        # Update value function
         self.Q += self.learning_rate*rpe*self.etrace
 
-    def grad_update(self, x, u, r, x_, u_):
-        """ Computes the derivative of the Q-learning rule with respect to the learning rate, discount factor, and eligibility trace parameters
+    def _update_noderivatives(self, x, u, r, x_, u_):
+        """ Computes value function updates without computing derivatives.
 
-        This derivative with respect to learning rate is
-
-        $$
-        \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) = \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) \Bigg[ \\gamma \\frac{\\partial}{\\partial \\alpha} \Bigg]
-        $$
-
-        The derivative with respect to discount factor is
-
-        The derivative with respect to the eligibility trace is
-
-        Arguments:
-
-            x: `ndarray((nstates, ))`. State vector
-            u: `ndarray((nactions, ))`. Action vector
-            r: `float`. Reward received
-            x_: `ndarray((nstates, ))`. For compatibility
-            u_: `ndarray((nactions, ))`. For compatibility
-
+        This function is identical to `.update()` method except without the derivative computations. It is implemented solely for the purpose of unit testing the gradient calculations against `autograd`.
         """
-        rpe = r - self.uQx(u, x)
-        z = np.outer(u, x)
-        self.dQ['learning_rate'] = rpe*z + self.dQ['learning_rate']*(1 - self.learning_rate*z)
+        self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
+        rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
+        self.Q += self.learning_rate*rpe*self.etrace
+
+
 
 class SARSALearner(ValueFunction):
     """ Learns an instrumental control policy through the SARSA learning rule
@@ -360,6 +385,15 @@ class SARSALearner(ValueFunction):
         self.discount_factor = discount_factor
         self.trace_decay     = trace_decay
         super().__init__(env)
+        self.dQ = {
+            'learning_rate': np.zeros(self.Q.shape),
+            'discount_factor': np.zeros(self.Q.shape),
+            'trace_decay': np.zeros(self.Q.shape)
+        }
+        self.detrace = {
+            'trace_decay': np.zeros(self.Q.shape),
+            'discount_factor': np.zeros(self.Q.shape)
+        }
 
     def update(self, x, u, r, x_, u_):
         target = r + self.discount_factor*self.uQx(u_, x_)
