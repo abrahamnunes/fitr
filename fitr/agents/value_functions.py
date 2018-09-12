@@ -309,7 +309,7 @@ class QLearner(ValueFunction):
         This derivative with respect to learning rate is
 
         $$
-        \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) = \\delta \mathbf u \mathbf x^\\top + \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) (1-\\alpha \mathbf u \mathbf x^\\top)
+        \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) = \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) \Bigg[ \\gamma \\frac{\\partial}{\\partial \\alpha} \Bigg]
         $$
 
         The derivative with respect to discount factor is
