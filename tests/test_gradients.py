@@ -5,6 +5,7 @@ from fitr import utils
 from fitr import gradients as grad
 from fitr.environments import TwoArmedBandit
 from fitr.environments import TwoStep
+from fitr.agents import RWSoftmaxAgent
 from fitr.agents.policies import SoftmaxPolicy
 from fitr.agents.policies import StickySoftmaxPolicy
 from fitr.agents.value_functions import ValueFunction
@@ -290,3 +291,92 @@ def test_grad_sarsalearnerupdate():
 
     # Check partial derivative of Q with respect to trace decay
     assert(np.linalg.norm(q.dQ['trace_decay']-jacobian(agf_et)(0.95)) < 1e-6)
+
+
+def test_rwsoftmaxagent():
+    lr = 0.1
+    B  = 1.5
+    task = TwoArmedBandit()
+    q = RWSoftmaxAgent(task, learning_rate=lr, inverse_softmax_temp=B)
+    q.d_logprob['inverse_softmax_temp'] = 0.
+    q.d_logprob['learning_rate'] = 0.
+
+    x  = np.array([1., 0., 0.])
+    u1  = np.array([1., 0.])
+    u2  = np.array([0., 1.])
+    x_1 = np.array([0., 1., 0.])
+    x_2 = np.array([0., 0., 1.])
+    r1 = 1.0
+    r2 = 0.0
+
+    q.log_prob(x, u1)
+    q.learning(x, u1, r1, x_1, None)
+    q.log_prob(x, u2)
+    q.learning(x, u2, r2, x_2, None)
+    q.log_prob(x, u2)
+    q.learning(x, u2, r1, x_1, None)
+    q.log_prob(x, u1)
+    q.learning(x, u1, r2, x_2, None)
+    q.log_prob(x, u1)
+    q.learning(x, u1, r1, x_1, None)
+
+    fitr_lrgrad = q.d_logprob['learning_rate']
+    fitr_istgrad= q.d_logprob['inverse_softmax_temp']
+
+    def fq(lr):
+        L = 0
+        m = RWSoftmaxAgent(task, learning_rate=lr, inverse_softmax_temp=1.5)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u1
+        m.critic._update_noderivatives(x, u1, r1, x_1, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u2
+        m.critic._update_noderivatives(x, u2, r2, x_2, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u2
+        m.critic._update_noderivatives(x, u2, r1, x_1, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u1
+        m.critic._update_noderivatives(x, u1, r2, x_2, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u1
+        m.critic._update_noderivatives(x, u1, r1, x_1, None)
+        return L
+
+    def fB(beta):
+        L = 0
+        m = RWSoftmaxAgent(task, learning_rate=0.1, inverse_softmax_temp=beta)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u1
+        m.critic._update_noderivatives(x, u1, r1, x_1, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u2
+        m.critic._update_noderivatives(x, u2, r2, x_2, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u2
+        m.critic._update_noderivatives(x, u2, r1, x_1, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u1
+        m.critic._update_noderivatives(x, u1, r2, x_2, None)
+
+        Qx = m.critic.Qx(x)
+        L += m.actor._log_prob_noderivatives(Qx)@u1
+        m.critic._update_noderivatives(x, u1, r1, x_1, None)
+        return L
+
+    agQ = jacobian(fq)(lr)
+    agB = jacobian(fB)(B)
+
+    agB
+
+    assert(np.linalg.norm(fitr_lrgrad-agQ) < 1e-6)
+    assert(np.linalg.norm(fitr_istgrad-agB) < 1e-6)

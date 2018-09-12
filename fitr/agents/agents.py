@@ -43,7 +43,7 @@ class Agent(object):
         pass
 
     def learning(self, state, action, reward, next_state, next_action):
-        """ Updates the model's parameters.
+        """ Updates the model's parameters and computes gradients
 
         The implementation will vary depending on the type of agent and environment.
 
@@ -408,11 +408,46 @@ class RWSoftmaxAgent(BanditAgent):
         self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp)
         self.critic = InstrumentalRescorlaWagnerLearner(task, learning_rate=learning_rate)
 
+        # Storage for partial derivatives
+        self.d_logprob = {
+            'learning_rate': 0,
+            'inverse_softmax_temp': 0
+        }
+
     def action(self, state):
         return self.actor.sample(self.critic.Qx(state))
 
     def learning(self, state, action, reward, next_state, next_action):
         self.critic.update(state, action, reward, next_state, None)
+
+    def log_prob(self, state, action):
+        """ Computes the log-probability of an action taken by the agent in a given state, as well as updates all partial derivatives with respect to the parameters.
+
+        This function overrides the `log_prob` method of the parent class.
+
+        Arguments:
+
+            action: `ndarray(nactions)`. One-hot action vector
+            state: `ndarray(nstates)`. One-hot state vector
+
+        Returns:
+
+            `float`
+
+        """
+        lp = self.actor.log_prob(self.critic.Qx(x))
+
+        # Partial derivative of log probability with respect to inverse softmax temperature
+        self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
+
+        # Partial derivative of log probability with respect to learning rate
+        #   Requires application of the chain rule
+        dQ_dlr = self.critic.dQ['learning_rate']
+        dq_dQ = self.critic.grad_Qx(x)
+        dlp_dq = self.actor.d_logprob['action_values']
+        dlp_dlr = np.dot(dlp_dq, np.sum(dq_dQ*dQ_dlr, axis=1))
+        self.d_logprob['learning_rate'] += np.dot(action, dlp_dlr)
+
 
 class RWStickySoftmaxAgent(BanditAgent):
     """ An instrumental Rescorla-Wagner agent with a 'sticky' softmax policy
