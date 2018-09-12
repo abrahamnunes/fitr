@@ -95,6 +95,17 @@ class Graph(object):
         self.laplacian_matrix_decomposition()
         self.adjacency_matrix_decomposition()
 
+    def set_seed(self, seed=None):
+        """ Allows user to specify a seed for the pseudorandom number generator.
+
+        Arguments:
+
+            seed: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
+
+        """
+        if type(seed) is np.int:
+            self.rng = np.random.RandomState(seed)
+
     def observation(self):
         """ Samples an initial state from the start-state distribution $p(\mathbf x)$
 
