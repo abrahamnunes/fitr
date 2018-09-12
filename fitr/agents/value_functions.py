@@ -239,11 +239,7 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         self.dQ = {'learning_rate': np.zeros(self.Q.shape)}
 
     def update(self, x, u, r, x_, u_):
-        rpe    = r - self.uQx(u, x)
-        self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
-
-    def grad_update(self, x, u, r, x_, u_):
-        """ Computes the derivative of the instrumental Rescorla-Wagner learning rule with respect to the learning rate.
+        """ Computes the value function update of the instrumental Rescorla-Wagner learning rule and computes derivative with respect to the learning rate.
 
         This derivative is defined as
 
@@ -260,9 +256,21 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
             u_: `ndarray((nactions, ))`. For compatibility
 
         """
-        rpe = r - self.uQx(u, x)
+        rpe    = r - self.uQx(u, x)
         z = np.outer(u, x)
         self.dQ['learning_rate'] = rpe*z + self.dQ['learning_rate']*(1 - self.learning_rate*z)
+        self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
+
+    def _update_noderivatives(self, x, u, r, x_, u_):
+        """ Computes the value function update of the instrumental Rescorla-Wagner learning rule without the derivative.
+
+        This function is identical to `.update()` method except without the derivative computations. It is implemented solely for the purpose of unit testing the gradient calculations against `autograd`.
+
+        """
+        rpe    = r - self.uQx(u, x)
+        z = np.outer(u, x)
+        self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
+
 
 
 class QLearner(ValueFunction):
@@ -399,4 +407,39 @@ class SARSALearner(ValueFunction):
         target = r + self.discount_factor*self.uQx(u_, x_)
         self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
         rpe    = target - self.uQx(u, x)
+        self.Q += self.learning_rate*rpe*self.etrace
+
+
+
+        # ELIGIBILITY TRACE
+        # Reset derivatives if eligibility trace was reset at start of trial
+        if np.all(np.equal(self.etrace, 0)):
+            self.d_etrace['discount_factor'] = np.zeros(self.etrace.shape)
+            self.d_etrace['trace_decay'] = np.zeros(self.etrace.shape)
+
+        # Compute derivatives
+        self.d_etrace['discount_factor'] = self.trace_decay*(self.etrace + self.discount_factor*self.d_etrace['discount_factor'])
+        self.d_etrace['trace_decay'] = self.discount_factor*(self.etrace + self.trace_decay*self.d_etrace['trace_decay'])
+
+        # Update trace
+        self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
+
+        # REWARD PREDICTION ERROR
+        # Compute derivatives
+        dmaxQx_ = grad.max(self.Qx(x_))
+        d_rpe_Q = self.discount_factor*np.outer(dmaxQx_, x_) - np.outer(u, x)
+        d_rpe_learningrate = np.sum(self.dQ['learning_rate']*d_rpe_Q)
+        d_rpe_discount = np.sum(self.dQ['discount_factor']*d_rpe_Q) + self.Qmax(x_)
+        d_rpe_tracedecay = np.sum(self.dQ['trace_decay']*d_rpe_Q)
+
+        # Compute RPE
+        rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
+
+        # Q PARAMETERS
+        # Compute derivatives
+        self.dQ['learning_rate'] += (rpe + self.learning_rate*d_rpe_learningrate)*self.etrace
+        self.dQ['discount_factor'] += self.learning_rate*(d_rpe_discount*self.etrace + rpe*self.d_etrace['discount_factor'])
+        self.dQ['trace_decay'] += self.learning_rate*(d_rpe_tracedecay*self.etrace + rpe*self.d_etrace['trace_decay'])
+
+        # Update value function
         self.Q += self.learning_rate*rpe*self.etrace

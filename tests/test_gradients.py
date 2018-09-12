@@ -131,25 +131,20 @@ def test_grad_instrumantalrwupdate():
     r1 = 1.0
     r2 = 0.0
 
-    q.grad_update(x, u1, r1, x_1, None)
     q.update(x, u1, r1, x_1, None)
-    q.grad_update(x, u2, r2, x_2, None)
     q.update(x, u2, r2, x_2, None)
-    q.grad_update(x, u2, r1, x_1, None)
     q.update(x, u2, r1, x_1, None)
-    q.grad_update(x, u1, r2, x_2, None)
     q.update(x, u1, r2, x_2, None)
-    q.grad_update(x, u1, r1, x_1, None)
     q.update(x, u1, r1, x_1, None)
     fitr_grad = q.dQ['learning_rate']
 
     def fq(lr):
         m = InstrumentalRescorlaWagnerLearner(task, learning_rate=lr)
-        m.update(x, u1, r1, x_1, None)
-        m.update(x, u2, r2, x_2, None)
-        m.update(x, u2, r1, x_1, None)
-        m.update(x, u1, r2, x_2, None)
-        m.update(x, u1, r1, x_1, None)
+        m._update_noderivatives(x, u1, r1, x_1, None)
+        m._update_noderivatives(x, u2, r2, x_2, None)
+        m._update_noderivatives(x, u2, r1, x_1, None)
+        m._update_noderivatives(x, u1, r2, x_2, None)
+        m._update_noderivatives(x, u1, r1, x_1, None)
         return m.Q
     agQ = jacobian(fq)(lr)
 
