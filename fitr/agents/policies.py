@@ -1,5 +1,5 @@
 import autograd.numpy as np
-from fitr.utils import logsumexp
+from fitr import utils
 import fitr.gradients as grad
 
 class SoftmaxPolicy(object):
@@ -26,6 +26,10 @@ class SoftmaxPolicy(object):
     def __init__(self, inverse_softmax_temp=1., rng=np.random.RandomState()):
         self.inverse_softmax_temp = inverse_softmax_temp
         self.rng  = rng
+        self.d_logprob = {
+            'inverse_softmax_temp': None,
+            'action_values': None
+        }
 
     def log_prob(self, x):
         """ Computes the log-probability of an action $\mathbf u$
@@ -42,40 +46,38 @@ class SoftmaxPolicy(object):
 
             Scalar log-probability
         """
-        xcor = x - np.max(x) # For stability
-        Bx  = self.inverse_softmax_temp*xcor
-        LSE = logsumexp(Bx)
+        # Compute logits
+        Bx  = self.inverse_softmax_temp*x
+
+        # Derivatives
+        #  Grad LSE wrt Logits
+        Dlse = grad.logsumexp(Bx)
+
+        #  Grad logprob wrt inverse softmax temp
+        self.d_logprob['inverse_softmax_temp'] = x - np.dot(Dlse, x)
+
+        # Grad logprob wrt action values `x`
+        B = np.eye(x.size)*self.inverse_softmax_temp
+        Dlsetile = np.tile(self.inverse_softmax_temp*Dlse, [x.size, 1])
+        self.d_logprob['action_values'] = B - Dlsetile
+
+        # Compute log-probability of actions
+        LSE = utils.logsumexp(Bx)
         if not np.isfinite(LSE): LSE = 0.
         return Bx - LSE
 
-    def grad_log_prob(self, x):
-        """ Computes the gradients for the softmax policy
+    def _log_prob_noderivatives(self, x):
+        """ Computes the log-probability of an action $\mathbf u$ without computing derivatives.
 
-        - [ ] TODO: Insert gradient definitions
-
-        Arguments:
-
-            x: State vector of type `ndarray((nstates,))`
-
-        Returns:
-
-            dict: Gradients indexed by `inverse_softmax_temp` or `x`
+        This is here only to facilitate unit testing of the `.log_prob` method by comparison against `autograd`.
         """
-        gradients = {}
+        # Compute logits
+        Bx  = self.inverse_softmax_temp*x
 
-        #x = x - np.max(x)
-        Bx = self.inverse_softmax_temp*x
-        Dlogsumexp = grad.logsumexp(Bx)
-
-        # Partial derivative with respect to inverse softmax temp
-        gradients['inverse_softmax_temp'] = x - np.dot(Dlogsumexp, x)
-
-        # Gradient with respect to x
-        Bdiag = np.eye(x.size)*self.inverse_softmax_temp
-        Dlsetile = np.tile(self.inverse_softmax_temp*Dlogsumexp, [x.size, 1])
-        gradients['x'] = Bdiag - Dlsetile
-
-        return gradients
+        # Compute log-probability of actions
+        LSE = utils.logsumexp(Bx)
+        if not np.isfinite(LSE): LSE = 0.
+        return Bx - LSE
 
     def action_prob(self, x):
         """ Computes the softmax """
@@ -115,6 +117,11 @@ class StickySoftmaxPolicy(object):
         self.perseveration        = perseveration
         self.rng  = rng
         self.a_last = [0]
+        self.d_logprob = {
+            'inverse_softmax_temp': None,
+            'perseveration': None,
+            'action_values': None
+        }
 
     def log_prob(self, x):
         """ Computes the log-probability of an action $\mathbf u$
@@ -131,13 +138,41 @@ class StickySoftmaxPolicy(object):
 
             Scalar log-probability
         """
-        Bx = self.inverse_softmax_temp*x
+        # Compute logits
+        Bx  = self.inverse_softmax_temp*x
         stickiness = self.perseveration*self.a_last
-        x  = Bx + stickiness
-        x  = x - np.max(x)
-        LSE = logsumexp(x)
+        logits = Bx + stickiness
+
+        # Derivatives
+        #  Grad LSE wrt Logits
+        Dlse = grad.logsumexp(logits)
+
+        #  Partial derivative with respect to inverse softmax temp
+        self.d_logprob['inverse_softmax_temp'] = x - np.dot(Dlse, x)
+        self.d_logprob['perseveration'] = self.a_last - np.dot(Dlse, self.a_last)
+
+        # Gradient with respect to x
+        B = np.eye(x.size)*self.inverse_softmax_temp
+        Dlsetile = np.tile(self.inverse_softmax_temp*Dlse, [x.size, 1])
+        self.d_logprob['action_values'] = B - Dlsetile
+
+        LSE = utils.logsumexp(logits)
         if not np.isfinite(LSE): LSE = 0.
-        return x - LSE
+        return logits - LSE
+
+    def _log_prob_noderivatives(self, x):
+        """ Computes the log-probability of an action $\mathbf u$ without computing derivatives.
+
+        This is here only to facilitate unit testing of the `.log_prob` method by comparison against `autograd`.
+        """
+        # Compute logits
+        Bx  = self.inverse_softmax_temp*x
+        stickiness = self.perseveration*self.a_last
+        logits = Bx + stickiness
+        LSE = utils.logsumexp(logits)
+        if not np.isfinite(LSE): LSE = 0.
+        return logits - LSE
+
 
     def grad_log_prob(self, x):
         """ Computes the gradients of the log probability of the sticky softmax observation function

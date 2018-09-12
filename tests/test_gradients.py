@@ -33,15 +33,15 @@ def test_softmaxpolicy_gradients():
     x = np.array([0., 1., 0., 0.])
     B = 1.
 
-    gx = lambda x: SoftmaxPolicy(B).grad_log_prob(x)['x']
-    gB = lambda B: SoftmaxPolicy(B).grad_log_prob(x)['inverse_softmax_temp']
+    smpol = SoftmaxPolicy(B)
+    smpol.log_prob(x)
 
-    ag_x = jacobian(SoftmaxPolicy(1.).log_prob)(x)
-    assert(np.linalg.norm(ag_x-gx(x)) < 1e-5)
+    ag_x = jacobian(SoftmaxPolicy(1.)._log_prob_noderivatives)(x)
+    assert(np.linalg.norm(ag_x-smpol.d_logprob['action_values']) < 1e-5)
 
-    fB = lambda B: SoftmaxPolicy(B).log_prob(x)
+    fB = lambda B: SoftmaxPolicy(B)._log_prob_noderivatives(x)
     ag_B = jacobian(fB)(B)
-    assert(np.linalg.norm(ag_B-gB(B)) < 1e-5)
+    assert(np.linalg.norm(ag_B-smpol.d_logprob['inverse_softmax_temp']) < 1e-5)
 
 def test_stickysoftmaxpolicy_gradients():
     x = np.array([0., 1., 0., 0.])
@@ -54,22 +54,22 @@ def test_stickysoftmaxpolicy_gradients():
     def fB(B):
         policy = StickySoftmaxPolicy(B, p)
         policy.a_last = u
-        return policy.log_prob(x)
+        return policy._log_prob_noderivatives(x)
 
     def fp(p):
         policy = StickySoftmaxPolicy(B, p)
         policy.a_last = u
-        return policy.log_prob(x)
+        return policy._log_prob_noderivatives(x)
 
     def fx(x):
         policy = StickySoftmaxPolicy(B, p)
         policy.a_last = u
-        return policy.log_prob(x)
+        return policy._log_prob_noderivatives(x)
 
-    fitr_grads = policy.grad_log_prob(x)
-    fitr_gxB = fitr_grads['inverse_softmax_temp']
-    fitr_gxp = fitr_grads['perseveration']
-    fitr_gxx = fitr_grads['x']
+    policy.log_prob(x)
+    fitr_gxB = policy.d_logprob['inverse_softmax_temp']
+    fitr_gxp = policy.d_logprob['perseveration']
+    fitr_gxx = policy.d_logprob['action_values']
 
     ag_gxB = jacobian(fB)(B)
     ag_gxp = jacobian(fp)(p)
