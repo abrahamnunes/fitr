@@ -46,11 +46,11 @@ def max(x):
 
     Arguments:
 
-        x: `ndarray(n)`
+        x: `ndarray((n,))`
 
     Returns:
 
-        `ndarray(n)`
+        `ndarray((n,))`
 
     """
     xmax = np.max(x)
@@ -59,3 +59,33 @@ def max(x):
     nmax = wheremax.astype(np.int).sum()
     out[wheremax] = 1/nmax
     return out
+
+def softmax(x):
+    """ Jacobian of the softmax function.
+
+    Let
+
+        - $x = (x_0, x_1, \ldots, x_n)^\\top
+        - $v = (e^{x_0}, e^{x_1}, \ldots, e^{x_n})^\\top$
+        - $z = \sum_{i=0}^n v_i
+        - $\\mathbf{I}$ be the identity matrix of size $n \\times n$.
+
+    Then the Jacobian of the softmax function $\\varsigma(x)$ is
+
+    $$
+    \\partial_x \\varsigma(x) = \\frac{zv \\mathbf I - vv^\\top}{z^2}
+    $$
+
+    Arguments:
+
+        x: `ndarray((n,))`
+
+    Returns:
+
+        `ndarray((n,n))`
+
+    """
+    x = x - np.max(x)
+    v = np.exp(x)
+    z = np.sum(v)
+    return (np.diag(z*v) - np.outer(v, v))/(z**2)

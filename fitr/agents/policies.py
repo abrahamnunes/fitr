@@ -1,6 +1,7 @@
 import autograd.numpy as np
 import fitr.utils as fu
 import fitr.gradients as grad
+import fitr.hessians as hess
 
 class SoftmaxPolicy(object):
     """ Action selection by sampling from a multinomial whose parameters are given by a softmax.
@@ -26,13 +27,21 @@ class SoftmaxPolicy(object):
     def __init__(self, inverse_softmax_temp=1., rng=np.random.RandomState()):
         self.inverse_softmax_temp = inverse_softmax_temp
         self.rng  = rng
+
+        # Storage for first order partial derivatives
         self.d_logprob = {
             'inverse_softmax_temp': None,
             'action_values': None
         }
 
+        # Storage for second order partial derivatives
+        self.hess_logprob = {
+            'inverse_softmax_temp': None,
+            'action_values': None
+        }
+
     def log_prob(self, x):
-        """ Computes the log-probability of an action $\mathbf u$
+        """ Computes the log-probability of an action $\mathbf u$, in addition to computing derivatives up to second order
 
         $$
         \log p(\mathbf u|\mathbf v) = \\beta \mathbf v - \log \sum_{v_i} e^{\\beta \mathbf v_i}
@@ -48,6 +57,11 @@ class SoftmaxPolicy(object):
         """
         # Compute logits
         Bx  = self.inverse_softmax_temp*x
+
+        # Hessians
+        HB, Hx = hess.log_softmax(self.inverse_softmax_temp, x)
+        self.hess_logprob['inverse_softmax_temp'] = HB
+        self.hess_logprob['action_values'] = Hx
 
         # Derivatives
         #  Grad LSE wrt Logits

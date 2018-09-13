@@ -3,17 +3,19 @@ from fitr import utils as fu
 from fitr.environments import generate_behavioural_data
 from fitr.environments import TwoArmedBandit
 from fitr.environments import ReverseTwoStep
+from fitr.environments import IGT
 from fitr.agents import RWSoftmaxAgent
 from fitr.criticism.plotting import actual_estimate
 from scipy import optimize as op
 
 
-data = generate_behavioural_data(ReverseTwoStep, RWSoftmaxAgent, 50, 200)
-X1, U1, R, X2, U2, T = data.unpack_tensor(4, 2)
+task = IGT
+data = generate_behavioural_data(task, RWSoftmaxAgent, 100, 500)
+X1, U1, R, X2, U2, T = data.unpack_tensor(task().nstates, task().nactions)
 
 def loglik(w, X, U, R, X_):
     w = fu.transform(w, [fu.sigmoid, np.exp]).flatten()
-    q = RWSoftmaxAgent(task=ReverseTwoStep(),
+    q = RWSoftmaxAgent(task=task(),
                        learning_rate=w[0],
                        inverse_softmax_temp=w[1])
     ntrials = X.shape[0]
@@ -38,4 +40,5 @@ for i in range(data.nsubjects):
 xhat = np.array(xhat)
 logprob = np.array(logprob)
 
+f = actual_estimate(data.params[:,1], xhat[:,0])
 f = actual_estimate(data.params[xhat[:,1] < 20 ,2], xhat[xhat[:,1] < 20 ,1])
