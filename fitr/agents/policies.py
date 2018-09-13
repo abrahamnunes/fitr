@@ -130,9 +130,18 @@ class StickySoftmaxPolicy(object):
         self.perseveration        = perseveration
         self.rng  = rng
         self.a_last = [0]
+
+        # Storage for first order partial derivatives
         self.d_logprob = {
             'inverse_softmax_temp': None,
             'perseveration': None,
+            'action_values': None
+        }
+
+        # Storage for second order partial derivatives
+        self.hess_logprob = {
+            'inverse_softmax_temp': None,
+            'perseveration': None
             'action_values': None
         }
 
@@ -155,6 +164,12 @@ class StickySoftmaxPolicy(object):
         Bx  = self.inverse_softmax_temp*x
         stickiness = self.perseveration*self.a_last
         logits = Bx + stickiness
+
+        # Hessians
+        HB, Hp, Hx, _ = hess.log_stickysoftmax(B, p, x, self.a_last)
+        self.hess_logprob['inverse_softmax_temp'] = HB
+        self.hess_logprob['perseveration'] = Hp
+        self.hess_logprob['action_values'] = Hx
 
         # Derivatives
         #  Grad LSE wrt Logits
@@ -185,37 +200,6 @@ class StickySoftmaxPolicy(object):
         LSE = fu.logsumexp(logits)
         if not np.isfinite(LSE): LSE = 0.
         return logits - LSE
-
-
-    def grad_log_prob(self, x):
-        """ Computes the gradients of the log probability of the sticky softmax observation function
-
-        - [ ] TODO: Insert gradient definitions
-
-        Arguments:
-
-            x: State vector of type `ndarray((nactions,))`
-
-        Returns:
-
-            dict
-        """
-        gradients = {}
-
-        #x = x - np.max(x)
-        logits = self.inverse_softmax_temp*x + self.perseveration*self.a_last
-        Dlogsumexp = grad.logsumexp(logits)
-
-        # Partial derivative with respect to inverse softmax temp
-        gradients['inverse_softmax_temp'] = x - np.dot(Dlogsumexp, x)
-        gradients['perseveration'] = self.a_last - np.dot(Dlogsumexp, self.a_last)
-
-        # Gradient with respect to x
-        Bdiag = np.eye(x.size)*self.inverse_softmax_temp
-        Dlsetile = np.tile(self.inverse_softmax_temp*Dlogsumexp, [x.size, 1])
-        gradients['x'] = Bdiag - Dlsetile
-
-        return gradients
 
     def action_prob(self, x):
         """ Computes the softmax

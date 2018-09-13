@@ -65,7 +65,8 @@ def log_softmax(B, q):
     # Hessian with respect to the inverse softmax
     HB = np.ones(q.size)*((np.dot(q, v)**2)/(z**2) - np.dot((q**2), v)/z)
 
-    Hq = ((B**2)*np.outer(v, v))/(z**2) - np.diag(((B**2)/z)*v)
+    # Hessian with respect to the action values
+    Hq = ((B**2)/z)*(np.outer(v, v)/z - np.diag(v))
     Hq = np.tile(np.expand_dims(Hq, 0), [v.size, 1, 1])
 
     return HB, Hq

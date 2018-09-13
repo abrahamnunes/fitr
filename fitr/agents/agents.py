@@ -409,8 +409,14 @@ class RWSoftmaxAgent(BanditAgent):
         self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp)
         self.critic = InstrumentalRescorlaWagnerLearner(task, learning_rate=learning_rate)
 
-        # Storage for partial derivatives
+        # Storage for first order partial derivatives
         self.d_logprob = {
+            'learning_rate': 0,
+            'inverse_softmax_temp': 0
+        }
+
+        # Storage for second order partial derivatives
+        self.hess_logprob = {
             'learning_rate': 0,
             'inverse_softmax_temp': 0
         }
@@ -438,8 +444,14 @@ class RWSoftmaxAgent(BanditAgent):
         """
         self.logprob_ += np.dot(action, self.actor.log_prob(self.critic.Qx(state)))
 
+
         # Partial derivative of log probability with respect to inverse softmax temperature
+        #  First order
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
+
+        #  Second order
+        self.hess_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
+
 
         # Partial derivative of log probability with respect to learning rate
         #   Requires application of the chain rule
