@@ -137,6 +137,7 @@ class StickySoftmaxPolicy(object):
 
         # Storage for first order partial derivatives
         self.d_logprob = {
+            'logits': None,
             'inverse_softmax_temp': None,
             'perseveration': None,
             'action_values': None
@@ -170,14 +171,21 @@ class StickySoftmaxPolicy(object):
         logits = Bx + stickiness
 
         # Hessians
-        HB, Hp, Hx, _ = hess.log_stickysoftmax(B, p, x, self.a_last)
+        HB, Hp, HBp, Hx, _ = hess.log_stickysoftmax(self.inverse_softmax_temp,
+                                                    self.perseveration,
+                                                    x,
+                                                    self.a_last)
         self.hess_logprob['inverse_softmax_temp'] = HB
         self.hess_logprob['perseveration'] = Hp
         self.hess_logprob['action_values'] = Hx
+        self.hess_logprob['inverse_softmax_temp_perseveration'] = HBp
 
         # Derivatives
         #  Grad LSE wrt Logits
         Dlse = grad.logsumexp(logits)
+
+        # Grad logprob wrt logits
+        self.d_logprob['logits'] = np.eye(x.size) - Dlse
 
         #  Partial derivative with respect to inverse softmax temp
         self.d_logprob['inverse_softmax_temp'] = x - np.dot(Dlse, x)
@@ -210,7 +218,7 @@ class StickySoftmaxPolicy(object):
 
         Arguments:
 
-            x: `ndarray((nactions,))` one-hot state vector
+            x: `ndarray((nactions,))` action value vector
 
         Returns:
 
@@ -224,7 +232,7 @@ class StickySoftmaxPolicy(object):
 
         Arguments:
 
-            x: `ndarray((nactions,))` one-hot state vector
+            x: `ndarray((nactions,))` action value vector
 
         Returns:
 

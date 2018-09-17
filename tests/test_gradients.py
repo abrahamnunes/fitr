@@ -42,8 +42,6 @@ def test_sigmoid():
     fg = grad.sigmoid(x)
     assert(np.all(np.linalg.norm(ag-fg) < 1e-6))
 
-
-
 def test_softmax():
     x = np.arange(5)+1
     x = x.astype(np.float)
@@ -67,7 +65,7 @@ def test_softmaxpolicy_gradients():
     ag_B = jacobian(fB)(B)
     assert(np.linalg.norm(ag_B-smpol.d_logprob['inverse_softmax_temp']) < 1e-5)
 
-def test_softmax_policy_hessians():
+def test_softmax_policy_hessian():
     q = np.arange(5)+1
     q = q.astype(np.float)
     q = q-np.max(q)
@@ -86,7 +84,7 @@ def test_softmax_policy_hessians():
     assert(np.linalg.norm(autograd_hessB - HB) < 1e-6)
     assert(np.linalg.norm(autograd_hessq - Hq) < 1e-6)
 
-def test_sticky_softmax_policy_hessians():
+def test_sticky_softmax_policy_hessian():
     q = np.arange(5)+1
     q = q.astype(np.float)
     q = q-np.max(q)
@@ -95,24 +93,20 @@ def test_sticky_softmax_policy_hessians():
     B = 1.5
     p = 0.01
 
-    fB = lambda B: B*q + p*u - utils.logsumexp(B*q + p*u)
-    fp = lambda p: B*q + p*u - utils.logsumexp(B*q + p*u)
+    f = lambda x: x[0]*q + x[1]*u - utils.logsumexp(x[0]*q + x[1]*u)
     fq = lambda q: B*q + p*u - utils.logsumexp(B*q + p*u)
     fu = lambda u: B*q + p*u - utils.logsumexp(B*q + p*u)
 
-    aghB = hessian(fB)
-    aghp = hessian(fp)
     aghq = hessian(fq)
     aghu = hessian(fu)
 
-    autograd_hessB = aghB(B)
-    autograd_hessp = aghp(p)
     autograd_hessq = aghq(q)
     autograd_hessu = aghu(u)
+    agH = hessian(f)(np.array([B, p]))[0]
 
-    HB, Hp, Hq, Hu = hess.log_stickysoftmax(B, p, q, u)
-    assert(np.linalg.norm(autograd_hessB - HB) < 1e-6)
-    assert(np.linalg.norm(autograd_hessp - Hp) < 1e-6)
+    HB, Hp, HBp, Hq, Hu = hess.log_stickysoftmax(B, p, q, u)
+    fitrH = np.array([[HB[0], HBp[0]],[HBp[0], Hp[0]]])
+    assert(np.linalg.norm(agH - fitrH) < 1e-6)
     assert(np.linalg.norm(autograd_hessq - Hq) < 1e-6)
     assert(np.linalg.norm(autograd_hessu - Hu) < 1e-6)
 
@@ -139,7 +133,6 @@ def test_stickysoftmaxpolicy_gradients():
         policy.a_last = u
         return policy._log_prob_noderivatives(x)
 
-    policy.log_prob(x)
     fitr_gxB = policy.d_logprob['inverse_softmax_temp']
     fitr_gxp = policy.d_logprob['perseveration']
     fitr_gxx = policy.d_logprob['action_values']
@@ -394,14 +387,11 @@ def test_rwsoftmaxagent():
     q.log_prob(x, u1)
     q.learning(x, u1, r1, x_1, None)
 
-    fitr_lrgrad = q.d_logprob['learning_rate']
-    fitr_istgrad= q.d_logprob['inverse_softmax_temp']
+    fitr_grad = q.grad_
+    fitr_hess = q.hess_
 
-    fitr_lrhess = q.hess_logprob['learning_rate']
-    fitr_isthess = q.hess_logprob['inverse_softmax_temp']
-
-    def fq(lr):
-        m = RWSoftmaxAgent(task, learning_rate=lr, inverse_softmax_temp=1.5)
+    def f(w):
+        m = RWSoftmaxAgent(task, learning_rate=w[0], inverse_softmax_temp=w[1])
         m._log_prob_noderivatives(x, u1)
         m.critic._update_noderivatives(x, u1, r1, x_1, None)
         m._log_prob_noderivatives(x, u2)
@@ -414,30 +404,11 @@ def test_rwsoftmaxagent():
         m.critic._update_noderivatives(x, u1, r1, x_1, None)
         return m.logprob_
 
-    def fB(beta):
-        m = RWSoftmaxAgent(task, learning_rate=0.1, inverse_softmax_temp=beta)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r1, x_1, None)
-        m._log_prob_noderivatives(x, u2)
-        m.critic._update_noderivatives(x, u2, r2, x_2, None)
-        m._log_prob_noderivatives(x, u2)
-        m.critic._update_noderivatives(x, u2, r1, x_1, None)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r2, x_2, None)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r1, x_1, None)
-        return m.logprob_
+    agJ = jacobian(f)(np.array([lr, B]))
+    agH = hessian(f)(np.array([lr, B]))
 
-    agQ = jacobian(fq)(lr)
-    agB = jacobian(fB)(B)
-
-    ahQ = hessian(fq)(lr)
-    ahB = hessian(fB)(B)
-
-    assert(np.linalg.norm(fitr_lrgrad-agQ) < 1e-6)
-    assert(np.linalg.norm(fitr_istgrad-agB) < 1e-6)
-
-    assert(np.linalg.norm(fitr_isthess-ahB)<1e-6)
+    assert(np.linalg.norm(agJ - q.grad_))
+    assert(np.linalg.norm(agH - q.hess_))
 
 def test_rwstickysoftmaxagent():
     lr = 0.1
@@ -468,15 +439,11 @@ def test_rwstickysoftmaxagent():
     q.log_prob(x, u1)
     q.learning(x, u1, r1, x_1, None)
 
-    fitr_lrgrad = q.d_logprob['learning_rate']
-    fitr_istgrad= q.d_logprob['inverse_softmax_temp']
-    fitr_pgrad  = q.d_logprob['perseveration']
-
-    def fq(lr):
+    def f(w):
         m = RWStickySoftmaxAgent(task,
-                                 learning_rate=lr,
-                                 inverse_softmax_temp=1.5,
-                                 perseveration=0.01)
+                                 learning_rate=w[0],
+                                 inverse_softmax_temp=w[1],
+                                 perseveration=w[2])
         m._log_prob_noderivatives(x, u1)
         m.critic._update_noderivatives(x, u1, r1, x_1, None)
         m._log_prob_noderivatives(x, u2)
@@ -489,44 +456,9 @@ def test_rwstickysoftmaxagent():
         m.critic._update_noderivatives(x, u1, r1, x_1, None)
         return m.logprob_
 
-    def fB(beta):
-        m = RWStickySoftmaxAgent(task,
-                                 learning_rate=0.1,
-                                 inverse_softmax_temp=beta,
-                                 perseveration=0.01)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r1, x_1, None)
-        m._log_prob_noderivatives(x, u2)
-        m.critic._update_noderivatives(x, u2, r2, x_2, None)
-        m._log_prob_noderivatives(x, u2)
-        m.critic._update_noderivatives(x, u2, r1, x_1, None)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r2, x_2, None)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r1, x_1, None)
-        return m.logprob_
+    w = np.array([lr, B, p])
+    ag = jacobian(f)(w)
+    aH = hessian(f)(w)
 
-    def fp(p):
-        m = RWStickySoftmaxAgent(task,
-                                 learning_rate=0.1,
-                                 inverse_softmax_temp=1.5,
-                                 perseveration=p)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r1, x_1, None)
-        m._log_prob_noderivatives(x, u2)
-        m.critic._update_noderivatives(x, u2, r2, x_2, None)
-        m._log_prob_noderivatives(x, u2)
-        m.critic._update_noderivatives(x, u2, r1, x_1, None)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r2, x_2, None)
-        m._log_prob_noderivatives(x, u1)
-        m.critic._update_noderivatives(x, u1, r1, x_1, None)
-        return m.logprob_
-
-    agQ = jacobian(fq)(lr)
-    agB = jacobian(fB)(B)
-    agp = jacobian(fp)(p)
-
-    assert(np.linalg.norm(fitr_lrgrad-agQ) < 1e-6)
-    assert(np.linalg.norm(fitr_istgrad-agB) < 1e-6)
-    assert(np.linalg.norm(fitr_pgrad-agp) < 1e-6)
+    assert(np.linalg.norm(q.grad_ - ag) < 1e-6)
+    assert(np.linalg.norm(q.hess_ - aH) < 1e-6)

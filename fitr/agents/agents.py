@@ -306,7 +306,6 @@ class SARSAStickySoftmaxAgent(MDPAgent):
     def learning(self, state, action, reward, next_state, next_action):
         self.critic.update(state, action, reward, next_state, next_action)
 
-
 class QLearningSoftmaxAgent(MDPAgent):
     """ An agent that uses the Q-learning rule and a softmax policy
 
@@ -470,7 +469,7 @@ class RWSoftmaxAgent(BanditAgent):
         \mathbf H = \left[
             \begin{array}{cc}
             \\partial^2_{\\alpha} \mathcal L & \\partial_{\\alpha} \\partial_{\\beta} \mathcal L \\
-            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\alpha} \mathcal L \\
+            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\beta} \mathcal L \\
             \end{array}\right].
         $$
 
@@ -485,7 +484,7 @@ class RWSoftmaxAgent(BanditAgent):
         $$
 
         $$
-        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg(\\frac{(q_i q_i v^i v^i}{\\eta(\\boldsymbol\\pi)^2} - \\frac{q_i q_i v^i}{\\eta(\\boldsymbol\\pi)} \\Bigg)_{k=1}^{n_u},
+        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg[ (u - \\varsigma(\\boldsymbol\\pi)) - \\beta \\partial_\\beta \\varsigma(\\boldsymbol\\pi) \\Bigg]_i (\\partial_\\alpha Q)^i_k x^k.
         $$
 
         and where $\\partial_{\\beta} \\partial_{\\alpha} \mathcal L = \\partial_{\\alpha} \\partial_{\\beta} \mathcal L$ since the second derivatives of $\mathcal L$ are continuous in the neighbourhood of the parameters.
@@ -500,9 +499,9 @@ class RWSoftmaxAgent(BanditAgent):
             `float`
 
         """
+        # Obtain the components required for computation of derivatives
         lr         = self.critic.learning_rate
         beta       = self.actor.inverse_softmax_temp
-        z          = np.outer(action, state)
         Qx         = self.critic.Qx(state)
         logits     = beta*Qx
         pu         = fu.softmax(logits)
@@ -510,7 +509,9 @@ class RWSoftmaxAgent(BanditAgent):
         dpu_dlogit = grad.softmax(logits)
         dlogit_dB  = Qx
         dpu_dB     = np.einsum('ij,j->i', dpu_dlogit, dlogit_dB)
-        dpu_dlr    = beta*np.einsum('ij,jk,k->i', dpu_dlogit, self.critic.dQ['learning_rate'], state)
+        D2Q_lr     = self.critic.hess_Q['learning_rate']
+        DQ_lr      = self.critic.dQ['learning_rate']
+        dpu_dlr    = beta*np.einsum('ij,jk,k->i', dpu_dlogit, DQ_lr, state)
         self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
 
         # Partial derivative of log probability with respect to inverse softmax temperature
@@ -520,19 +521,16 @@ class RWSoftmaxAgent(BanditAgent):
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
 
         # Second and first partial derivative of log probability with respect to learning rate
-        logits = beta * Qx
-        prob_u = fu.softmax(logits)
-        D2Q_lr = self.critic.hess_Q['learning_rate']
-        DQ_lr = self.critic.dQ['learning_rate']
+
 
         # Second partial derivative with respect to learning rate
-        self.hess_logprob['learning_rate'] +=  beta*np.einsum('k,k->', np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate']) - np.einsum('i,ij->j', dpu_dlr, self.critic.dQ['learning_rate']), state)
+        self.hess_logprob['learning_rate'] +=  beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate']) - np.einsum('i,ij->j', dpu_dlr, DQ_lr), state)
 
         # First partial derivative with respect to learning rate
-        self.d_logprob['learning_rate'] += beta*np.einsum('i,ij,j', du, self.critic.dQ['learning_rate'], state)
+        self.d_logprob['learning_rate'] += beta*np.einsum('i,ij,j->', du, DQ_lr, state)
 
         # Partial derivative with respect to both learning rate and inverse softmax
-        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.einsum('i,ij,j->', action - pu - beta*dpu_dB, self.critic.dQ['learning_rate'], state)
+        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.einsum('i,ij,j->', du - beta*dpu_dB, DQ_lr, state)
 
         # Organize the gradients and hessians
         self.grad_ = np.array([self.d_logprob['learning_rate'], self.d_logprob['inverse_softmax_temp']])
@@ -551,7 +549,6 @@ class RWSoftmaxAgent(BanditAgent):
 
         """
         self.logprob_ += np.dot(action, self.actor._log_prob_noderivatives(self.critic.Qx(state)))
-
 
 class RWStickySoftmaxAgent(BanditAgent):
     """ An instrumental Rescorla-Wagner agent with a 'sticky' softmax policy
@@ -610,6 +607,16 @@ class RWStickySoftmaxAgent(BanditAgent):
             'perseveration': 0
         }
 
+        # Storage for second order partial derivatives
+        self.hess_logprob = {
+            'learning_rate': 0,
+            'inverse_softmax_temp': 0,
+            'perseveration': 0,
+            'learning_rate_inverse_softmax_temp': 0,
+            'learning_rate_perseveration': 0,
+            'inverse_softmax_temp_perseveration': 0
+        }
+
     def action(self, state):
         return self.actor.sample(self.critic.Qx(state))
 
@@ -621,6 +628,72 @@ class RWStickySoftmaxAgent(BanditAgent):
 
         This function overrides the `log_prob` method of the parent class.
 
+        Let
+
+            - $n_u \\in \mathbb N_+$ be the dimensionality of the action space
+            - $n_x \\in \mathbb N_+$ be the dimensionality of the state space
+            - $\mathbf u = (u_0, u_1, u_{n_u})^\\top$ be a one-hot action vector
+            - $\\tilde{\mathbf u}$ be a one-hot vector representing the last trial's action, where at trial 0, $\\tilde{\mathbf u}} = \mathbf 0$.
+            - $\mathbf x = (x_0, x_1, x_{n_x})^\\top$ be a one-hot action vector
+            - $\mathbf Q \\in \mathbb R^{n_u \\times n_x}$ be the state-action value function parameters
+            - $\\beta \\in \mathbb R$ be the inverse softmax temperature scaling the action values
+            - $\\rho \\in \\mathbb R$ be the inverse softmax temperature scaling the influence of the past trial's action
+            - $\\alpha \\in [0, 1]$ be the learning rate
+            - $\\varsigma(\\boldsymbol\\pi) = p(\mathbf u | \mathbf Q, \\beta, \\rho)$ be a softmax function with logits $\\pi_i = \\beta Q_{ij} x^j + \\rho \\tilde{u}_i$ (shown in Einstein summation convention).
+            - $\mathcal L = \\log p(\mathbf u | \mathbf Q, \\beta, \\rho)$ be the log-likelihood function for trial $t$
+            - $q_i = Q_{ij} x^j$ be the value of the state $x^j$
+            - $v^i = e^{\\beta q_i + \\rho \\tilde{u}_i}$ be the softmax potential
+            - $\\eta(\\boldsymbol\\pi)$ be the softmax partition function.
+
+        Then we have the partial derivative of $\mathcal L$ at trial $t$ with respect to $\\alpha$
+
+        $$
+        \\partial_\\alpha \mathcal L = \\beta \Big[ \big(\mathbf u - \\varsigma(\\pi)\big)_i (\\partial_\\alpha Q)^i_j x^j \Big],
+        $$
+
+        and with respect to $\\beta$
+
+        $$
+        \\partial_\\beta \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j Q_{jk} x^k
+        $$
+
+        and with respect to $\\rho$
+
+        $$
+        \\partial_\\rho \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j \\tilde{u}^j.
+        $$
+
+        We also compute the Hessian $\mathbf H$, defined as
+
+        $$
+        \mathbf H = \left[
+            \begin{array}{ccc}
+            \\partial^2_{\\alpha} \mathcal L & \\partial_{\\alpha} \\partial_{\\beta} \mathcal L & \\partial_{\\alpha} \\partial_{\\rho} \mathcal L \\
+            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\beta} \mathcal L & \\partial_{\\beta} \\partial_{\\rho} \mathcal L \\
+            \\partial_{\\rho} \\partial_{\\alpha} \mathcal L & \\partial_{\\rho} \\partial_{\\beta} \mathcal L & \\partial^2_{\\rho} \mathcal L \\
+            \end{array}\right].
+        $$
+
+        The components of $\mathbf H$ are virtually identical to that of `RWSoftmaxAgent`, with the exception of the $\\partial_{\\rho} \\partial_{\\alpha} \mathcal L$ and $\\partial_{\\beta} \\partial_{\\rho} \mathcal L$
+
+        $$
+        \\partial^2_{\\alpha} \mathcal L = \\beta \Big( (\mathbf u - \\varsigma(\\boldsymbol\\pi))_i (\\partial^2_\\alpha \mathbf Q)^i - \\partial_\\alpha \\varsigma(\\boldsymbol\\pi)_i (\\partial_\\alpha \mathbf Q)^i \Big)_j x^j,
+        $$
+
+        $$
+        \\partial^2_{\\beta} \mathcal L = u_k \\Bigg(\\frac{(q_i q_i v^i v^i}{z^2} - \\frac{q_i q_i v^i}{z} \\Bigg)^k
+        $$
+
+        $$
+        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg[ (u - \\varsigma(\\boldsymbol\\pi)) - \\beta \\partial_\\beta \\varsigma(\\boldsymbol\\pi) \\Bigg]_i (\\partial_\\alpha Q)^i_k x^k
+        $$
+
+        $$
+        \\partial_{\\alpha} \\partial_{\\rho} \mathcal L = - \\beta \\Big( \\partial_\\boldsymbol\\pi \\varsigma(\\boldsymboll\\pi)_i \\tilde{u}^i \\Big)_j (\\partial_\\alpha Q)^j_k x^k
+        $$
+
+        and where $\\mathbf H$ is symmetric since the second derivatives of $\mathcal L$ are continuous in the neighbourhood of the parameters.
+
         Arguments:
 
             action: `ndarray(nactions)`. One-hot action vector
@@ -631,20 +704,71 @@ class RWStickySoftmaxAgent(BanditAgent):
             `float`
 
         """
-        self.logprob_ += np.dot(action, self.actor.log_prob(self.critic.Qx(state)))
+        # Obtain the components required for computation of derivatives
+        lr             = self.critic.learning_rate
+        beta           = self.actor.inverse_softmax_temp
+        persev         = self.actor.perseveration
+        Qx             = self.critic.Qx(state)
+        logits         = beta*Qx + persev*self.actor.a_last
+        pu             = fu.softmax(logits)
+        du             = action - pu
+        dpu_dlogit     = grad.softmax(logits)
+        dlogit_dB      = Qx
+        dlogit_drho    = self.actor.a_last
+        dpu_dB         = np.einsum('ij,j->i', dpu_dlogit, dlogit_dB)
+        dpu_drho       = np.einsum('ij,j->i', dpu_dlogit, dlogit_drho)
+        D2Q_lr         = self.critic.hess_Q['learning_rate']
+        DQ_lr          = self.critic.dQ['learning_rate']
+        dpu_dlr        = beta*np.einsum('ij,jk,k->i', dpu_dlogit, DQ_lr, state)
+
+        # Compute the log-probability
+        self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
         self.actor.a_last = action
 
-        # Partial derivative of log probability with respect to inverse softmax temperature and perseveration
+        # Partial derivative of log probability with respect to inverse softmax temperature
+        #  Second order
+        self.hess_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
+        #  First order
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
+
+        # Partial derivative of log probability with respect to perseveration
+        #  Second order
+        self.hess_logprob['perseveration'] += np.dot(action, self.actor.hess_logprob['perseveration'])
+        # First order
         self.d_logprob['perseveration'] += np.dot(action, self.actor.d_logprob['perseveration'])
 
-        # Partial derivative of log probability with respect to learning rate
-        #   Requires application of the chain rule
-        dQ_dlr = self.critic.dQ['learning_rate']
-        dq_dQ = self.critic.grad_Qx(state)
-        dlp_dq = self.actor.d_logprob['action_values']
-        dlp_dlr = np.dot(dlp_dq, np.sum(dq_dQ*dQ_dlr, axis=1))
-        self.d_logprob['learning_rate'] += np.dot(action, dlp_dlr)
+        # Second partial derivative with respect to learning rate
+        self.hess_logprob['learning_rate'] +=  beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr) - np.einsum('i,ij->j', dpu_dlr, DQ_lr), state)
+
+        # First partial derivative with respect to learning rate
+        self.d_logprob['learning_rate'] += beta*np.einsum('i,ij,j->', du, DQ_lr, state)
+
+        # Partial derivative with respect to both learning rate and inverse softmax
+        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.einsum('i,ij,j->', du - beta*dpu_dB, DQ_lr, state)
+
+        # Partial derivative with respect to both learning rate and perseveration
+        self.hess_logprob['learning_rate_perseveration'] += -beta*np.einsum('i,ij,j->', dpu_drho, DQ_lr, state)
+
+        # Partial derivative with respect to both inverse softmax temperature and perseveration
+        self.hess_logprob['inverse_softmax_temp_perseveration'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp_perseveration'])
+
+        # Organize the gradients and hessians
+        self.grad_ = np.array([self.d_logprob['learning_rate'],
+                               self.d_logprob['inverse_softmax_temp'],
+                               self.d_logprob['perseveration']])
+
+        self.hess_ = np.array([[self.hess_logprob['learning_rate'],
+                                self.hess_logprob['learning_rate_inverse_softmax_temp'],
+                                self.hess_logprob['learning_rate_perseveration']],
+
+                               [self.hess_logprob['learning_rate_inverse_softmax_temp'],
+                               self.hess_logprob['inverse_softmax_temp'],
+                               self.hess_logprob['inverse_softmax_temp_perseveration']],
+
+                               [self.hess_logprob['learning_rate_perseveration'],
+                                self.hess_logprob['inverse_softmax_temp_perseveration'],
+                                self.hess_logprob['perseveration']]])
+
 
     def _log_prob_noderivatives(self, state, action):
         """ Computes the log-probability of an action taken by the agent in a given state without updating partial derivatives with respect to the parameters.

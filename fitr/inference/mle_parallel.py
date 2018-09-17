@@ -47,6 +47,7 @@ def l_bfgs_b(f,
     fevals  = 0
     niters  = 0
     nstarts = 0
+    nstarts_without_improvement = 0
     done    = False
     succeeded = False
     while not done:
@@ -67,8 +68,11 @@ def l_bfgs_b(f,
                 bic_ = bic(fmin, nparams, data[i].shape[1])
                 succeeded = True
 
-            if res.fun > fmin:
-                done = True
+            if res.fun >= fmin:
+                nstarts_without_improvement += 1
+                if nstarts_without_improvement >= maxstarts_without_improvement:
+                    done = True
+                    print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
 
         else:
             done = True
@@ -129,6 +133,7 @@ def second_order_optimizer(f,
     fevals  = 0
     niters  = 0
     nstarts = 0
+    nstarts_without_improvement = 0
     done    = False
     succeeded = False
     while not done:
@@ -153,9 +158,11 @@ def second_order_optimizer(f,
                 bic_ = bic(fmin, nparams, data[i].shape[1])
                 succeeded = True
 
-            if res.fun > fmin:
-                done = True
-                print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
+            if res.fun >= fmin:
+                nstarts_without_improvement += 1
+                if nstarts_without_improvement >= maxstarts_without_improvement:
+                    done = True
+                    print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
         else:
             done = True
             print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
@@ -209,13 +216,17 @@ def mlepar(f,
 
     """
     nsubjects = len(data)
+
     if method == 'L-BFGS-B':
         plist = [[f, i, data, nparams, minstarts, maxstarts, maxstarts_without_improvement, init_sd] for i in range(nsubjects)]
         y = Parallel(n_jobs=njobs)(delayed(l_bfgs_b)(z[0],z[1],z[2],z[3],z[4],z[5],z[6],z[7]) for z in plist)
+
     elif method in ['trust-exact', 'trust-ncg', 'trust-krylov', 'dogleg']:
         plist = [[f, i, data, nparams, jac, hess, minstarts, maxstarts, maxstarts_without_improvement, init_sd, method] for i in range(nsubjects)]
         y = Parallel(n_jobs=njobs)(delayed(second_order_optimizer)(z[0],z[1],z[2],z[3],z[4],z[5],z[6],z[7],z[8],z[9],z[10]) for z in plist)
+
     res = OptimizationResult(nsubjects, nparams)
+
     for i, item in enumerate(y):
         sid = item[0]
         res.subject_id[sid] = sid
@@ -227,4 +238,5 @@ def mlepar(f,
         res.bic[sid] = item[6]
         res.err[sid,:]=np.sqrt(np.diag(item[7]))
         res.hess_inv[sid,:,:]=item[7]
+
     return res

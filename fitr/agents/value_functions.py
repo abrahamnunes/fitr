@@ -241,19 +241,7 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         self.dQ = {
             'learning_rate': np.zeros(self.Q.shape),
             'rpe': np.zeros(self.Q.shape)}
-
-        self.d_rpe = {
-            'Q': np.zeros(self.Q.shape),
-            'learning_rate': 0
-        }
-
-        self.hess_Q = {
-            'learning_rate': np.zeros(self.Q.shape)
-        }
-
-        self.hess_rpe = {
-            'learning_rate': 0
-        }
+        self.hess_Q = {'learning_rate': np.zeros(self.Q.shape)}
 
     def update(self, x, u, r, x_, u_):
         """ Computes the value function update of the instrumental Rescorla-Wagner learning rule and computes derivative with respect to the learning rate.
@@ -283,15 +271,9 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         self.rpe.append(rpe)
         z = np.outer(u, x)
         rpe_z = rpe*z # Compute this ahead of time to avoid repeated operations
-
-        self.hess_Q['learning_rate'] = -2*z*self.dQ['learning_rate'] + self.hess_Q['learning_rate']*(1 - self.learning_rate*z)
-
-        self.dQ['rpe'] = self.dQ['rpe'] + self.learning_rate*z
-        self.dQ['learning_rate'] = rpe_z + self.dQ['learning_rate']*(1 - self.learning_rate*z)
-
-        self.d_rpe['Q'] = - z
-        self.d_rpe['learning_rate'] = np.sum(self.d_rpe['Q']*self.dQ['learning_rate'])
-
+        lr_z = self.learning_rate*z
+        self.hess_Q['learning_rate'] = -2*z*self.dQ['learning_rate'] + self.hess_Q['learning_rate']*(1 - lr_z)
+        self.dQ['learning_rate'] = rpe_z + self.dQ['learning_rate']*(1 - lr_z)
         self.Q += self.learning_rate*rpe_z
 
     def _update_noderivatives(self, x, u, r, x_, u_):
@@ -392,8 +374,6 @@ class QLearner(ValueFunction):
         rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
         self.rpe.append(rpe)
         self.Q += self.learning_rate*rpe*self.etrace
-
-
 
 class SARSALearner(ValueFunction):
     """ Learns an instrumental control policy through the SARSA learning rule

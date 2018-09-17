@@ -85,16 +85,22 @@ def log_stickysoftmax(B, p, q, u):
         - $v = (e^{\\beta q_1}, e^{\\beta q_2}, \ldots, e^{\\beta q_{n_u}})^\\top$ be the exponentiated scaled action value
         - $z = \sum_{i=1}^{n_u} v_i$ be the (scalar) normalization constant
 
-    Then the Hessian with respect to the inverse softmax parameter
+    Then the Hessian with respect to the inverse softmax parameter is
 
     $$
-    \\partial^2_\\beta \\log p(u|q, \\beta) = \\Bigg(\\frac{(q_i q_i v^i v^i}{z^2} - \\frac{q_i q_i v^i}{z} \\Bigg)_{k=1}^{n_u}
+    \\partial^2_\\beta \\log p(u'|q, \\beta, \\rho, u) = \\Bigg(\\frac{(q_i q_i v^i v^i}{z^2} - \\frac{q_i q_i v^i}{z} \\Bigg)_{k=1}^{n_u}
     $$
 
-    where Einstein summation is operating (only the 2 over the $z$ is not an index), and the Hessian with respect to the action values is
+    where Einstein summation is operating (only the 2 over the $z$ is not an index), and with respect to the perseveration parameter
 
     $$
-    \\partial^2_q \\log p(u|q, \\beta) = \\frac{\\beta^2}{z^2} v^i v_j - \\frac{\\beta^2}{z} \\mathrm{diag}(v).
+    \\partial^2_\\rho \\log p(u'|q, \\beta, \\rho, u) = \\Bigg(\\frac{(u_i u_i v^i v^i}{z^2} - \\frac{u_i u_i v^i}{z} \\Bigg)_{k=1}^{n_u}
+    $$
+
+    the Hessian with respect to the action values is
+
+    $$
+    \\partial^2_q \\log p(u'|q, \\beta, \\rho, u) = \\frac{\\beta^2}{z^2} v^i v_j - \\frac{\\beta^2}{z} \\mathrm{diag}(v).
     $$
 
     Arguments:
@@ -108,6 +114,7 @@ def log_stickysoftmax(B, p, q, u):
 
         HB: `ndarray((nactions,))`. Second order partial derivatives of log-(sticky)softmax probability with respect to inverse temperature
         Hp: `ndarray((nactions,))`. Second order partial derivatives of log-(sticky)softmax probability with respect to perseveration parameter
+        HBp: `ndarray((nactions,))`. Second order partial derivative of log-(sticky)softmax probability with respect to inverse temperature and perseveration parameter
         Hq: `ndarray((nactions, nactions, nactions))`. Second order partial derivatives of log-(sticky)softmax probability with respect to action values
         Hu: `ndarray((nactions, nactions, nactions))`. Second order partial derivatives of log-(sticky)softmax probability with respect to previous action
 
@@ -117,22 +124,26 @@ def log_stickysoftmax(B, p, q, u):
     v = np.exp(B*q + p*u)
     z = np.sum(v)
 
-    # Hessian with respect to the inverse softmax
+    # Second-order partial derivative with respect to the inverse softmax
     HB = (np.dot(q, v)**2)/(z**2) - np.dot((q**2), v)/z
     HB = np.ones(q.size)*HB
 
-    # Hessian with respect to the perseveration parameter
+    # Second-order partial derivative with respect to the perseveration parameter
     Hp = (np.dot(u, v)**2)/(z**2) - np.dot((u**2), v)/z
     Hp = np.ones(u.size)*Hp
 
-    # Hessian with respect to the action values
+    # Second-order partial derivative with respect to the inverse softmax and perseveration parameters
+    HBp = -u@grad.softmax(B*q + p*u)@q
+    HBp = np.ones(u.size)*HBp
+
+    # Second-order partial derivative with respect to the action values
     Vouter = np.outer(v, v)
     Vdiag = np.diag(v)
     Hq = ((B**2)/z)*(Vouter/z - Vdiag)
     Hq = np.tile(np.expand_dims(Hq, 0), [v.size, 1, 1])
 
-    # Hessian with respect to the last action
+    # Second-order partial derivative with respect to the last action
     Hu = ((p**2)/z)*(Vouter/z - Vdiag)
     Hu = np.tile(np.expand_dims(Hu, 0), [v.size, 1, 1])
 
-    return HB, Hp, Hq, Hu
+    return HB, Hp, HBp, Hq, Hu
