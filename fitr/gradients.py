@@ -89,3 +89,48 @@ def softmax(x):
     v = np.exp(x)
     z = np.sum(v)
     return (np.diag(z*v) - np.outer(v, v))/(z**2)
+
+def exp(x):
+    """ Derivative of exponential function
+
+    Trivial, but here for consistency.
+
+    Arguments:
+
+        x: `ndarray`. Vector of inputs
+
+    Returns:
+
+        Derivative of `exp(x)`.
+    """
+    return np.exp(x)
+
+
+def sigmoid(x, a_min=-10, a_max=10):
+    """ Derivative of sigmoid functionself.
+
+    The sigmoid function is
+
+    $$
+    \\sigma(x) = \\frac{1}{1+e^{-x}}
+    $$
+
+    and its derivative is
+
+    $$
+    \\partial_x \\sigma(x) = \\frac{e^{-x}}{(1+e^{-x})^2}.
+    $$
+
+    Arguments:
+
+        x: `float` or `ndarray`. Inputs to the sigmoid
+        a_min: Lower bound at which to clip values of `x`
+        a_max: Upper bound at which to clip values of `x`
+
+    Returns:
+
+        `float` or `ndarray(shape=x.size)`
+
+    """
+    v = np.exp(-x)
+    return v/((1 + v)**2)

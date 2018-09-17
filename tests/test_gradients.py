@@ -35,6 +35,15 @@ def test_max():
         fitr_grad = grad.max(x)
         assert(np.linalg.norm(ag_grad-fitr_grad) < 1e-6)
 
+def test_sigmoid():
+    x = np.linspace(-5, 5, 10)
+    f = lambda x: utils.sigmoid(x)
+    ag = elementwise_grad(f)(x)
+    fg = grad.sigmoid(x)
+    assert(np.all(np.linalg.norm(ag-fg) < 1e-6))
+
+
+
 def test_softmax():
     x = np.arange(5)+1
     x = x.astype(np.float)
