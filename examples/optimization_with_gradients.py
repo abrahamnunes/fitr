@@ -9,8 +9,8 @@ from fitr.criticism.plotting import actual_estimate
 from scipy import optimize as op
 
 
-task = IGT
-data = generate_behavioural_data(task, RWSoftmaxAgent, 100, 500)
+task = TwoArmedBandit
+data = generate_behavioural_data(task, RWSoftmaxAgent, 50, 200)
 X1, U1, R, X2, U2, T = data.unpack_tensor(task().nstates, task().nactions)
 
 def loglik(w, X, U, R, X_):
@@ -23,20 +23,20 @@ def loglik(w, X, U, R, X_):
         q.log_prob(X[t], U[t])
         q.learning(X[t], U[t], R[t], X_[t], None)
     L = -q.logprob_
-    gradL = -np.array([q.d_logprob['learning_rate'], q.d_logprob['inverse_softmax_temp']])
-    return L, gradL
-
+    return L, -q.grad_, -q.hess_
 
 xhat = []
 logprob = []
 for i in range(data.nsubjects):
-    f = lambda x: loglik(x, X1[i], U1[i], R[i], X2[i])
+    f = lambda x: loglik(x, X1[i], U1[i], R[i], X2[i])[:-1]
+    hess = lambda x: loglik(x, X1[i], U1[i], R[i], X2[i])[2]
     x0 = np.random.normal(0, 1, size=2)
-    res = op.minimize(f, x0, jac=True)
+    res = op.minimize(f, x0, jac=True, hess=hess, method='trust-exact')
     xhat.append(fu.transform(res.x, [fu.sigmoid, np.exp]).flatten())
     logprob.append(res.fun)
     print('FIT SUBJECT %s | LOGLIK %s' %(i, res.fun))
 
+help(op.minimize)
 xhat = np.array(xhat)
 logprob = np.array(logprob)
 

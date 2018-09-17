@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import autograd.numpy as np
+import fitr.utils as fu
 from fitr.agents.policies import *
 from fitr.agents.value_functions import *
 from fitr.data import BehaviouralData
@@ -147,11 +148,11 @@ class MDPAgent(Agent):
 class RandomBanditAgent(BanditAgent):
     """ An agent that simply selects random actions at each trial
     """
-    def __init__(self, task, **kwargs):
+    def __init__(self, task, rng=np.random.RandomState(), **kwargs):
         super().__init__(task)
         self.meta = ['RandomAgent']
         self.critic = DummyLearner(task)
-        self.actor = SoftmaxPolicy(inverse_softmax_temp=1.)
+        self.actor = SoftmaxPolicy(inverse_softmax_temp=1., rng=rng)
     def action(self, state):
         return self.actor.sample(self.critic.Qx(state))
     def learning(self, state, action, reward, next_state, next_action): pass
@@ -164,11 +165,11 @@ class RandomMDPAgent(MDPAgent):
     -----
     This has been specified as an `OnPolicyAgent` arbitrarily.
     """
-    def __init__(self, task, **kwargs):
+    def __init__(self, task, rng=np.random.RandomState(), **kwargs):
         super().__init__(task)
         self.meta = ['RandomAgent']
         self.critic = DummyLearner(task)
-        self.actor = SoftmaxPolicy(inverse_softmax_temp=1.)
+        self.actor = SoftmaxPolicy(inverse_softmax_temp=1., rng=rng)
     def action(self, state):
         return self.actor.sample(self.critic.Qx(state))
     def learning(self, state, action, reward, next_state, next_action): pass
@@ -224,7 +225,8 @@ class SARSASoftmaxAgent(MDPAgent):
         if trace_decay is None: trace_decay = rng.uniform(0.8, 1.0)
         if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
         self.params = [learning_rate, discount_factor, trace_decay, inverse_softmax_temp]
-        self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp)
+        self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp,
+                                    rng=rng)
         self.critic = SARSALearner(task,
                                    learning_rate=learning_rate,
                                    discount_factor=discount_factor,
@@ -290,7 +292,9 @@ class SARSAStickySoftmaxAgent(MDPAgent):
         if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
         if perseveration is None: perseveration = rng.uniform(0.01, 10)
         self.params = [learning_rate, discount_factor, trace_decay, inverse_softmax_temp, perseveration]
-        self.actor  = StickySoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp, perseveration=perseveration)
+        self.actor  = StickySoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp,
+                                          perseveration=perseveration,
+                                          rng=rng)
         self.critic = SARSALearner(task,
                                    learning_rate=learning_rate,
                                    discount_factor=discount_factor,
@@ -353,7 +357,7 @@ class QLearningSoftmaxAgent(MDPAgent):
         if trace_decay is None: trace_decay = rng.uniform(0.8, 1.0)
         if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
         self.params = [learning_rate, discount_factor, trace_decay, inverse_softmax_temp]
-        self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp)
+        self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp, rng=rng)
         self.critic = QLearner(task,
                                learning_rate=learning_rate,
                                discount_factor=discount_factor,
@@ -406,7 +410,7 @@ class RWSoftmaxAgent(BanditAgent):
         if learning_rate is None: learning_rate = rng.uniform(0.01, 0.99)
         if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
         self.params = [learning_rate, inverse_softmax_temp]
-        self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp)
+        self.actor  = SoftmaxPolicy(inverse_softmax_temp = inverse_softmax_temp, rng=rng)
         self.critic = InstrumentalRescorlaWagnerLearner(task, learning_rate=learning_rate)
 
         # Storage for first order partial derivatives
@@ -418,7 +422,8 @@ class RWSoftmaxAgent(BanditAgent):
         # Storage for second order partial derivatives
         self.hess_logprob = {
             'learning_rate': 0,
-            'inverse_softmax_temp': 0
+            'inverse_softmax_temp': 0,
+            'learning_rate_inverse_softmax_temp': 0
         }
 
     def action(self, state):
@@ -432,6 +437,59 @@ class RWSoftmaxAgent(BanditAgent):
 
         This function overrides the `log_prob` method of the parent class.
 
+        Let
+
+            - $n_u \\in \mathbb N_+$ be the dimensionality of the action space
+            - $n_x \\in \mathbb N_+$ be the dimensionality of the state space
+            - $\mathbf u = (u_0, u_1, u_{n_u})^\\top$ be a one-hot action vector
+            - $\mathbf x = (x_0, x_1, x_{n_x})^\\top$ be a one-hot action vector
+            - $\mathbf Q \\in \mathbb R^{n_u \\times n_x}$ be the state-action value function parameters
+            - $\\beta \\in \mathbb R$ be the inverse softmax temperature
+            - $\\alpha \\in [0, 1]$ be the learning rate
+            - $\\varsigma(\\boldsymbol\\pi) = p(\mathbf u | \mathbf Q, \\beta)$ be a softmax function with logits $\\pi_i = \\beta Q_{ij} x^j$ (shown in Einstein summation convention).
+            - $\mathcal L = \\log p(\mathbf u | \mathbf Q, \\beta)$ be the log-likelihood function for trial $t$
+            - $q_i = Q_{ij} x^j$ be the value of the state $x^j$
+            - $v^i = e^{\\beta q_i}$ be the softmax potential
+            - $\\eta(\\boldsymbol\\pi)$ be the softmax partition function.
+
+        Then we have the partial derivative of $\mathcal L$ at trial $t$ with respect to $\\alpha$
+
+        $$
+        \\partial_\\alpha \mathcal L = \\beta \Big[ \big(\mathbf u - \\varsigma(\\pi)\big)_i (\\partial_\\alpha Q)^i_j x^j \Big],
+        $$
+
+        and with respect to $\\beta$
+
+        $$
+        \\partial_\\beta \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j Q_{jk} x^k.
+        $$
+
+        We also compute the Hessian $\mathbf H$, defined as
+
+        $$
+        \mathbf H = \left[
+            \begin{array}{cc}
+            \\partial^2_{\\alpha} \mathcal L & \\partial_{\\alpha} \\partial_{\\beta} \mathcal L \\
+            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\alpha} \mathcal L \\
+            \end{array}\right].
+        $$
+
+        The components of $\mathbf H$ are
+
+        $$
+        \\partial^2_{\\alpha} \mathcal L = \\beta \Big( (\mathbf u - \\varsigma(\\boldsymbol\\pi))_i (\\partial^2_\\alpha \mathbf Q)^i - \\partial_\\alpha \\varsigma(\\boldsymbol\\pi)_i (\\partial_\\alpha \mathbf Q)^i \Big)_j x^j,
+        $$
+
+        $$
+        \\partial^2_{\\beta} \mathcal L = u_i \Big( \Big),
+        $$
+
+        $$
+        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg(\\frac{(q_i q_i v^i v^i}{\\eta(\\boldsymbol\\pi)^2} - \\frac{q_i q_i v^i}{\\eta(\\boldsymbol\\pi)} \\Bigg)_{k=1}^{n_u},
+        $$
+
+        and where $\\partial_{\\beta} \\partial_{\\alpha} \mathcal L = \\partial_{\\alpha} \\partial_{\\beta} \mathcal L$ since the second derivatives of $\mathcal L$ are continuous in the neighbourhood of the parameters.
+
         Arguments:
 
             action: `ndarray(nactions)`. One-hot action vector
@@ -442,24 +500,44 @@ class RWSoftmaxAgent(BanditAgent):
             `float`
 
         """
-        self.logprob_ += np.dot(action, self.actor.log_prob(self.critic.Qx(state)))
-
+        lr         = self.critic.learning_rate
+        beta       = self.actor.inverse_softmax_temp
+        z          = np.outer(action, state)
+        Qx         = self.critic.Qx(state)
+        logits     = beta*Qx
+        pu         = fu.softmax(logits)
+        du         = action - pu
+        dpu_dlogit = grad.softmax(logits)
+        dlogit_dB  = Qx
+        dpu_dB     = np.einsum('ij,j->i', dpu_dlogit, dlogit_dB)
+        dpu_dlr    = beta*np.einsum('ij,jk,k->i', dpu_dlogit, self.critic.dQ['learning_rate'], state)
+        self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
 
         # Partial derivative of log probability with respect to inverse softmax temperature
+        #  Second order
+        self.hess_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
         #  First order
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
 
-        #  Second order
-        self.hess_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
+        # Second and first partial derivative of log probability with respect to learning rate
+        logits = beta * Qx
+        prob_u = fu.softmax(logits)
+        D2Q_lr = self.critic.hess_Q['learning_rate']
+        DQ_lr = self.critic.dQ['learning_rate']
 
+        # Second partial derivative with respect to learning rate
+        self.hess_logprob['learning_rate'] +=  beta*np.einsum('k,k->', np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate']) - np.einsum('i,ij->j', dpu_dlr, self.critic.dQ['learning_rate']), state)
 
-        # Partial derivative of log probability with respect to learning rate
-        #   Requires application of the chain rule
-        dQ_dlr = self.critic.dQ['learning_rate']
-        dq_dQ = self.critic.grad_Qx(state)
-        dlp_dq = self.actor.d_logprob['action_values']
-        dlp_dlr = np.dot(dlp_dq, np.sum(dq_dQ*dQ_dlr, axis=1))
-        self.d_logprob['learning_rate'] += np.dot(action, dlp_dlr)
+        # First partial derivative with respect to learning rate
+        self.d_logprob['learning_rate'] += beta*np.einsum('i,ij,j', du, self.critic.dQ['learning_rate'], state)
+
+        # Partial derivative with respect to both learning rate and inverse softmax
+        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.einsum('i,ij,j->', action - pu - beta*dpu_dB, self.critic.dQ['learning_rate'], state)
+
+        # Organize the gradients and hessians
+        self.grad_ = np.array([self.d_logprob['learning_rate'], self.d_logprob['inverse_softmax_temp']])
+        self.hess_ = np.array([[self.hess_logprob['learning_rate'], self.hess_logprob['learning_rate_inverse_softmax_temp']],
+                               [self.hess_logprob['learning_rate_inverse_softmax_temp'], self.hess_logprob['inverse_softmax_temp']]])
 
     def _log_prob_noderivatives(self, state, action):
         """ Computes the log-probability of an action taken by the agent in a given state without updating partial derivatives with respect to the parameters.
@@ -520,7 +598,8 @@ class RWStickySoftmaxAgent(BanditAgent):
         if perseveration is None: perseveration = rng.uniform(0.01, 10)
         self.params = [learning_rate, inverse_softmax_temp, perseveration]
         self.actor  = StickySoftmaxPolicy(inverse_softmax_temp=inverse_softmax_temp,
-                                          perseveration=perseveration)
+                                          perseveration=perseveration,
+                                          rng=rng)
         self.actor.a_last = np.zeros(self.task.nactions)
         self.critic = InstrumentalRescorlaWagnerLearner(task, learning_rate=learning_rate)
 

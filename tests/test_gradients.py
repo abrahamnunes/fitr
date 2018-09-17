@@ -202,6 +202,7 @@ def test_grad_instrumantalrwupdate():
     q.update(x, u1, r2, x_2, None)
     q.update(x, u1, r1, x_1, None)
     fitr_grad = q.dQ['learning_rate']
+    fitr_hess = q.hess_Q['learning_rate']
 
     def fq(lr):
         m = InstrumentalRescorlaWagnerLearner(task, learning_rate=lr)
@@ -211,9 +212,12 @@ def test_grad_instrumantalrwupdate():
         m._update_noderivatives(x, u1, r2, x_2, None)
         m._update_noderivatives(x, u1, r1, x_1, None)
         return m.Q
+
     agQ = jacobian(fq)(lr)
+    ahQ = hessian(fq)(lr)
 
     assert(np.linalg.norm(fitr_grad-agQ) < 1e-6)
+    assert(np.linalg.norm(fitr_hess-ahQ) < 1e-6)
 
 def test_grad_qlearnerupdate():
     ntrials = 7
@@ -283,7 +287,6 @@ def test_grad_qlearnerupdate():
 
     # Check partial derivative of Q with respect to trace decay
     assert(np.linalg.norm(q.dQ['trace_decay']-jacobian(agf_et)(0.95)) < 1e-6)
-
 
 def test_grad_sarsalearnerupdate():
     ntrials = 7
@@ -355,12 +358,13 @@ def test_grad_sarsalearnerupdate():
     # Check partial derivative of Q with respect to trace decay
     assert(np.linalg.norm(q.dQ['trace_decay']-jacobian(agf_et)(0.95)) < 1e-6)
 
-
 def test_rwsoftmaxagent():
     lr = 0.1
     B  = 1.5
     task = TwoArmedBandit()
-    q = RWSoftmaxAgent(task, learning_rate=lr, inverse_softmax_temp=B)
+    q = RWSoftmaxAgent(task,
+                       learning_rate=lr,
+                       inverse_softmax_temp=B)
 
     x  = np.array([1., 0., 0.])
     u1  = np.array([1., 0.])
@@ -384,6 +388,8 @@ def test_rwsoftmaxagent():
     fitr_lrgrad = q.d_logprob['learning_rate']
     fitr_istgrad= q.d_logprob['inverse_softmax_temp']
 
+    fitr_lrhess = q.hess_logprob['learning_rate']
+    fitr_isthess = q.hess_logprob['inverse_softmax_temp']
 
     def fq(lr):
         m = RWSoftmaxAgent(task, learning_rate=lr, inverse_softmax_temp=1.5)
@@ -416,8 +422,13 @@ def test_rwsoftmaxagent():
     agQ = jacobian(fq)(lr)
     agB = jacobian(fB)(B)
 
+    ahQ = hessian(fq)(lr)
+    ahB = hessian(fB)(B)
+
     assert(np.linalg.norm(fitr_lrgrad-agQ) < 1e-6)
     assert(np.linalg.norm(fitr_istgrad-agB) < 1e-6)
+
+    assert(np.linalg.norm(fitr_isthess-ahB)<1e-6)
 
 def test_rwstickysoftmaxagent():
     lr = 0.1

@@ -174,6 +174,35 @@ def softmax(x):
     expx = np.exp(x-xmax)
     return expx/np.sum(expx)
 
+def softmax_components(x):
+    """ Returns the potential (numerator) and partition function (denominator) of softmax
+
+    Given a vector $\mathbf x = (x_1, x_2, \ldots, x_n)$ he potential of the softmax function is
+
+    $$
+    \psi(\mathbf x) = e^{\mathbf x}
+    $$
+
+    The partition function for the softmax is
+
+    $$
+    \eta(\mathbf x) = \sum_{i} \psi(x_i)
+    $$
+
+    Arguments:
+
+        x: Softmax logits (`ndarray((n,))`)
+
+    Returns:
+
+        potential: `ndarray(x.size)`
+        partition: `float`
+    """
+    xmax = np.max(x)
+    potential = np.exp(x-xmax)
+    partition = np.sum(potential)
+    return potential, partition
+
 def stable_exp(x, a_min=-10, a_max=10):
     """ Clipped exponential function
 

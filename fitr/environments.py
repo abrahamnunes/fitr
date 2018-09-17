@@ -559,7 +559,7 @@ def make_bandit_graph(nactions, noutcomes, nstates, min_actions_per_context, alp
 class TwoArmedBandit(Graph):
     """ A simple 2-armed bandit task
     """
-    def __init__(self):
+    def __init__(self, rng=np.random.RandomState()):
         T = np.zeros((2, 3, 3))
         T[0,1,0] = 0.8      # These end up being reward probabilities
         T[0,2,0] = 0.2      #  because states are deterministically rewarded
@@ -569,12 +569,12 @@ class TwoArmedBandit(Graph):
         p_start = np.array([1.,0.,0.])
         R = np.array([0.,0.,1.])
         xend = np.array([0.,1.,1.])
-        super().__init__(T,R,xend,p_start)
+        super().__init__(T,R,xend,p_start,rng=rng)
 
 class OrthogonalGoNoGo(Graph):
     """ The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
     """
-    def __init__(self):
+    def __init__(self,rng=np.random.RandomState()):
         T = np.zeros((2,7,7))
         T[0,4,0] = 0.8  # S = Go to avoid loss, A=NoGo, S'= Loss
         T[0,5,0] = 0.2  # S = Go to avoid loss, A=NoGo, S'= Nothing
@@ -604,7 +604,8 @@ class OrthogonalGoNoGo(Graph):
                         'Loss', '0', 'Win']
         alabs        = [r'$a_{N}$', r'$a_{G}$']
         super().__init__(T,R,end_states,p_start,state_labels=slabs,
-                         action_labels=alabs, label=taskname)
+                         action_labels=alabs, label=taskname,
+                         rng=rng)
 
 class TwoStep(Graph):
     """ An implementation of the Two-Step Task from Daw et al. (2011).
@@ -615,7 +616,7 @@ class TwoStep(Graph):
         sd: `float` identifying the standard deviation of the reward-determining Gaussian random walks
 
     """
-    def __init__(self, mu=0, sd=0.025):
+    def __init__(self, mu=0, sd=0.025,rng=np.random.RandomState()):
         T = np.zeros((2,5,5))
         T[0,1,0] = 0.7
         T[0,2,0] = 0.3
@@ -650,7 +651,8 @@ class TwoStep(Graph):
         edge_labels[1,4,2] = r'$1-P_{win}^{a_1^{s_C}}$'
         super().__init__(T,R,end_states,p_start,f_reward=self.f_reward,
                          state_labels=slabs, action_labels=alabs,
-                         label=taskname, edge_labels=edge_labels)
+                         label=taskname, edge_labels=edge_labels,
+                         rng=rng)
 
         self.mu = mu
         self.sd = sd
@@ -701,7 +703,8 @@ class ReverseTwoStep(Graph):
     """
     From Kool & Gershman 2016.
     """
-    def __init__(self, mu=0, sd=2, path_corr=0, reward_lb=-4, reward_ub=5):
+    def __init__(self, mu=0, sd=2, path_corr=0, reward_lb=-4, reward_ub=5,
+                 rng=np.random.RandomState()):
         T = np.zeros((2,4,4))
         T[0,2,0] = 1.
         T[0,3,0] = 0.
@@ -716,7 +719,8 @@ class ReverseTwoStep(Graph):
         p_start    = np.array([0.5,0.5,0,0])
         R          = np.array([0,0,0.3,0.7])
         end_states = np.array([0,0,1,1])
-        super().__init__(T,R,end_states,p_start,f_reward=self.f_reward)
+        super().__init__(T,R,end_states,p_start,f_reward=self.f_reward,
+                         rng=rng)
 
         self.mu = mu
         self.sd = sd
@@ -738,7 +742,8 @@ class ReverseTwoStepWithAvoidance(Graph):
     """
     Modified from Kool, Cushman, & Gershman 2016.
     """
-    def __init__(self, mu=0, sd=2, path_corr=0., reward_lb=-4, reward_ub=5):
+    def __init__(self, mu=0, sd=2, path_corr=0., reward_lb=-4, reward_ub=5,
+                 rng=np.random.RandomState()):
         T = np.zeros([3,8,8])
         T[0,2,0] = 1.
         T[1,3,0] = 1.
@@ -766,7 +771,7 @@ class ReverseTwoStepWithAvoidance(Graph):
         slabs = [r'$s_A$', r'$s_B$', r'$s_C$', r'$s_D$',r'$s_E$', r'$s_F$', r'$s_G$', r'$s_H$']
         alabs = [r'$a_0$', r'$a_1$', r'$a_2$']
         super().__init__(T,R,end_states,p_start,f_reward=self.f_reward,
-                         state_labels=slabs, action_labels=alabs)
+                         state_labels=slabs, action_labels=alabs,rng=rng)
 
         self.mu = mu
         self.sd = sd
@@ -786,7 +791,7 @@ class ReverseTwoStepWithAvoidance(Graph):
 
 class MouthTask(Graph):
     """ The Pizzagalli reward sensitivity signal-detection task """
-    def __init__(self):
+    def __init__(self,rng=np.random.RandomState()):
         T = np.zeros((2, 4, 4))
         #[u,x',x]
         T[0,2,0] = 0.75
@@ -806,13 +811,14 @@ class MouthTask(Graph):
         alabs = [r'$a_{0}$', r'$a_{1}$']
         taskname = 'Reward Signal Detection Task'
         super().__init__(T,R,xend,p_start,state_labels=slabs,
-                         action_labels=alabs, label=taskname)
+                         action_labels=alabs, label=taskname,
+                         rng=rng)
         self.Ti[0,2,1] = 1.
         self.Ti[1,2,1] = 1.
 
 class IGT(Graph):
     """ Iowa Gambling Task """
-    def __init__(self):
+    def __init__(self,rng=np.random.RandomState()):
         T = np.zeros((4, 5, 5))
         T[0,1,0] = 0.5
         T[0,3,0] = 0.5
@@ -830,7 +836,8 @@ class IGT(Graph):
         alabs = [r'$a_A$', r'$a_B$', r'$a_C$', r'$a_D$']
         taskname = 'Iowa Gambling Task'
         super().__init__(T, R, xend, p_start, state_labels=slabs,
-                         action_labels=alabs, label=taskname)
+                         action_labels=alabs, label=taskname,
+                         rng=rng)
 
 #===============================================================================
 #   THE RANDOM BANDIT TASK
@@ -866,7 +873,8 @@ class RandomContextualBandit(Graph):
                  reward_ub=1,
                  reward_drift='off',
                  drift_mu=0.,
-                 drift_sd=2.):
+                 drift_sd=2.,
+                 rng=np.random.RandomState()):
         self.nactions = nactions
         self.noutcomes = noutcomes
         self.nstates = nstates
@@ -910,7 +918,7 @@ class RandomContextualBandit(Graph):
             self.sd = 1.
         self.C = np.eye(self.noutcomes)*self.sd
         self.mvn = multivariate_normal(mean=self.mu, cov=self.C)
-        super().__init__(T,R,xend,p_start,f_reward=self.f_reward)
+        super().__init__(T,R,xend,p_start,f_reward=self.f_reward,rng=rng)
 
     def f_reward(self, R, x):
         if self.reward_drift == 'on':

@@ -10,6 +10,7 @@ class ValueFunction(object):
     - `nactions`: Number of actions in the task, $|\mathcal U|$
     - `V`: State value function $\mathbf v = \mathcal V(\mathbf x)$
     - `Q`: State-action value function $\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)$
+    - `rpe`: Reward prediction error history
     - `etrace`: An eligibility trace (optional)
     - `dV`: A dictionary storing gradients with respect to parameters (named keys)
     - `dQ`: A dictionary storing gradients with respect to parameters (named keys)
@@ -25,6 +26,7 @@ class ValueFunction(object):
         self.nactions = env.nactions
         self.V = np.zeros(self.nstates)
         self.Q = np.zeros((self.nactions, self.nstates))
+        self.rpe = [0]
         self.etrace = None
         self.dV = {}
         self.dQ = {}
@@ -236,7 +238,22 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         super().__init__(env)
 
         # Store gradient of learning rule with respect to learning rate
-        self.dQ = {'learning_rate': np.zeros(self.Q.shape)}
+        self.dQ = {
+            'learning_rate': np.zeros(self.Q.shape),
+            'rpe': np.zeros(self.Q.shape)}
+
+        self.d_rpe = {
+            'Q': np.zeros(self.Q.shape),
+            'learning_rate': 0
+        }
+
+        self.hess_Q = {
+            'learning_rate': np.zeros(self.Q.shape)
+        }
+
+        self.hess_rpe = {
+            'learning_rate': 0
+        }
 
     def update(self, x, u, r, x_, u_):
         """ Computes the value function update of the instrumental Rescorla-Wagner learning rule and computes derivative with respect to the learning rate.
@@ -245,6 +262,12 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
 
         $$
         \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) = \\delta \mathbf u \mathbf x^\\top + \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) (1-\\alpha \mathbf u \mathbf x^\\top)
+        $$
+
+        and the second order derivative with respect to learning rate is
+
+        $$
+        \\frac{\\partial}{\\partial \\alpha} \mathcal Q(\mathbf x, \mathbf u; \\alpha) = - 2 \\mathbf u \\mathbf x^\\top \\partial_\\alpha \mathcal Q(\mathbf x, \mathbf u; \\alpha) + \\partial^2_\\alpha \mathcal Q(\mathbf x, \mathbf u; \\alpha) (1 - \\alpha \mathbf u \mathbf x^\\top)
         $$
 
         Arguments:
@@ -257,9 +280,19 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
 
         """
         rpe    = r - self.uQx(u, x)
+        self.rpe.append(rpe)
         z = np.outer(u, x)
-        self.dQ['learning_rate'] = rpe*z + self.dQ['learning_rate']*(1 - self.learning_rate*z)
-        self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
+        rpe_z = rpe*z # Compute this ahead of time to avoid repeated operations
+
+        self.hess_Q['learning_rate'] = -2*z*self.dQ['learning_rate'] + self.hess_Q['learning_rate']*(1 - self.learning_rate*z)
+
+        self.dQ['rpe'] = self.dQ['rpe'] + self.learning_rate*z
+        self.dQ['learning_rate'] = rpe_z + self.dQ['learning_rate']*(1 - self.learning_rate*z)
+
+        self.d_rpe['Q'] = - z
+        self.d_rpe['learning_rate'] = np.sum(self.d_rpe['Q']*self.dQ['learning_rate'])
+
+        self.Q += self.learning_rate*rpe_z
 
     def _update_noderivatives(self, x, u, r, x_, u_):
         """ Computes the value function update of the instrumental Rescorla-Wagner learning rule without the derivative.
@@ -339,6 +372,7 @@ class QLearner(ValueFunction):
 
         # Compute RPE
         rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
+        self.rpe.append(rpe)
 
         # Q PARAMETERS
         # Compute derivatives
@@ -356,6 +390,7 @@ class QLearner(ValueFunction):
         """
         self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
         rpe = r + self.discount_factor*self.Qmax(x_) - self.uQx(u, x)
+        self.rpe.append(rpe)
         self.Q += self.learning_rate*rpe*self.etrace
 
 
@@ -425,6 +460,7 @@ class SARSALearner(ValueFunction):
 
         # Compute RPE
         rpe = r + self.discount_factor*self.uQx(u_, x_) - self.uQx(u, x)
+        self.rpe.append(rpe)
 
         # Q PARAMETERS
         # Compute derivatives
@@ -442,4 +478,5 @@ class SARSALearner(ValueFunction):
         """
         self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
         rpe = r + self.discount_factor*self.uQx(u_, x_) - self.uQx(u, x)
+        self.rpe.append(rpe)
         self.Q += self.learning_rate*rpe*self.etrace

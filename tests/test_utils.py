@@ -8,6 +8,7 @@ from fitr.utils import relu
 from fitr.utils import scale_data
 from fitr.utils import sigmoid
 from fitr.utils import softmax
+from fitr.utils import softmax_components
 from fitr.utils import stable_exp
 from fitr.utils import transform
 from fitr.utils import tanh
@@ -59,6 +60,15 @@ def test_softmax():
     assert p.sum() == 1
     assert np.logical_and(np.all(np.greater_equal(p, 0)),
                           np.all(np.less_equal(p, 1)))
+
+def test_softmax_partition_potential():
+    x = np.arange(10).astype(np.float)
+    B = 1.5
+    potential, partition = softmax_components(B*x)
+    component_sm = potential/partition
+    original_sm = softmax(B*x)
+    assert(np.all(component_sm == original_sm))
+
 
 def test_transform():
     x  = np.array([0, 0, -10, 0, 55])

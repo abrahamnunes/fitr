@@ -30,6 +30,7 @@ class SoftmaxPolicy(object):
 
         # Storage for first order partial derivatives
         self.d_logprob = {
+            'logits': None,
             'inverse_softmax_temp': None,
             'action_values': None
         }
@@ -67,8 +68,11 @@ class SoftmaxPolicy(object):
         #  Grad LSE wrt Logits
         Dlse = grad.logsumexp(Bx)
 
+        # Grad logprob wrt logits
+        self.d_logprob['logits'] = np.eye(x.size) - Dlse
+
         #  Grad logprob wrt inverse softmax temp
-        self.d_logprob['inverse_softmax_temp'] = x - np.dot(Dlse, x)
+        self.d_logprob['inverse_softmax_temp'] = np.dot(self.d_logprob['logits'], x)
 
         # Grad logprob wrt action values `x`
         B = np.eye(x.size)*self.inverse_softmax_temp
@@ -141,7 +145,7 @@ class StickySoftmaxPolicy(object):
         # Storage for second order partial derivatives
         self.hess_logprob = {
             'inverse_softmax_temp': None,
-            'perseveration': None
+            'perseveration': None,
             'action_values': None
         }
 
