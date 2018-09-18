@@ -500,18 +500,19 @@ class RWSoftmaxAgent(BanditAgent):
 
         """
         # Obtain the components required for computation of derivatives
-        lr         = self.critic.learning_rate
-        beta       = self.actor.inverse_softmax_temp
-        Qx         = self.critic.Qx(state)
-        logits     = beta*Qx
-        pu         = fu.softmax(logits)
-        du         = action - pu
-        dpu_dlogit = grad.softmax(logits)
-        dlogit_dB  = Qx
-        dpu_dB     = np.einsum('ij,j->i', dpu_dlogit, dlogit_dB)
-        D2Q_lr     = self.critic.hess_Q['learning_rate']
-        DQ_lr      = self.critic.dQ['learning_rate']
-        dpu_dlr    = beta*np.einsum('ij,jk,k->i', dpu_dlogit, DQ_lr, state)
+        lr          = self.critic.learning_rate
+        beta        = self.actor.inverse_softmax_temp
+        Qx          = self.critic.Qx(state)
+        logits      = beta*Qx
+        pu          = fu.softmax(logits)
+        du          = action - pu
+        dpu_dlogit  = grad.softmax(logits)
+        dlogit_dB   = Qx
+        dpu_dB      = np.einsum('ij,j->i', dpu_dlogit, dlogit_dB)
+        D2Q_lr      = self.critic.hess_Q['learning_rate']
+        DQ_lr       = self.critic.dQ['learning_rate']
+        DQ_lr_state = np.dot(DQ_lr, state)
+        dpu_dlr     = beta*np.einsum('ij,j->i', dpu_dlogit, DQ_lr_state)
         self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
 
         # Partial derivative of log probability with respect to inverse softmax temperature
@@ -527,10 +528,10 @@ class RWSoftmaxAgent(BanditAgent):
         self.hess_logprob['learning_rate'] +=  beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate']) - np.einsum('i,ij->j', dpu_dlr, DQ_lr), state)
 
         # First partial derivative with respect to learning rate
-        self.d_logprob['learning_rate'] += beta*np.einsum('i,ij,j->', du, DQ_lr, state)
+        self.d_logprob['learning_rate'] += beta*np.dot(du, DQ_lr_state)
 
         # Partial derivative with respect to both learning rate and inverse softmax
-        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.einsum('i,ij,j->', du - beta*dpu_dB, DQ_lr, state)
+        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.dot(du - beta*dpu_dB, DQ_lr_state)
 
         # Organize the gradients and hessians
         self.grad_ = np.array([self.d_logprob['learning_rate'], self.d_logprob['inverse_softmax_temp']])
@@ -719,7 +720,8 @@ class RWStickySoftmaxAgent(BanditAgent):
         dpu_drho       = np.einsum('ij,j->i', dpu_dlogit, dlogit_drho)
         D2Q_lr         = self.critic.hess_Q['learning_rate']
         DQ_lr          = self.critic.dQ['learning_rate']
-        dpu_dlr        = beta*np.einsum('ij,jk,k->i', dpu_dlogit, DQ_lr, state)
+        DQ_lr_state    = np.einsum('ij,j->i', DQ_lr, state)
+        dpu_dlr        = beta*np.einsum('ij,j->i', dpu_dlogit, DQ_lr_state)
 
         # Compute the log-probability
         self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
@@ -741,13 +743,13 @@ class RWStickySoftmaxAgent(BanditAgent):
         self.hess_logprob['learning_rate'] +=  beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr) - np.einsum('i,ij->j', dpu_dlr, DQ_lr), state)
 
         # First partial derivative with respect to learning rate
-        self.d_logprob['learning_rate'] += beta*np.einsum('i,ij,j->', du, DQ_lr, state)
+        self.d_logprob['learning_rate'] += beta*np.dot(du, DQ_lr_state)
 
         # Partial derivative with respect to both learning rate and inverse softmax
-        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.einsum('i,ij,j->', du - beta*dpu_dB, DQ_lr, state)
+        self.hess_logprob['learning_rate_inverse_softmax_temp'] += np.dot(du - beta*dpu_dB, DQ_lr_state)
 
         # Partial derivative with respect to both learning rate and perseveration
-        self.hess_logprob['learning_rate_perseveration'] += -beta*np.einsum('i,ij,j->', dpu_drho, DQ_lr, state)
+        self.hess_logprob['learning_rate_perseveration'] += -beta*np.dot(dpu_drho, DQ_lr_state)
 
         # Partial derivative with respect to both inverse softmax temperature and perseveration
         self.hess_logprob['inverse_softmax_temp_perseveration'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp_perseveration'])

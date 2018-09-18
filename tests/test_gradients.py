@@ -26,6 +26,10 @@ def test_logsumexp():
     assert(grad_err < 1e-6)
     assert(hess_err < 1e-6)
 
+def test_exp():
+    x = np.arange(5).astype(np.float32)
+    assert(np.all(np.equal(x, grad.exp(x))))
+
 def test_max():
     rng = np.random.RandomState(236)
     ag_max = jacobian(np.max)

@@ -101,10 +101,9 @@ def exp(x):
 
     Returns:
 
-        Derivative of `exp(x)`.
+        Returns `x` unchanged
     """
-    return np.exp(x)
-
+    return x
 
 def sigmoid(x, a_min=-10, a_max=10):
     """ Derivative of sigmoid functionself.
