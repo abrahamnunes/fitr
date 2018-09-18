@@ -7,6 +7,8 @@ from fitr import inference
 from fitr import criticism
 from fitr import utils
 from fitr import metrics
+from fitr import gradients
+from fitr import hessians
 
 from fitr.environments import generate_behavioural_data
 
@@ -18,4 +20,6 @@ __all__ = ['agents',
            'inference',
            'criticism',
            'metrics'
-           'utils']
+           'utils',
+           'gradients',
+           'hessians']

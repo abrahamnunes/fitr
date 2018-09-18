@@ -12,6 +12,7 @@ def l_bfgs_b(f,
              i,
              data,
              nparams,
+             jac,
              minstarts=2,
              maxstarts=10,
              maxstarts_without_improvement=3,
@@ -26,6 +27,7 @@ def l_bfgs_b(f,
         i: `int`. Subject being optimized (slices first dimension of `data`)
         data: Object subscriptable along first dimension to indicate subject being optimized
         nparams: `int`. Number of parameters in the model
+        jac: `bool`. Set to `True` if `f` returns a Jacobian as the second element of the returned values
         minstarts: `int`. Minimum number of restarts with new initial values
         maxstarts: `int`. Maximum number of restarts with new initial values
         maxstarts_without_improvement: `int`. Maximum number of restarts without improvement in objective function value
@@ -42,7 +44,10 @@ def l_bfgs_b(f,
         bic_: Scalar Bayesian Information Criterion at optimum
         hess_inv: `ndarray((nparams, nparams))`. Inv at optimum
     """
-    nlog_prob = lambda x: -f(x, data[i])
+    if jac:
+        nlog_prob = lambda x: f(x, data[i])[:2]
+    else:
+        nlog_prob = lambda x: f(x, data[i])[0]
     fmin    = np.inf
     fevals  = 0
     niters  = 0
@@ -52,7 +57,7 @@ def l_bfgs_b(f,
     succeeded = False
     while not done:
         xinit = np.random.normal(0, init_sd, size=nparams)
-        res = minimize(nlog_prob, xinit, method='L-BFGS-B')
+        res = minimize(nlog_prob, xinit, jac=jac, method='L-BFGS-B')
 
         nstarts += 1
         fevals  += res.nfev
@@ -72,11 +77,11 @@ def l_bfgs_b(f,
                 nstarts_without_improvement += 1
                 if nstarts_without_improvement >= maxstarts_without_improvement:
                     done = True
-                    print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
+                    print('Subject %s Fit | %s Starts | Fevals %s | lp_= %s' %(i, nstarts, fevals, fmin))
 
         else:
             done = True
-            print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
+            print('Subject %s Fit | %s Starts | Fevals %s | lp_= %s' %(i, nstarts, fevals, fmin))
     if succeeded is False:
         print('Subject %s failed to converge after %s iterations (%s fx evals)' %(i, niters, fevals))
         fmin = np.nan
@@ -162,10 +167,10 @@ def second_order_optimizer(f,
                 nstarts_without_improvement += 1
                 if nstarts_without_improvement >= maxstarts_without_improvement:
                     done = True
-                    print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
+                    print('Subject %s Fit | %s Starts | Fevals %s | lp_= %s' %(i, nstarts, fevals, fmin))
         else:
             done = True
-            print('Subject %s Fit | %s Starts | N Fx Evals %s | lp_= %s' %(i, nstarts, fevals, fmin))
+            print('Subject %s Fit | %s Starts | Fevals %s | lp_= %s' %(i, nstarts, fevals, fmin))
     if succeeded is False:
         print('Subject %s failed to converge after %s iterations (%s fx evals)' %(i, niters, fevals))
         fmin = np.nan
@@ -218,8 +223,8 @@ def mlepar(f,
     nsubjects = len(data)
 
     if method == 'L-BFGS-B':
-        plist = [[f, i, data, nparams, minstarts, maxstarts, maxstarts_without_improvement, init_sd] for i in range(nsubjects)]
-        y = Parallel(n_jobs=njobs)(delayed(l_bfgs_b)(z[0],z[1],z[2],z[3],z[4],z[5],z[6],z[7]) for z in plist)
+        plist = [[f, i, data, nparams, jac, minstarts, maxstarts, maxstarts_without_improvement, init_sd] for i in range(nsubjects)]
+        y = Parallel(n_jobs=njobs)(delayed(l_bfgs_b)(z[0],z[1],z[2],z[3],z[4],z[5],z[6],z[7], z[8]) for z in plist)
 
     elif method in ['trust-exact', 'trust-ncg', 'trust-krylov', 'dogleg']:
         plist = [[f, i, data, nparams, jac, hess, minstarts, maxstarts, maxstarts_without_improvement, init_sd, method] for i in range(nsubjects)]

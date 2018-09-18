@@ -1,6 +1,7 @@
 import autograd.numpy as np
 from scipy.special import logsumexp as scipy_logsumexp
 from fitr.utils import batch_softmax
+from fitr.utils import batch_transform
 from fitr.utils import I
 from fitr.utils import logsumexp
 from fitr.utils import reduce_then_tile
@@ -21,6 +22,13 @@ def test_batch_softmax():
     p1_0 = batch_softmax(X, axis=0)
     assert np.all(np.equal(p0, p1))
     assert np.all(np.equal(p0_0.round(4), p1_0.round(4).T))
+
+def test_batch_transform():
+    X = np.random.normal(0, 5, size=(10, 2))
+    Y = batch_transform(X, [sigmoid, stable_exp])
+    assert(np.all(np.equal(X.shape, Y.shape)))
+    assert(np.all(np.logical_and(np.greater_equal(Y[:,0], 0), np.less_equal(Y[:,0], 1))))
+    assert(np.all(np.greater_equal(Y[:,0], 0)))
 
 def test_I():
     x = np.ones(5)

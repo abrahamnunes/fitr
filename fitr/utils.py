@@ -21,6 +21,20 @@ def batch_softmax(X, axis=1):
     y = expx/reduce_then_tile(expx, np.sum, axis=axis)
     return y
 
+def batch_transform(X, f_list):
+    """ Applies the `fitr.utils.transform` function over a batch of parameters
+
+    Arguments:
+
+        X: `ndarray((nsamples, nparams))`. Raw parameters
+        f_list: `list` where `len(list) == nparams`. Functions defining coordinate transformations on each element of `x`.
+
+    Returns:
+
+        `ndarray((nsamples, nparams))`. Transformed parameters
+    """
+    return np.stack(np.ravel(transform(X[i], f_list)) for i in range(X.shape[0]))
+
 def I(x):
     """ Identity transformation.
 

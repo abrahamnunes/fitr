@@ -406,6 +406,14 @@ class SARSALearner(ValueFunction):
         self.discount_factor = discount_factor
         self.trace_decay     = trace_decay
         super().__init__(env)
+
+        self.d_rpe = {
+            'Q': np.zeros(self.Q.shape),
+            'learning_rate': 0,
+            'discount_factor': 0,
+            'trace_decay': 0
+        }
+
         self.dQ = {
             'learning_rate': np.zeros(self.Q.shape),
             'discount_factor': np.zeros(self.Q.shape),
@@ -418,6 +426,12 @@ class SARSALearner(ValueFunction):
 
     def update(self, x, u, r, x_, u_):
         """ Computes value function updates and their derivatives for the SARSA model """
+        # Precompute some repeatedly used values
+        z     = np.outer(u,x)
+        z_    = np.outer(u_, x_)
+        uQx   = self.uQx(u, x)
+        u_Qx_ = self.uQx(u_, x_)
+
         # ELIGIBILITY TRACE
         # Reset derivatives if eligibility trace was reset at start of trial
         if np.all(np.equal(self.etrace, 0)):
@@ -429,24 +443,24 @@ class SARSALearner(ValueFunction):
         self.d_etrace['trace_decay'] = self.discount_factor*(self.etrace + self.trace_decay*self.d_etrace['trace_decay'])
 
         # Update trace
-        self.etrace = np.einsum('a,s->as', u, x) + self.discount_factor*self.trace_decay*self.etrace
+        self.etrace = z + self.discount_factor*self.trace_decay*self.etrace
 
         # REWARD PREDICTION ERROR
         # Compute derivatives
-        d_rpe_Q = self.discount_factor*np.outer(u_, x_) - np.outer(u, x)
-        d_rpe_learningrate = np.sum(self.dQ['learning_rate']*d_rpe_Q)
-        d_rpe_discount = np.sum(self.dQ['discount_factor']*d_rpe_Q) + self.uQx(u_, x_)
-        d_rpe_tracedecay = np.sum(self.dQ['trace_decay']*d_rpe_Q)
+        self.d_rpe['Q'] = self.discount_factor*z_ - z
+        self.d_rpe['learning_rate'] = np.sum(self.dQ['learning_rate']*self.d_rpe['Q'])
+        self.d_rpe['discount_factor'] = np.sum(self.dQ['discount_factor']*self.d_rpe['Q']) + u_Qx_
+        self.d_rpe['trace_decay'] = np.sum(self.dQ['trace_decay']*self.d_rpe['Q'])
 
         # Compute RPE
-        rpe = r + self.discount_factor*self.uQx(u_, x_) - self.uQx(u, x)
+        rpe = r + self.discount_factor*u_Qx_ - uQx
         self.rpe.append(rpe)
 
         # Q PARAMETERS
         # Compute derivatives
-        self.dQ['learning_rate'] += (rpe + self.learning_rate*d_rpe_learningrate)*self.etrace
-        self.dQ['discount_factor'] += self.learning_rate*(d_rpe_discount*self.etrace + rpe*self.d_etrace['discount_factor'])
-        self.dQ['trace_decay'] += self.learning_rate*(d_rpe_tracedecay*self.etrace + rpe*self.d_etrace['trace_decay'])
+        self.dQ['learning_rate'] += (rpe + self.learning_rate*self.d_rpe['learning_rate'])*self.etrace
+        self.dQ['discount_factor'] += self.learning_rate*(self.d_rpe['discount_factor']*self.etrace + rpe*self.d_etrace['discount_factor'])
+        self.dQ['trace_decay'] += self.learning_rate*(self.d_rpe['trace_decay']*self.etrace + rpe*self.d_etrace['trace_decay'])
 
         # Update value function
         self.Q += self.learning_rate*rpe*self.etrace

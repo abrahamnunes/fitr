@@ -500,19 +500,19 @@ class RWSoftmaxAgent(BanditAgent):
 
         """
         # Obtain the components required for computation of derivatives
-        lr          = self.critic.learning_rate
-        beta        = self.actor.inverse_softmax_temp
-        Qx          = self.critic.Qx(state)
-        logits      = beta*Qx
-        pu          = fu.softmax(logits)
-        du          = action - pu
-        dpu_dlogit  = grad.softmax(logits)
-        dlogit_dB   = Qx
-        dpu_dB      = np.einsum('ij,j->i', dpu_dlogit, dlogit_dB)
-        D2Q_lr      = self.critic.hess_Q['learning_rate']
-        DQ_lr       = self.critic.dQ['learning_rate']
-        DQ_lr_state = np.dot(DQ_lr, state)
-        dpu_dlr     = beta*np.einsum('ij,j->i', dpu_dlogit, DQ_lr_state)
+        lr             = self.critic.learning_rate
+        beta           = self.actor.inverse_softmax_temp
+        Qx             = self.critic.Qx(state)
+        logits         = beta*Qx
+        pu             = fu.softmax(logits)
+        du             = action - pu
+        dpu_dlogit     = grad.softmax(logits)
+        dlogit_dB      = Qx
+        dpu_dB         = np.einsum('ij,j->i', dpu_dlogit, dlogit_dB)
+        D2Q_lr         = self.critic.hess_Q['learning_rate']
+        DQ_lr          = self.critic.dQ['learning_rate']
+        DQ_lr_state    = np.dot(DQ_lr, state)
+        dpu_dlr        = beta*np.einsum('ij,j->i', dpu_dlogit, DQ_lr_state)
         self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
 
         # Partial derivative of log probability with respect to inverse softmax temperature
@@ -522,12 +522,9 @@ class RWSoftmaxAgent(BanditAgent):
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
 
         # Second and first partial derivative of log probability with respect to learning rate
-
-
-        # Second partial derivative with respect to learning rate
+        #   Second partial derivative with respect to learning rate
         self.hess_logprob['learning_rate'] +=  beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate']) - np.einsum('i,ij->j', dpu_dlr, DQ_lr), state)
-
-        # First partial derivative with respect to learning rate
+        #   First partial derivative with respect to learning rate
         self.d_logprob['learning_rate'] += beta*np.dot(du, DQ_lr_state)
 
         # Partial derivative with respect to both learning rate and inverse softmax
