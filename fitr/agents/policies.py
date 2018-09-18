@@ -27,12 +27,18 @@ class SoftmaxPolicy(object):
     def __init__(self, inverse_softmax_temp=1., rng=np.random.RandomState()):
         self.inverse_softmax_temp = inverse_softmax_temp
         self.rng  = rng
+        self.logits = None
 
         # Storage for first order partial derivatives
         self.d_logprob = {
             'logits': None,
             'inverse_softmax_temp': None,
             'action_values': None
+        }
+
+        self.d_logits = {
+            'inverse_softmax_temp': None,
+            'action_values': self.inverse_softmax_temp
         }
 
         # Storage for second order partial derivatives
@@ -57,7 +63,7 @@ class SoftmaxPolicy(object):
             Scalar log-probability
         """
         # Compute logits
-        Bx  = self.inverse_softmax_temp*x
+        self.logits  = self.inverse_softmax_temp*x
 
         # Hessians
         HB, Hx = hess.log_softmax(self.inverse_softmax_temp, x)
@@ -66,13 +72,14 @@ class SoftmaxPolicy(object):
 
         # Derivatives
         #  Grad LSE wrt Logits
-        Dlse = grad.logsumexp(Bx)
+        Dlse = grad.logsumexp(self.logits)
 
         # Grad logprob wrt logits
         self.d_logprob['logits'] = np.eye(x.size) - Dlse
 
         #  Grad logprob wrt inverse softmax temp
-        self.d_logprob['inverse_softmax_temp'] = np.dot(self.d_logprob['logits'], x)
+        self.d_logits['inverse_softmax_temp'] = x
+        self.d_logprob['inverse_softmax_temp'] = np.dot(self.d_logprob['logits'], self.d_logits['inverse_softmax_temp'])
 
         # Grad logprob wrt action values `x`
         B = np.eye(x.size)*self.inverse_softmax_temp
@@ -80,9 +87,9 @@ class SoftmaxPolicy(object):
         self.d_logprob['action_values'] = B - Dlsetile
 
         # Compute log-probability of actions
-        LSE = fu.logsumexp(Bx)
+        LSE = fu.logsumexp(self.logits)
         if not np.isfinite(LSE): LSE = 0.
-        return Bx - LSE
+        return self.logits - LSE
 
     def _log_prob_noderivatives(self, x):
         """ Computes the log-probability of an action $\mathbf u$ without computing derivatives.
@@ -90,16 +97,17 @@ class SoftmaxPolicy(object):
         This is here only to facilitate unit testing of the `.log_prob` method by comparison against `autograd`.
         """
         # Compute logits
-        Bx  = self.inverse_softmax_temp*x
+        self.logits  = self.inverse_softmax_temp*x
 
         # Compute log-probability of actions
-        LSE = fu.logsumexp(Bx)
+        LSE = fu.logsumexp(self.logits)
         if not np.isfinite(LSE): LSE = 0.
-        return Bx - LSE
+        return self.logits - LSE
 
     def action_prob(self, x):
         """ Computes the softmax """
-        return fu.softmax(self.inverse_softmax_temp*x)
+        self.logits = self.inverse_softmax_temp*x
+        return fu.softmax(self.logits)
 
     def sample(self, x):
         """ Samples from the action distribution """
@@ -134,6 +142,7 @@ class StickySoftmaxPolicy(object):
         self.perseveration        = perseveration
         self.rng  = rng
         self.a_last = [0]
+        self.logits = None
 
         # Storage for first order partial derivatives
         self.d_logprob = {
@@ -141,6 +150,13 @@ class StickySoftmaxPolicy(object):
             'inverse_softmax_temp': None,
             'perseveration': None,
             'action_values': None
+        }
+
+        self.d_logits = {
+            'inverse_softmax_temp': None,
+            'perseveration': None,
+            'action_values': self.inverse_softmax_temp,
+            'last_action': self.perseveration
         }
 
         # Storage for second order partial derivatives
@@ -168,7 +184,7 @@ class StickySoftmaxPolicy(object):
         # Compute logits
         Bx  = self.inverse_softmax_temp*x
         stickiness = self.perseveration*self.a_last
-        logits = Bx + stickiness
+        self.logits = Bx + stickiness
 
         # Hessians
         HB, Hp, HBp, Hx, _ = hess.log_stickysoftmax(self.inverse_softmax_temp,
@@ -182,12 +198,14 @@ class StickySoftmaxPolicy(object):
 
         # Derivatives
         #  Grad LSE wrt Logits
-        Dlse = grad.logsumexp(logits)
+        Dlse = grad.logsumexp(self.logits)
 
         # Grad logprob wrt logits
         self.d_logprob['logits'] = np.eye(x.size) - Dlse
 
         #  Partial derivative with respect to inverse softmax temp
+        self.d_logits['inverse_softmax_temp'] = x
+        self.d_logits['perseveration'] = self.a_last
         self.d_logprob['inverse_softmax_temp'] = x - np.dot(Dlse, x)
         self.d_logprob['perseveration'] = self.a_last - np.dot(Dlse, self.a_last)
 
@@ -196,9 +214,9 @@ class StickySoftmaxPolicy(object):
         Dlsetile = np.tile(self.inverse_softmax_temp*Dlse, [x.size, 1])
         self.d_logprob['action_values'] = B - Dlsetile
 
-        LSE = fu.logsumexp(logits)
+        LSE = fu.logsumexp(self.logits)
         if not np.isfinite(LSE): LSE = 0.
-        return logits - LSE
+        return self.logits - LSE
 
     def _log_prob_noderivatives(self, x):
         """ Computes the log-probability of an action $\mathbf u$ without computing derivatives.
@@ -208,10 +226,10 @@ class StickySoftmaxPolicy(object):
         # Compute logits
         Bx  = self.inverse_softmax_temp*x
         stickiness = self.perseveration*self.a_last
-        logits = Bx + stickiness
-        LSE = fu.logsumexp(logits)
+        self.logits = Bx + stickiness
+        LSE = fu.logsumexp(self.logits)
         if not np.isfinite(LSE): LSE = 0.
-        return logits - LSE
+        return self.logits - LSE
 
     def action_prob(self, x):
         """ Computes the softmax
@@ -225,7 +243,8 @@ class StickySoftmaxPolicy(object):
             `ndarray((nactions,))` vector of action probabilities
         """
         stickiness = self.perseveration*self.a_last
-        return fu.softmax(self.inverse_softmax_temp*x + stickiness)
+        self.logits = self.inverse_softmax_temp*x + stickiness
+        return fu.softmax(self.logits)
 
     def sample(self, x):
         """ Samples from the action distribution

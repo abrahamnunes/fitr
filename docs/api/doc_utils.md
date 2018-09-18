@@ -28,6 +28,27 @@ Matrix of probabilities of size `ndarray((nsamples,nfeatures))` such that sum ov
 
 
 
+## batch_transform
+
+```python
+fitr.utils.batch_transform(X, f_list)
+```
+
+Applies the `fitr.utils.transform` function over a batch of parameters
+
+Arguments:
+
+- **X**: `ndarray((nsamples, nparams))`. Raw parameters
+- **f_list**: `list` where `len(list) == nparams`. Functions defining coordinate transformations on each element of `x`.
+
+Returns:
+
+`ndarray((nsamples, nparams))`. Transformed parameters
+
+---
+
+
+
 ## I
 
 ```python
@@ -152,7 +173,7 @@ Arguments:
 
 - **X**: `ndarray((nsamples, [nfeatures]))`. Data. May be 1D or 2D.
 - **with_mean**: `bool`. Whether to subtract the mean
-- **with_var**: `bool`. Whether to divide by variance
+- **with_var**: `bool`. Whether to normalize for variance
 
 Returns:
 

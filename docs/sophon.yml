@@ -2,7 +2,7 @@ code_dir: ..
 template_dir: temp
 build_dir: api
 #repo_url: https://github.com/your_user_name/your_repo
-branch: overhaul
+branch: gradients
 style: sophon
 
 pages:
@@ -24,6 +24,8 @@ pages:
     - fitr.environments.OrthogonalGoNoGo
     - fitr.environments.TwoStep
     - fitr.environments.ReverseTwoStep
+    - fitr.environments.MouthTask
+    - fitr.environments.IGT
     - fitr.environments.RandomContextualBandit
 - page: doc_metrics.md
   template: doc_metrics.md
@@ -40,6 +42,7 @@ pages:
   - tag: utils
     functions:
     - fitr.utils.batch_softmax
+    - fitr.utils.batch_transform
     - fitr.utils.I
     - fitr.utils.logsumexp
     - fitr.utils.reduce_then_tile

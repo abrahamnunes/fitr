@@ -55,10 +55,10 @@ class ValueFunction(object):
         \mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
         $$
 
-        \noindent where the gradient is defined as
+        where the gradient is defined as
 
         $$
-        \frac{\\partial}{\\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\\top,
+        \\frac{\\partial}{\\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\\top,
         $$
 
         Arguments:
@@ -130,7 +130,7 @@ class ValueFunction(object):
         \mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\\top \mathbf Q \mathbf x,
         $$
 
-        \noindent where the derivative is defined as
+        where the derivative is defined as
 
         $$
         \\frac{\\partial}{\\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\\top,
@@ -171,10 +171,10 @@ class ValueFunction(object):
         \mathcal V(\mathbf x) = \mathbf v^\\top \mathbf x,
         $$
 
-        \noindent where the gradient is defined as
+        where the gradient is defined as
 
         $$
-        \nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+        \\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
         $$
 
         Arguments:
@@ -419,6 +419,24 @@ class SARSALearner(ValueFunction):
             'discount_factor': np.zeros(self.Q.shape),
             'trace_decay': np.zeros(self.Q.shape)
         }
+
+        self.d_etrace = {
+            'trace_decay': np.zeros(self.Q.shape),
+            'discount_factor': np.zeros(self.Q.shape)
+        }
+
+        self.hess_Q = {
+            'learning_rate': np.zeros(self.Q.shape),
+            'discount_factor': np.zeros(self.Q.shape),
+            'trace_decay': np.zeros(self.Q.shape)
+        }
+
+        self.hess_rpe = {
+            'learning_rate': 0,
+            'discount_factor': 0,
+            'trace_decay': 0
+        }
+
         self.d_etrace = {
             'trace_decay': np.zeros(self.Q.shape),
             'discount_factor': np.zeros(self.Q.shape)
@@ -435,10 +453,14 @@ class SARSALearner(ValueFunction):
         # ELIGIBILITY TRACE
         # Reset derivatives if eligibility trace was reset at start of trial
         if np.all(np.equal(self.etrace, 0)):
+            self.hess_etrace['discount_factor'] = np.zeros(self.etrace.shape)
+            self.hess_etrace['trace_decay'] = np.zeros(self.etrace.shape)
             self.d_etrace['discount_factor'] = np.zeros(self.etrace.shape)
             self.d_etrace['trace_decay'] = np.zeros(self.etrace.shape)
 
         # Compute derivatives
+        self.hess_etrace['discount_factor'] = self.trace_decay*(2*self.d_etrace['discount_factor'] + self.discount_factor*self.hess_etrace['discount_factor'])
+        self.hess_etrace['trace_decay'] = self.discount_factor*(2*self.d_etrace['trace_decay'] + self.trace_decay*self.hess_etrace['trace_decay'])
         self.d_etrace['discount_factor'] = self.trace_decay*(self.etrace + self.discount_factor*self.d_etrace['discount_factor'])
         self.d_etrace['trace_decay'] = self.discount_factor*(self.etrace + self.trace_decay*self.d_etrace['trace_decay'])
 
@@ -447,6 +469,12 @@ class SARSALearner(ValueFunction):
 
         # REWARD PREDICTION ERROR
         # Compute derivatives
+        #   Second order
+        self.hess_rpe['learning_rate']   = np.sum(self.hess_Q['learning_rate']*self.d_rpe['Q'])
+        self.hess_rpe['discount_factor'] = np.sum(self.hess_Q['discount_factor']*self.d_rpe['Q']) + np.einsum('i,ij,j->', u_, self.d_Q['discount_factor'], x_)
+        self.hess_rpe['trace_decay']     = np.sum(self.hess_Q['trace_decay']*self.d_rpe['Q'])
+
+        #   First order
         self.d_rpe['Q'] = self.discount_factor*z_ - z
         self.d_rpe['learning_rate'] = np.sum(self.dQ['learning_rate']*self.d_rpe['Q'])
         self.d_rpe['discount_factor'] = np.sum(self.dQ['discount_factor']*self.d_rpe['Q']) + u_Qx_
@@ -458,6 +486,12 @@ class SARSALearner(ValueFunction):
 
         # Q PARAMETERS
         # Compute derivatives
+        #   Second order
+        self.hess_Q['learning_rate'] += (2*self.d_rpe['learning_rate'] + self.learning_rate*self.hess_rpe['learning_rate'])*self.etrace
+        self.hess_Q['discount_factor'] += self.learning_rate*(self.hess_rpe['discount_factor']*self.etrace + rpe*self.d_etrace['discount_factor'] + self.d_rpe['discount_factor']*self.d_etrace['discount_factor'] + rpe*self.hess_etrace['discount_factor'])
+        self.hess_Q['trace_decay'] += self.learning_rate*(self.hess_rpe['trace_decay']*self.etrace + rpe*self.d_etrace['trace_decay'] + self.d_rpe['trace_decay']*self.d_etrace['trace_decay'] + rpe*self.hess_etrace['trace_decay'])
+
+        #   First order
         self.dQ['learning_rate'] += (rpe + self.learning_rate*self.d_rpe['learning_rate'])*self.etrace
         self.dQ['discount_factor'] += self.learning_rate*(self.d_rpe['discount_factor']*self.etrace + rpe*self.d_etrace['discount_factor'])
         self.dQ['trace_decay'] += self.learning_rate*(self.d_rpe['trace_decay']*self.etrace + rpe*self.d_etrace['trace_decay'])

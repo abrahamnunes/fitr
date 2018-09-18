@@ -20,18 +20,18 @@ class Agent(object):
         self.params = []
         self.logprob_ = 0
 
-    def reset_trace(self, x, u=None):
+    def reset_trace(self, state_only=False):
         """ For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
         Arguments:
 
-            x: `ndarray((nstates,))` one-hot state vector
-            u: `ndarray((nactions,))` one-hot action vector (optional)
+            state_only: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
+
         """
-        if u is None:
-            self.critic.etrace = np.zeros(x.size)
+        if state_only is True:
+            self.critic.etrace = np.zeros(self.task.nstates)
         else:
-            self.critic.etrace = np.zeros((u.size, x.size))
+            self.critic.etrace = np.zeros((self.task.nactions, self.task.nstates))
 
     def action(self, state):
         """ Selects an action given the current state of environment.
@@ -232,11 +232,104 @@ class SARSASoftmaxAgent(MDPAgent):
                                    discount_factor=discount_factor,
                                    trace_decay=trace_decay)
 
+        self.grad_ = None
+        self.hess_ = None
+
+        self.d_logprob = {
+            'learning_rate': 0,
+            'discount_factor': 0,
+            'trace_decay': 0,
+            'inverse_softmax_temp': 0
+        }
+
+        self.d_action_values = {
+            'Q': None,
+            'learning_rate': None,
+            'discount_factor': None,
+            'trace_decay': None
+        }
+
+        self.hess_logprob = {
+            'learning_rate': 0,
+            'learning_rate_inverse_softmax_temp': 0,
+            'learning_rate_discount_factor': 0,
+            'learning_rate_trace_decay': 0,
+            'inverse_softmax_temp': 0,
+            'inverse_softmax_temp_discount_factor': 0,
+            'inverse_softmax_temp_trace_decay': 0,
+            'discount_factor_trace_decay': 0,
+            'trace_decay': 0
+        }
+
     def action(self, state):
         return self.actor.sample(self.critic.Qx(state))
 
     def learning(self, state, action, reward, next_state, next_action):
         self.critic.update(state, action, reward, next_state, next_action)
+
+    def log_prob(self, state, action):
+        """ Computes the log-probability of the given action and state under the model, while also computing first and second order derivatives.
+
+        Arguments:
+
+            action: `ndarray(nactions)`. One-hot action vector
+            state: `ndarray(nstates)`. One-hot state vector
+
+        """
+        lr             = self.critic.learning_rate
+        beta           = self.actor.inverse_softmax_temp
+        Qx             = self.critic.Qx(state)
+        self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
+
+        # Derivatives of log-probability with respect to
+        #   Second order
+        #   First order
+
+        # Derivatives of log-probability with respect to inverse softmax temperature
+        #   Second order
+        self.hess_logprob['inverse_softmax_temp'] = np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
+        #   First order
+        self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
+
+        # Derivatives of log-probability with respect to learning rate
+        #   First order
+        self.d_action_values['Q'] = state
+        self.d_action_values['learning_rate'] = np.dot(self.critic.dQ['learning_rate'], self.d_action_values['Q'])
+        self.d_logprob['learning_rate'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['learning_rate'])
+
+        # Derivatives of log-probability with respect to discount factor
+        #   Second order
+        #   First order
+        self.d_action_values['discount_factor'] = np.dot(self.critic.dQ['discount_factor'], self.d_action_values['Q'])
+        self.d_logprob['discount_factor'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['discount_factor'])
+
+        # Derivatives of log-probability with respect to trace decay
+        #   Second order
+        #   First order
+        self.d_action_values['trace_decay'] = np.dot(self.critic.dQ['trace_decay'], self.d_action_values['Q'])
+        self.d_logprob['trace_decay'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['trace_decay'])
+
+        # Organize the gradient and hessian
+        self.grad_ = np.array([self.d_logprob['learning_rate'],
+                               self.d_logprob['inverse_softmax_temp'],
+                               self.d_logprob['discount_factor'],
+                               self.d_logprob['trace_decay']])
+
+        #self.hess_ =
+
+    def _log_prob_noderivatives(self, state, action):
+        """ Computes the log-probability of the given action and state under the model without computing derivatives.
+
+        This is here only to facilitate testing our gradient/hessian computations against autograd
+
+        Arguments:
+
+            action: `ndarray(nactions)`. One-hot action vector
+            state: `ndarray(nstates)`. One-hot state vector
+
+        """
+        Qx             = self.critic.Qx(state)
+        self.logprob_ += np.dot(action, self.actor._log_prob_noderivatives(Qx))
 
 class SARSAStickySoftmaxAgent(MDPAgent):
     """ An agent that uses the SARSA learning rule and a sticky softmax policy
@@ -454,29 +547,29 @@ class RWSoftmaxAgent(BanditAgent):
         Then we have the partial derivative of $\mathcal L$ at trial $t$ with respect to $\\alpha$
 
         $$
-        \\partial_\\alpha \mathcal L = \\beta \Big[ \big(\mathbf u - \\varsigma(\\pi)\big)_i (\\partial_\\alpha Q)^i_j x^j \Big],
+        \\partial_{\\alpha} \mathcal L = \\beta \Big[ \\big(\mathbf u - \\varsigma(\\pi)\\big)_i (\\partial_{\\alpha} Q)^i_j x^j \Big],
         $$
 
         and with respect to $\\beta$
 
         $$
-        \\partial_\\beta \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j Q_{jk} x^k.
+        \\partial_{\\beta} \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j Q_{jk} x^k.
         $$
 
         We also compute the Hessian $\mathbf H$, defined as
 
         $$
         \mathbf H = \left[
-            \begin{array}{cc}
-            \\partial^2_{\\alpha} \mathcal L & \\partial_{\\alpha} \\partial_{\\beta} \mathcal L \\
-            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\beta} \mathcal L \\
-            \end{array}\right].
+            \\begin{array}{cc}
+            \\partial^2_{\\alpha} \mathcal L & \\partial_{\\alpha} \\partial_{\\beta} \mathcal L \\\\
+            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\beta} \mathcal L \\\\
+            \\end{array}\\right].
         $$
 
         The components of $\mathbf H$ are
 
         $$
-        \\partial^2_{\\alpha} \mathcal L = \\beta \Big( (\mathbf u - \\varsigma(\\boldsymbol\\pi))_i (\\partial^2_\\alpha \mathbf Q)^i - \\partial_\\alpha \\varsigma(\\boldsymbol\\pi)_i (\\partial_\\alpha \mathbf Q)^i \Big)_j x^j,
+        \\partial^2_{\\alpha} \mathcal L = \\beta \Big( (\mathbf u - \\varsigma(\\boldsymbol\\pi))_i (\\partial^2_\\alpha \mathbf Q)^i - \\partial_{\\alpha} \\varsigma(\\boldsymbol\\pi)_i (\\partial_{\\alpha} \mathbf Q)^i \Big)_j x^j,
         $$
 
         $$
@@ -484,7 +577,7 @@ class RWSoftmaxAgent(BanditAgent):
         $$
 
         $$
-        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg[ (u - \\varsigma(\\boldsymbol\\pi)) - \\beta \\partial_\\beta \\varsigma(\\boldsymbol\\pi) \\Bigg]_i (\\partial_\\alpha Q)^i_k x^k.
+        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg[ (u - \\varsigma(\\boldsymbol\\pi)) - \\beta \\partial_{\\beta} \\varsigma(\\boldsymbol\\pi) \\Bigg]_i (\\partial_{\\alpha} Q)^i_k x^k.
         $$
 
         and where $\\partial_{\\beta} \\partial_{\\alpha} \mathcal L = \\partial_{\\alpha} \\partial_{\\beta} \mathcal L$ since the second derivatives of $\mathcal L$ are continuous in the neighbourhood of the parameters.
@@ -493,10 +586,6 @@ class RWSoftmaxAgent(BanditAgent):
 
             action: `ndarray(nactions)`. One-hot action vector
             state: `ndarray(nstates)`. One-hot state vector
-
-        Returns:
-
-            `float`
 
         """
         # Obtain the components required for computation of derivatives
@@ -631,7 +720,7 @@ class RWStickySoftmaxAgent(BanditAgent):
             - $n_u \\in \mathbb N_+$ be the dimensionality of the action space
             - $n_x \\in \mathbb N_+$ be the dimensionality of the state space
             - $\mathbf u = (u_0, u_1, u_{n_u})^\\top$ be a one-hot action vector
-            - $\\tilde{\mathbf u}$ be a one-hot vector representing the last trial's action, where at trial 0, $\\tilde{\mathbf u}} = \mathbf 0$.
+            - $\\tilde{\mathbf u}$ be a one-hot vector representing the last trial's action, where at trial 0, $\\tilde{\mathbf u} = \mathbf 0$.
             - $\mathbf x = (x_0, x_1, x_{n_x})^\\top$ be a one-hot action vector
             - $\mathbf Q \\in \mathbb R^{n_u \\times n_x}$ be the state-action value function parameters
             - $\\beta \\in \mathbb R$ be the inverse softmax temperature scaling the action values
@@ -646,36 +735,36 @@ class RWStickySoftmaxAgent(BanditAgent):
         Then we have the partial derivative of $\mathcal L$ at trial $t$ with respect to $\\alpha$
 
         $$
-        \\partial_\\alpha \mathcal L = \\beta \Big[ \big(\mathbf u - \\varsigma(\\pi)\big)_i (\\partial_\\alpha Q)^i_j x^j \Big],
+        \\partial_{\\alpha} \mathcal L = \\beta \Big[ \\big(\mathbf u - \\varsigma(\\pi)\\big)_i (\\partial_{\\alpha} Q)^i_j x^j \Big],
         $$
 
         and with respect to $\\beta$
 
         $$
-        \\partial_\\beta \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j Q_{jk} x^k
+        \\partial_{\\beta} \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j Q_{jk} x^k
         $$
 
         and with respect to $\\rho$
 
         $$
-        \\partial_\\rho \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j \\tilde{u}^j.
+        \\partial_{\\rho} \mathcal L = u_i \Big(\mathbf I_{n_u \\times n_u} - \\varsigma(\\boldsymbol\\pi)\Big)^i_j \\tilde{u}^j.
         $$
 
         We also compute the Hessian $\mathbf H$, defined as
 
         $$
-        \mathbf H = \left[
-            \begin{array}{ccc}
-            \\partial^2_{\\alpha} \mathcal L & \\partial_{\\alpha} \\partial_{\\beta} \mathcal L & \\partial_{\\alpha} \\partial_{\\rho} \mathcal L \\
-            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\beta} \mathcal L & \\partial_{\\beta} \\partial_{\\rho} \mathcal L \\
-            \\partial_{\\rho} \\partial_{\\alpha} \mathcal L & \\partial_{\\rho} \\partial_{\\beta} \mathcal L & \\partial^2_{\\rho} \mathcal L \\
-            \end{array}\right].
+        \mathbf H = \\left[
+            \\begin{array}{ccc}
+            \\partial^2_{\\alpha} \mathcal L & \\partial_{\\alpha} \\partial_{\\beta} \mathcal L & \\partial_{\\alpha} \\partial_{\\rho} \mathcal L \\\\
+            \\partial_{\\beta} \\partial_{\\alpha} \mathcal L & \\partial^2_{\\beta} \mathcal L & \\partial_{\\beta} \\partial_{\\rho} \mathcal L \\\\
+            \\partial_{\\rho} \\partial_{\\alpha} \mathcal L & \\partial_{\\rho} \\partial_{\\beta} \mathcal L & \\partial^2_{\\rho} \mathcal L \\\\
+            \\end{array}\\right].
         $$
 
         The components of $\mathbf H$ are virtually identical to that of `RWSoftmaxAgent`, with the exception of the $\\partial_{\\rho} \\partial_{\\alpha} \mathcal L$ and $\\partial_{\\beta} \\partial_{\\rho} \mathcal L$
 
         $$
-        \\partial^2_{\\alpha} \mathcal L = \\beta \Big( (\mathbf u - \\varsigma(\\boldsymbol\\pi))_i (\\partial^2_\\alpha \mathbf Q)^i - \\partial_\\alpha \\varsigma(\\boldsymbol\\pi)_i (\\partial_\\alpha \mathbf Q)^i \Big)_j x^j,
+        \\partial^2_{\\alpha} \mathcal L = \\beta \Big( (\mathbf u - \\varsigma(\\boldsymbol\\pi))_i (\\partial^2_{\\alpha} \mathbf Q)^i - \\partial_{\\alpha} \\varsigma(\\boldsymbol\\pi)_i (\\partial_{\\alpha} \mathbf Q)^i \Big)_j x^j,
         $$
 
         $$
@@ -683,11 +772,11 @@ class RWStickySoftmaxAgent(BanditAgent):
         $$
 
         $$
-        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg[ (u - \\varsigma(\\boldsymbol\\pi)) - \\beta \\partial_\\beta \\varsigma(\\boldsymbol\\pi) \\Bigg]_i (\\partial_\\alpha Q)^i_k x^k
+        \\partial_{\\alpha} \\partial_{\\beta} \mathcal L = \\Bigg[ (u - \\varsigma(\\boldsymbol\\pi)) - \\beta \\partial_{\\beta} \\varsigma(\\boldsymbol\\pi) \\Bigg]_i (\\partial_{\\alpha} Q)^i_k x^k
         $$
 
         $$
-        \\partial_{\\alpha} \\partial_{\\rho} \mathcal L = - \\beta \\Big( \\partial_\\boldsymbol\\pi \\varsigma(\\boldsymboll\\pi)_i \\tilde{u}^i \\Big)_j (\\partial_\\alpha Q)^j_k x^k
+        \\partial_{\\alpha} \\partial_{\\rho} \mathcal L = - \\beta \\Big( \\partial_{\\boldsymbol\\pi} \\varsigma(\\boldsymbol\\pi)_i \\tilde{u}^i \\Big)_j (\\partial_{\\alpha} Q)^j_k x^k
         $$
 
         and where $\\mathbf H$ is symmetric since the second derivatives of $\mathcal L$ are continuous in the neighbourhood of the parameters.

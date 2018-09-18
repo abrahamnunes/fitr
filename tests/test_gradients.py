@@ -8,6 +8,8 @@ from fitr.environments import TwoArmedBandit
 from fitr.environments import TwoStep
 from fitr.agents import RWSoftmaxAgent
 from fitr.agents import RWStickySoftmaxAgent
+from fitr.agents import SARSASoftmaxAgent
+from fitr.agents import SARSAStickySoftmaxAgent
 from fitr.agents.policies import SoftmaxPolicy
 from fitr.agents.policies import StickySoftmaxPolicy
 from fitr.agents.value_functions import ValueFunction
@@ -18,13 +20,9 @@ from fitr.agents.value_functions import SARSALearner
 def test_logsumexp():
     x = np.array([1., 0., 0.])
     grad_fitr = grad.logsumexp(x)
-    hess_fitr = hess.logsumexp(x)
     grad_autograd = gradient(utils.logsumexp)(x)
-    hess_autograd = hessian(utils.logsumexp)(x)
     grad_err = np.linalg.norm(grad_fitr-grad_autograd)
-    hess_err = np.linalg.norm(hess_fitr-hess_autograd)
     assert(grad_err < 1e-6)
-    assert(hess_err < 1e-6)
 
 def test_exp():
     x = np.arange(5).astype(np.float32)
@@ -54,100 +52,6 @@ def test_softmax():
     agx = gx(x)
     fitrgx = grad.softmax(x)
     assert(np.linalg.norm(agx-fitrgx) < 1e-6)
-
-def test_softmaxpolicy_gradients():
-    x = np.array([0., 1., 0., 0.])
-    B = 1.
-
-    smpol = SoftmaxPolicy(B)
-    smpol.log_prob(x)
-
-    ag_x = jacobian(SoftmaxPolicy(1.)._log_prob_noderivatives)(x)
-    assert(np.linalg.norm(ag_x-smpol.d_logprob['action_values']) < 1e-5)
-
-    fB = lambda B: SoftmaxPolicy(B)._log_prob_noderivatives(x)
-    ag_B = jacobian(fB)(B)
-    assert(np.linalg.norm(ag_B-smpol.d_logprob['inverse_softmax_temp']) < 1e-5)
-
-def test_softmax_policy_hessian():
-    q = np.arange(5)+1
-    q = q.astype(np.float)
-    q = q-np.max(q)
-    B = 1.5
-
-    fB = lambda B: B*q - utils.logsumexp(B*q)
-    fq = lambda q: B*q - utils.logsumexp(B*q)
-
-    aghB = hessian(fB)
-    aghq = hessian(fq)
-
-    autograd_hessB = aghB(B)
-    autograd_hessq = aghq(q)
-
-    HB, Hq = hess.log_softmax(B, q)
-    assert(np.linalg.norm(autograd_hessB - HB) < 1e-6)
-    assert(np.linalg.norm(autograd_hessq - Hq) < 1e-6)
-
-def test_sticky_softmax_policy_hessian():
-    q = np.arange(5)+1
-    q = q.astype(np.float)
-    q = q-np.max(q)
-    u = np.array([0., 0., 1., 0., 0.])
-    u = u - np.max(u)
-    B = 1.5
-    p = 0.01
-
-    f = lambda x: x[0]*q + x[1]*u - utils.logsumexp(x[0]*q + x[1]*u)
-    fq = lambda q: B*q + p*u - utils.logsumexp(B*q + p*u)
-    fu = lambda u: B*q + p*u - utils.logsumexp(B*q + p*u)
-
-    aghq = hessian(fq)
-    aghu = hessian(fu)
-
-    autograd_hessq = aghq(q)
-    autograd_hessu = aghu(u)
-    agH = hessian(f)(np.array([B, p]))[0]
-
-    HB, Hp, HBp, Hq, Hu = hess.log_stickysoftmax(B, p, q, u)
-    fitrH = np.array([[HB[0], HBp[0]],[HBp[0], Hp[0]]])
-    assert(np.linalg.norm(agH - fitrH) < 1e-6)
-    assert(np.linalg.norm(autograd_hessq - Hq) < 1e-6)
-    assert(np.linalg.norm(autograd_hessu - Hu) < 1e-6)
-
-def test_stickysoftmaxpolicy_gradients():
-    x = np.array([0., 1., 0., 0.])
-    u = np.array([0., 0., 1., 0.])
-    B = 1.
-    p = 0.01
-    policy = StickySoftmaxPolicy(B, p)
-    policy.a_last = u
-
-    def fB(B):
-        policy = StickySoftmaxPolicy(B, p)
-        policy.a_last = u
-        return policy._log_prob_noderivatives(x)
-
-    def fp(p):
-        policy = StickySoftmaxPolicy(B, p)
-        policy.a_last = u
-        return policy._log_prob_noderivatives(x)
-
-    def fx(x):
-        policy = StickySoftmaxPolicy(B, p)
-        policy.a_last = u
-        return policy._log_prob_noderivatives(x)
-
-    fitr_gxB = policy.d_logprob['inverse_softmax_temp']
-    fitr_gxp = policy.d_logprob['perseveration']
-    fitr_gxx = policy.d_logprob['action_values']
-
-    ag_gxB = jacobian(fB)(B)
-    ag_gxp = jacobian(fp)(p)
-    ag_gxx = jacobian(fx)(x)
-
-    assert(np.linalg.norm(ag_gxB-fitr_gxB) < 1e-5)
-    assert(np.linalg.norm(ag_gxp-fitr_gxp) < 1e-5)
-    assert(np.linalg.norm(ag_gxx-fitr_gxx) < 1e-5)
 
 def test_grad_Qx():
     x = np.array([1., 0., 0.])
@@ -466,3 +370,158 @@ def test_rwstickysoftmaxagent():
 
     assert(np.linalg.norm(q.grad_ - ag) < 1e-6)
     assert(np.linalg.norm(q.hess_ - aH) < 1e-6)
+
+def test_grad_sarsasoftmaxagent():
+    ntrials = 7
+    def make_mdp_trials():
+        rng = np.random.RandomState(3256)
+        X1 = np.tile(np.array([1., 0., 0., 0., 0.]), [ntrials, 1])
+        X2 = rng.multinomial(1, pvals=[0., 0.5, 0.5, 0., 0.], size=ntrials)
+        U1 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
+        U2 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
+        X3 = rng.multinomial(1, pvals=[0., 0., 0., 0.5, 0.5], size=ntrials)
+        U3 = rng.multinomial(1, pvals=[0.5, 0.5], size=ntrials)
+        R  = np.array([0., 0., 0., 1., 0.])
+        return X1, X2, U1, U2, X3, U3, R
+
+
+    w = np.array([0.1, 2., 0.9, 0.95])
+
+    # GRADIENTS WITH FITR
+    X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
+    q = SARSASoftmaxAgent(TwoStep(),
+                          learning_rate=w[0],
+                          inverse_softmax_temp=w[1],
+                          discount_factor=w[2],
+                          trace_decay=w[3])
+    i = 0
+    for i in range(ntrials):
+        x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
+        q.reset_trace()
+        q.log_prob(x, u)
+        q.learning(x, u, r, x_, u_)
+
+        x = x_; u = u_; x_ = X3[i]; u_ = U3[i]; r  = R@x_
+        q.log_prob(x, u)
+        q.learning(x, u, r, x_, u_)
+
+    # AUTOGRAD
+    def f(w):
+        X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
+        q = SARSASoftmaxAgent(TwoStep(),
+                              learning_rate=w[0],
+                              inverse_softmax_temp=w[1],
+                              discount_factor=w[2],
+                              trace_decay=w[3])
+        for i in range(ntrials):
+            q.reset_trace()
+            x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
+            q._log_prob_noderivatives(x, u)
+            q.critic._update_noderivatives(x, u, r, x_, u_)
+            x = x_; u = u_; x_ = X3[i];  u_ = U3[i]; r  = R@x_
+            q._log_prob_noderivatives(x, u)
+            q.critic._update_noderivatives(x, u, r, x_, u_)
+        return q.logprob_
+
+    ag = jacobian(f)(w)
+    aH = hessian(f)(w)
+    assert(np.linalg.norm(q.grad_ - ag) < 1e-6)
+
+
+
+# ------------------
+#   MIGHT REVISIT THESE LATER IF THEY DONT END UP BEING COVERED BY TESTS OF
+#       AGENT COMPONENTS
+#-------------------
+# def test_softmaxpolicy_gradients():
+#     x = np.array([0., 1., 0., 0.])
+#     B = 1.
+#
+#     smpol = SoftmaxPolicy(B)
+#
+#     ag_x = jacobian(SoftmaxPolicy(1.)._log_prob_noderivatives)(x)
+#     assert(np.linalg.norm(ag_x-smpol.d_logprob['action_values']) < 1e-5)
+#
+#     fB = lambda B: SoftmaxPolicy(B)._log_prob_noderivatives(x)
+#     ag_B = jacobian(fB)(B)
+#     assert(np.linalg.norm(ag_B-smpol.d_logprob['inverse_softmax_temp']) < 1e-5)
+#
+# def test_softmax_policy_hessian():
+#     q = np.arange(5)+1
+#     q = q.astype(np.float)
+#     q = q-np.max(q)
+#     B = 1.5
+#
+#     fB = lambda B: B*q - utils.logsumexp(B*q)
+#     fq = lambda q: B*q - utils.logsumexp(B*q)
+#
+#     aghB = hessian(fB)
+#     aghq = hessian(fq)
+#
+#     autograd_hessB = aghB(B)
+#     autograd_hessq = aghq(q)
+#
+#     HB, Hq = hess.log_softmax(B, q)
+#     assert(np.linalg.norm(autograd_hessB - HB) < 1e-6)
+#     assert(np.linalg.norm(autograd_hessq - Hq) < 1e-6)
+#
+# def test_sticky_softmax_policy_hessian():
+#     q = np.arange(5)+1
+#     q = q.astype(np.float)
+#     q = q-np.max(q)
+#     u = np.array([0., 0., 1., 0., 0.])
+#     u = u - np.max(u)
+#     B = 1.5
+#     p = 0.01
+#
+#     f = lambda x: x[0]*q + x[1]*u - utils.logsumexp(x[0]*q + x[1]*u)
+#     fq = lambda q: B*q + p*u - utils.logsumexp(B*q + p*u)
+#     fu = lambda u: B*q + p*u - utils.logsumexp(B*q + p*u)
+#
+#     aghq = hessian(fq)
+#     aghu = hessian(fu)
+#
+#     autograd_hessq = aghq(q)
+#     autograd_hessu = aghu(u)
+#     agH = hessian(f)(np.array([B, p]))[0]
+#
+#     HB, Hp, HBp, Hq, Hu = hess.log_stickysoftmax(B, p, q, u)
+#     fitrH = np.array([[HB[0], HBp[0]],[HBp[0], Hp[0]]])
+#     assert(np.linalg.norm(agH - fitrH) < 1e-6)
+#     assert(np.linalg.norm(autograd_hessq - Hq) < 1e-6)
+#     assert(np.linalg.norm(autograd_hessu - Hu) < 1e-6)
+#
+# def test_stickysoftmaxpolicy_gradients():
+#     x = np.array([0., 1., 0., 0.])
+#     u = np.array([0., 0., 1., 0.])
+#     B = 1.
+#     p = 0.01
+#     policy = StickySoftmaxPolicy(B, p)
+#     policy.a_last = u
+#
+#     def fB(B):
+#         policy = StickySoftmaxPolicy(B, p)
+#         policy.a_last = u
+#         return policy._log_prob_noderivatives(x)
+#
+#     def fp(p):
+#         policy = StickySoftmaxPolicy(B, p)
+#         policy.a_last = u
+#         return policy._log_prob_noderivatives(x)
+#
+#     def fx(x):
+#         policy = StickySoftmaxPolicy(B, p)
+#         policy.a_last = u
+#         return policy._log_prob_noderivatives(x)
+#
+#     fitr_gxB = policy.d_logprob['inverse_softmax_temp']
+#     fitr_gxp = policy.d_logprob['perseveration']
+#     fitr_gxx = policy.d_logprob['action_values']
+#
+#     ag_gxB = jacobian(fB)(B)
+#     ag_gxp = jacobian(fp)(p)
+#     ag_gxx = jacobian(fx)(x)
+#
+#     assert(np.linalg.norm(ag_gxB-fitr_gxB) < 1e-5)
+#     assert(np.linalg.norm(ag_gxp-fitr_gxp) < 1e-5)
+#     assert(np.linalg.norm(ag_gxx-fitr_gxx) < 1e-5)

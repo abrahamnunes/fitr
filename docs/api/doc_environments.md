@@ -248,6 +248,23 @@ u = env.random_action()
 
 
 
+### Graph.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
+
+---
+
+
+
+
 ### Graph.step
 
 ```python
@@ -480,6 +497,23 @@ u = env.random_action()
 
 
 
+### TwoArmedBandit.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
+
+---
+
+
+
+
 ### TwoArmedBandit.step
 
 ```python
@@ -706,6 +740,23 @@ Examples:
 ```python
 u = env.random_action()
 ```
+
+---
+
+
+
+
+### OrthogonalGoNoGo.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
 
 ---
 
@@ -974,6 +1025,23 @@ u = env.random_action()
 
 
 
+### TwoStep.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
+
+---
+
+
+
+
 ### TwoStep.step
 
 ```python
@@ -1218,7 +1286,520 @@ u = env.random_action()
 
 
 
+### ReverseTwoStep.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
+
+---
+
+
+
+
 ### ReverseTwoStep.step
+
+```python
+fitr.environments.step(self, action)
+```
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type `ndarray((naction,))` indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (`ndarray((noutcomes,))`), scalar reward, and whether the current step terminates a trial (`bool`).
+
+Raises:
+
+`RuntimeError` if `env.observation()` not called after a previous `env.step(...)` call yielded a terminal state.
+
+---
+
+
+
+## MouthTask
+
+```python
+fitr.environments.MouthTask()
+```
+
+The Pizzagalli reward sensitivity signal-detection task 
+
+---
+
+
+
+
+### MouthTask.adjacency_matrix_decomposition
+
+```python
+fitr.environments.adjacency_matrix_decomposition(self)
+```
+
+Singular value decomposition of the graph adjacency matrix 
+
+---
+
+
+
+
+### MouthTask.get_graph_depth
+
+```python
+fitr.environments.get_graph_depth(self)
+```
+
+Returns the depth of the task graph.
+
+Calculated as the depth from `START` (pre-initial state) to `END` (which absorbs trial from all terminal states), minus 2 to account for the `START->node` & `node->END` transitions.
+
+Returns:
+
+An `int` identifying the depth of the current graph for a single trial of the task
+
+---
+
+
+
+
+### MouthTask.laplacian_matrix_decomposition
+
+```python
+fitr.environments.laplacian_matrix_decomposition(self)
+```
+
+Singular value decomposition of the graph Laplacian 
+
+---
+
+
+
+
+### MouthTask.make_action_labels
+
+```python
+fitr.environments.make_action_labels(self)
+```
+
+Creates labels for the actions (for plotting) if none provided 
+
+---
+
+
+
+
+### MouthTask.make_digraph
+
+```python
+fitr.environments.make_digraph(self)
+```
+
+Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
+
+---
+
+
+
+
+### MouthTask.make_state_labels
+
+```python
+fitr.environments.make_state_labels(self)
+```
+
+Creates labels for the states (for plotting) if none provided 
+
+---
+
+
+
+
+### MouthTask.make_undirected_graph
+
+```python
+fitr.environments.make_undirected_graph(self)
+```
+
+Converts the DiGraph to undirected and computes some stats 
+
+---
+
+
+
+
+### MouthTask.observation
+
+```python
+fitr.environments.observation(self)
+```
+
+Samples an initial state from the start-state distribution $p(\mathbf x)$
+
+$$
+\mathbf x_0 \sim p(\mathbf x)
+$$
+
+Returns:
+
+A one-hot vector `ndarray((nstates,))` indicating the starting state.
+
+Examples:
+
+```python
+x = env.observation()
+```
+
+---
+
+
+
+
+### MouthTask.plot_action_outcome_probabilities
+
+```python
+fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+```
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition probabilities for each action-outcome pair within that state.
+
+---
+
+
+
+
+### MouthTask.plot_graph
+
+```python
+fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+```
+
+Plots the directed graph of the task 
+
+---
+
+
+
+
+### MouthTask.plot_spectral_properties
+
+```python
+fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+```
+
+Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
+
+---
+
+
+
+
+### MouthTask.random_action
+
+```python
+fitr.environments.random_action(self)
+```
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create an agent.
+
+$$
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+$$
+
+Returns:
+
+A one-hot action vector of type `ndarray((nactions,))`
+
+Examples:
+
+```python
+u = env.random_action()
+```
+
+---
+
+
+
+
+### MouthTask.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
+
+---
+
+
+
+
+### MouthTask.step
+
+```python
+fitr.environments.step(self, action)
+```
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type `ndarray((naction,))` indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (`ndarray((noutcomes,))`), scalar reward, and whether the current step terminates a trial (`bool`).
+
+Raises:
+
+`RuntimeError` if `env.observation()` not called after a previous `env.step(...)` call yielded a terminal state.
+
+---
+
+
+
+## IGT
+
+```python
+fitr.environments.IGT()
+```
+
+Iowa Gambling Task 
+
+---
+
+
+
+
+### IGT.adjacency_matrix_decomposition
+
+```python
+fitr.environments.adjacency_matrix_decomposition(self)
+```
+
+Singular value decomposition of the graph adjacency matrix 
+
+---
+
+
+
+
+### IGT.get_graph_depth
+
+```python
+fitr.environments.get_graph_depth(self)
+```
+
+Returns the depth of the task graph.
+
+Calculated as the depth from `START` (pre-initial state) to `END` (which absorbs trial from all terminal states), minus 2 to account for the `START->node` & `node->END` transitions.
+
+Returns:
+
+An `int` identifying the depth of the current graph for a single trial of the task
+
+---
+
+
+
+
+### IGT.laplacian_matrix_decomposition
+
+```python
+fitr.environments.laplacian_matrix_decomposition(self)
+```
+
+Singular value decomposition of the graph Laplacian 
+
+---
+
+
+
+
+### IGT.make_action_labels
+
+```python
+fitr.environments.make_action_labels(self)
+```
+
+Creates labels for the actions (for plotting) if none provided 
+
+---
+
+
+
+
+### IGT.make_digraph
+
+```python
+fitr.environments.make_digraph(self)
+```
+
+Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
+
+---
+
+
+
+
+### IGT.make_state_labels
+
+```python
+fitr.environments.make_state_labels(self)
+```
+
+Creates labels for the states (for plotting) if none provided 
+
+---
+
+
+
+
+### IGT.make_undirected_graph
+
+```python
+fitr.environments.make_undirected_graph(self)
+```
+
+Converts the DiGraph to undirected and computes some stats 
+
+---
+
+
+
+
+### IGT.observation
+
+```python
+fitr.environments.observation(self)
+```
+
+Samples an initial state from the start-state distribution $p(\mathbf x)$
+
+$$
+\mathbf x_0 \sim p(\mathbf x)
+$$
+
+Returns:
+
+A one-hot vector `ndarray((nstates,))` indicating the starting state.
+
+Examples:
+
+```python
+x = env.observation()
+```
+
+---
+
+
+
+
+### IGT.plot_action_outcome_probabilities
+
+```python
+fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+```
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition probabilities for each action-outcome pair within that state.
+
+---
+
+
+
+
+### IGT.plot_graph
+
+```python
+fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+```
+
+Plots the directed graph of the task 
+
+---
+
+
+
+
+### IGT.plot_spectral_properties
+
+```python
+fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+```
+
+Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
+
+---
+
+
+
+
+### IGT.random_action
+
+```python
+fitr.environments.random_action(self)
+```
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create an agent.
+
+$$
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+$$
+
+Returns:
+
+A one-hot action vector of type `ndarray((nactions,))`
+
+Examples:
+
+```python
+u = env.random_action()
+```
+
+---
+
+
+
+
+### IGT.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
+
+---
+
+
+
+
+### IGT.step
 
 ```python
 fitr.environments.step(self, action)
@@ -1471,6 +2052,23 @@ Examples:
 ```python
 u = env.random_action()
 ```
+
+---
+
+
+
+
+### RandomContextualBandit.set_seed
+
+```python
+fitr.environments.set_seed(self, seed=None)
+```
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+- **seed**: `int`. Seed value. Default is `None`, which results in a default random state object. If user enters a non-integer value, the default random state object will still be used and no error will be thrown!
 
 ---
 

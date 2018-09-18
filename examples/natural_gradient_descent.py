@@ -3,28 +3,29 @@ import fitr.utils as fu
 from fitr import gradients as grad
 from fitr.environments import TwoArmedBandit
 from fitr.environments import generate_behavioural_data
-from fitr.agents import RWSoftmaxAgent
+from fitr.agents import RWStickySoftmaxAgent
 from fitr.inference import mlepar
 from fitr.criticism.plotting import actual_estimate
 
-nsubjects = 20
-ntrials = 1000
+nsubjects = 100
+ntrials = 500
 task = TwoArmedBandit
-data = generate_behavioural_data(task, RWSoftmaxAgent, nsubjects, ntrials)
+data = generate_behavioural_data(task, RWStickySoftmaxAgent, nsubjects, ntrials)
 nx, nu = task().nstates, task().nactions
 
 clipped_exp = lambda x: fu.stable_exp(x, a_min=-5, a_max=5)
 
 def reparam_jac(x):
-    return np.diag(np.array([grad.sigmoid(x[0]), grad.exp(x[1])]))
+    return np.diag(np.array([grad.sigmoid(x[0]), grad.exp(x[1]), x[2]]))
 
 def loglik(w, D):
     X1, U1, R, X2  = D[:,:nx], D[:,nx:nx+nu], D[:,nx+nu], D[:,nx+nu+1:nx+nu+1+nx]
-    w = fu.transform(w, [fu.sigmoid, clipped_exp]).flatten()
+    w = fu.transform(w, [fu.sigmoid, clipped_exp, fu.I]).flatten()
     J = reparam_jac(w)
-    q = RWSoftmaxAgent(task=task(),
+    q = RWStickySoftmaxAgent(task=task(),
                        learning_rate=w[0],
-                       inverse_softmax_temp=w[1])
+                       inverse_softmax_temp=w[1],
+                       perseveration=w[2])
     ntrials = X1.shape[0]
     for t in range(ntrials):
         q.log_prob(X1[t], U1[t])
@@ -109,11 +110,11 @@ nlog_prob = lambda x: loglik(x, data.tensor[i])[:-1]
 
 res = mlepar(f=loglik,
              data=data.tensor,
-             nparams=2,6
+             nparams=3,
              minstarts=2,
-             maxstarts=4,
+             maxstarts=6,
              maxstarts_without_improvement=2,
-             init_sd=1,L-BFGS-B
+             init_sd=2,
              njobs=-1,
              jac=True,
              hess=True,
@@ -123,8 +124,7 @@ res = mlepar(f=loglik,
 
 
 xhat = res.transform_xmin([fu.sigmoid, clipped_exp])
-idx = np.logical_not(np.isnan(xhat[:, 0]))
-xhat = batch_transform(res.xmin, [fu.sigmoid, clipped_exp])
+idx = np.logical_and(np.logical_not(np.isnan(xhat[:, 0])), np.less(xhat[:,1], 20))
 
 f = actual_estimate(data.params[:,1], ng_xhat_trans[:,0])
 f = actual_estimate(data.params[ng_xhat_trans[:,1] <20,2], ng_xhat_trans[ng_xhat_trans[:,1] <20,1])
