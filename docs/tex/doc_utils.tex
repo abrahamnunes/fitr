@@ -31,6 +31,35 @@ such that sum over \texttt{nfeatures} is 1.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsection{batch\_transform}\label{batch_transform}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.batch_transform(X, f_list)}
+\end{Highlighting}
+\end{Shaded}
+
+Applies the \texttt{fitr.utils.transform} function over a batch of
+parameters
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsamples,\ nparams))}. Raw parameters
+\item
+  \textbf{f\_list}: \texttt{list} where \texttt{len(list)\ ==\ nparams}.
+  Functions defining coordinate transformations on each element of
+  \texttt{x}.
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nsamples,\ nparams))}. Transformed parameters
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsection{I}\label{i}
 
 \begin{Shaded}
@@ -188,7 +217,7 @@ Arguments:
 \item
   \textbf{with\_mean}: \texttt{bool}. Whether to subtract the mean
 \item
-  \textbf{with\_var}: \texttt{bool}. Whether to divide by variance
+  \textbf{with\_var}: \texttt{bool}. Whether to normalize for variance
 \end{itemize}
 
 Returns:
