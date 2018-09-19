@@ -258,6 +258,7 @@ class SARSASoftmaxAgent(MDPAgent):
             'inverse_softmax_temp_discount_factor': 0,
             'inverse_softmax_temp_trace_decay': 0,
             'discount_factor_trace_decay': 0,
+	    'discount_factor': 0,
             'trace_decay': 0
         }
 
@@ -279,15 +280,33 @@ class SARSASoftmaxAgent(MDPAgent):
         lr             = self.critic.learning_rate
         beta           = self.actor.inverse_softmax_temp
         Qx             = self.critic.Qx(state)
+        du             = action - fu.softmax(Qx)
         self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
+        dpu_dlogit     = np.einsum('i,ij->j', action, grad.softmax(self.actor.logits))
 
-        # Derivatives of log-probability with respect to
-        #   Second order
-        #   First order
+        # Second order derivatives 
+        D2Q_lr        	 = self.critic.hess_Q['learning_rate']
+        D2Q_gamma     	 = self.critic.hess_Q['discount_factor']
+        D2Q_lambda    	 = self.critic.hess_Q['trace_decay']
+        D2Q_lr_gamma  	 = self.critic.hess_Q['learning_rate_discount_factor']
+        D2Q_lr_lambda 	 = self.critic.hess_Q['learning_rate_trace_decay']
+        D2Q_gamma_lambda = self.critic.hess_Q['discount_factor_trace_decay']
+        DQ_lr         	 = self.critic.dQ['learning_rate']
+        DQ_gamma      	 = self.critic.dQ['discount_factor']
+        DQ_lambda     	 = self.critic.dQ['trace_decay']
+
+        self.hess_logprob['learning_rate'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr**2), state)
+        self.hess_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
+        self.hess_logprob['discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma**2), state) 
+        self.hess_logprob['trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lambda**2), state) 
+        self.hess_logprob['learning_rate_inverse_softmax_temp'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lr) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*self.critic.Q), state) 
+        self.hess_logprob['learning_rate_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_gamma), state)  
+        self.hess_logprob['learning_rate_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_lambda), state) 
+        self.hess_logprob['inverse_softmax_temp_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*self.critic.Q), state) 
+        self.hess_logprob['inverse_softmax_temp_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lambda*self.critic.Q), state) 
+        self.hess_logprob['discount_factor_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*DQ_lambda), state)
 
         # Derivatives of log-probability with respect to inverse softmax temperature
-        #   Second order
-        self.hess_logprob['inverse_softmax_temp'] = np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
         #   First order
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
 
@@ -298,13 +317,11 @@ class SARSASoftmaxAgent(MDPAgent):
         self.d_logprob['learning_rate'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['learning_rate'])
 
         # Derivatives of log-probability with respect to discount factor
-        #   Second order
         #   First order
         self.d_action_values['discount_factor'] = np.dot(self.critic.dQ['discount_factor'], self.d_action_values['Q'])
         self.d_logprob['discount_factor'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['discount_factor'])
 
         # Derivatives of log-probability with respect to trace decay
-        #   Second order
         #   First order
         self.d_action_values['trace_decay'] = np.dot(self.critic.dQ['trace_decay'], self.d_action_values['Q'])
         self.d_logprob['trace_decay'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['trace_decay'])
@@ -315,7 +332,25 @@ class SARSASoftmaxAgent(MDPAgent):
                                self.d_logprob['discount_factor'],
                                self.d_logprob['trace_decay']])
 
-        #self.hess_ =
+        self.hess_ = np.array([[self.hess_logprob['learning_rate'], 
+                                self.hess_logprob['learning_rate_inverse_softmax_temp'], 
+                                self.hess_logprob['learning_rate_discount_factor'],
+                                self.hess_logprob['learning_rate_trace_decay']],
+
+                               [self.hess_logprob['learning_rate_inverse_softmax_temp'], 
+                                self.hess_logprob['inverse_softmax_temp'], 
+                                self.hess_logprob['inverse_softmax_temp_discount_factor'], 
+                                self.hess_logprob['inverse_softmax_temp_trace_decay']],
+
+                               [self.hess_logprob['learning_rate_discount_factor'], 
+                                self.hess_logprob['inverse_softmax_temp_discount_factor'], 
+                                self.hess_logprob['discount_factor'], 
+                                self.hess_logprob['discount_factor_trace_decay']],
+
+                               [self.hess_logprob['learning_rate_trace_decay'], 
+                                self.hess_logprob['inverse_softmax_temp_trace_decay'], 
+                                self.hess_logprob['discount_factor_trace_decay'], 
+                                self.hess_logprob['trace_decay']]])
 
     def _log_prob_noderivatives(self, state, action):
         """ Computes the log-probability of the given action and state under the model without computing derivatives.
