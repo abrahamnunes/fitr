@@ -118,12 +118,13 @@ class MDPAgent(Agent):
     def __init__(self, task):
         super().__init__(task)
 
-    def generate_data(self, ntrials):
+    def generate_data(self, ntrials, state_only=False):
         """ For the parent agent, this function generates data from a Markov Decision Process (MDP) task
 
         Arguments:
 
             ntrials: `int` number of trials
+            state_only: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
         Returns:
 
@@ -135,7 +136,7 @@ class MDPAgent(Agent):
             done = False
             state  = self.task.observation()
             action = self.action(state)
-            self.reset_trace(state, action)
+            self.reset_trace(state_only=state_only)
             while not done:
                 next_state, reward, done = self.task.step(action)
                 next_action = self.action(next_state)
@@ -284,27 +285,27 @@ class SARSASoftmaxAgent(MDPAgent):
         self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
         dpu_dlogit     = np.einsum('i,ij->j', action, grad.softmax(self.actor.logits))
 
-        # Second order derivatives 
+        # Second order derivatives
         D2Q_lr        	 = self.critic.hess_Q['learning_rate']
         D2Q_gamma     	 = self.critic.hess_Q['discount_factor']
-        D2Q_lambda    	 = self.critic.hess_Q['trace_decay']
+        D2Q_lamda    	 = self.critic.hess_Q['trace_decay']
         D2Q_lr_gamma  	 = self.critic.hess_Q['learning_rate_discount_factor']
-        D2Q_lr_lambda 	 = self.critic.hess_Q['learning_rate_trace_decay']
-        D2Q_gamma_lambda = self.critic.hess_Q['discount_factor_trace_decay']
+        D2Q_lr_lamda 	 = self.critic.hess_Q['learning_rate_trace_decay']
+        D2Q_gamma_lamda  = self.critic.hess_Q['discount_factor_trace_decay']
         DQ_lr         	 = self.critic.dQ['learning_rate']
         DQ_gamma      	 = self.critic.dQ['discount_factor']
-        DQ_lambda     	 = self.critic.dQ['trace_decay']
+        DQ_lamda     	 = self.critic.dQ['trace_decay']
 
         self.hess_logprob['learning_rate'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr**2), state)
         self.hess_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
-        self.hess_logprob['discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma**2), state) 
-        self.hess_logprob['trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lambda**2), state) 
-        self.hess_logprob['learning_rate_inverse_softmax_temp'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lr) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*self.critic.Q), state) 
-        self.hess_logprob['learning_rate_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_gamma), state)  
-        self.hess_logprob['learning_rate_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_lambda), state) 
-        self.hess_logprob['inverse_softmax_temp_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*self.critic.Q), state) 
-        self.hess_logprob['inverse_softmax_temp_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lambda*self.critic.Q), state) 
-        self.hess_logprob['discount_factor_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma_lambda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*DQ_lambda), state)
+        self.hess_logprob['discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma**2), state)
+        self.hess_logprob['trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lamda**2), state)
+        self.hess_logprob['learning_rate_inverse_softmax_temp'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lr) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*self.critic.Q), state)
+        self.hess_logprob['learning_rate_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_gamma), state)
+        self.hess_logprob['learning_rate_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_lamda), state)
+        self.hess_logprob['inverse_softmax_temp_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*self.critic.Q), state)
+        self.hess_logprob['inverse_softmax_temp_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lamda*self.critic.Q), state)
+        self.hess_logprob['discount_factor_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*DQ_lamda), state)
 
         # Derivatives of log-probability with respect to inverse softmax temperature
         #   First order
@@ -332,24 +333,24 @@ class SARSASoftmaxAgent(MDPAgent):
                                self.d_logprob['discount_factor'],
                                self.d_logprob['trace_decay']])
 
-        self.hess_ = np.array([[self.hess_logprob['learning_rate'], 
-                                self.hess_logprob['learning_rate_inverse_softmax_temp'], 
+        self.hess_ = np.array([[self.hess_logprob['learning_rate'],
+                                self.hess_logprob['learning_rate_inverse_softmax_temp'],
                                 self.hess_logprob['learning_rate_discount_factor'],
                                 self.hess_logprob['learning_rate_trace_decay']],
 
-                               [self.hess_logprob['learning_rate_inverse_softmax_temp'], 
-                                self.hess_logprob['inverse_softmax_temp'], 
-                                self.hess_logprob['inverse_softmax_temp_discount_factor'], 
+                               [self.hess_logprob['learning_rate_inverse_softmax_temp'],
+                                self.hess_logprob['inverse_softmax_temp'],
+                                self.hess_logprob['inverse_softmax_temp_discount_factor'],
                                 self.hess_logprob['inverse_softmax_temp_trace_decay']],
 
-                               [self.hess_logprob['learning_rate_discount_factor'], 
-                                self.hess_logprob['inverse_softmax_temp_discount_factor'], 
-                                self.hess_logprob['discount_factor'], 
+                               [self.hess_logprob['learning_rate_discount_factor'],
+                                self.hess_logprob['inverse_softmax_temp_discount_factor'],
+                                self.hess_logprob['discount_factor'],
                                 self.hess_logprob['discount_factor_trace_decay']],
 
-                               [self.hess_logprob['learning_rate_trace_decay'], 
-                                self.hess_logprob['inverse_softmax_temp_trace_decay'], 
-                                self.hess_logprob['discount_factor_trace_decay'], 
+                               [self.hess_logprob['learning_rate_trace_decay'],
+                                self.hess_logprob['inverse_softmax_temp_trace_decay'],
+                                self.hess_logprob['discount_factor_trace_decay'],
                                 self.hess_logprob['trace_decay']]])
 
     def _log_prob_noderivatives(self, state, action):

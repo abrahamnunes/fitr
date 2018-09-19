@@ -268,6 +268,14 @@ def test_grad_sarsalearnerupdate():
     # Check partial derivative of Q with respect to trace decay
     assert(np.linalg.norm(q.dQ['trace_decay']-jacobian(agf_et)(0.95)) < 1e-6)
 
+    #hessian(agf_lr)(0.1)
+    #q.hess_Q['learning_rate']
+    #hessian(agf_dc)(0.9)
+    #q.hess_Q['discount_factor']
+
+    #hessian(agf_et)(0.95)
+    #q.hess_Q['trace_decay']
+
 def test_rwsoftmaxagent():
     lr = 0.1
     B  = 1.5
@@ -426,8 +434,8 @@ def test_grad_sarsasoftmaxagent():
     ag = jacobian(f)(w)
     aH = hessian(f)(w)
     assert(np.linalg.norm(q.grad_ - ag) < 1e-6)
-    
-    print(np.round(q.hess_, 3)) 
+
+    print(np.round(q.hess_, 3))
     print(np.round(aH, 3))
 
 

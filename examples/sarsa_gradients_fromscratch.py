@@ -1,0 +1,252 @@
+import autograd.numpy as np
+from autograd import jacobian, hessian
+import fitr.utils as fu
+from fitr import gradients as grad
+from fitr import hessians as hess
+from fitr.environments import TwoStep
+from fitr.agents import SARSASoftmaxAgent
+
+ntrials = 20
+lr = 0.1; B = 2.; dc = 0.9; td=0.95
+w = np.array([lr, B, dc, td])
+
+task = TwoStep(rng=np.random.RandomState(532))
+agent = SARSASoftmaxAgent(TwoStep(rng=np.random.RandomState(532)),
+                          learning_rate=lr,
+                          inverse_softmax_temp=B,
+                          discount_factor=dc,
+                          trace_decay=td,
+                          rng=np.random.RandomState(236))
+data = agent.generate_data(ntrials)
+
+agent_inv = SARSASoftmaxAgent(TwoStep(rng=np.random.RandomState(532)),
+                              learning_rate=lr,
+                              inverse_softmax_temp=B,
+                              discount_factor=dc,
+                              trace_decay=td,
+                              rng=np.random.RandomState(236))
+
+X,U,R,X_,U_,DONE = data.unpack_tensor(task.nstates, task.nactions)
+
+Q        = np.zeros((task.nactions, task.nstates))
+DQ_lr    = np.zeros((task.nactions, task.nstates))
+DQ_dc    = np.zeros((task.nactions, task.nstates))
+DQ_td    = np.zeros((task.nactions, task.nstates))
+D2Q_lr   = np.zeros((task.nactions, task.nstates))
+D2Q_dc   = np.zeros((task.nactions, task.nstates))
+D2Q_td   = np.zeros((task.nactions, task.nstates))
+D2Q_lrdc = np.zeros((task.nactions, task.nstates))
+D2Q_lrtd = np.zeros((task.nactions, task.nstates))
+D2Q_dctd = np.zeros((task.nactions, task.nstates))
+
+Drpe_Q  = np.zeros((task.nactions, task.nstates))
+Drpe_lr = 0
+Drpe_dc = 0
+Drpe_td = 0
+
+Dlp_lr = 0
+Dlp_B  = 0
+Dlp_dc = 0
+Dlp_td = 0
+
+D2lp_lr   = 0
+D2lp_B    = 0
+D2lp_dc   = 0
+D2lp_td   = 0
+D2lp_lrB  = 0
+D2lp_lrdc = 0
+D2lp_lrtd = 0
+D2lp_Bdc  = 0
+D2lp_Btd  = 0
+D2lp_dctd = 0
+
+
+L = 0
+for t in range(R.size):
+    x=X[0,t]; u=U[0,t]; r=R.flatten()[t]; x_=X_[0,t]; u_=U_[0,t]; done=DONE.flatten()[t]
+
+    if done == 0: agent_inv.reset_trace()
+    agent_inv.log_prob(x, u)
+    agent_inv.learning(x, u, r, x_, u_)
+
+    q = np.einsum('ij,j->i', Q, x)
+    Dq_Q = x
+    logits = B*q
+    Dlogit_B = q
+    Dlogit_q = B
+    lp = logits - fu.logsumexp(logits)
+    Dlp_logit = np.eye(logits.size) - np.tile(fu.softmax(logits).flatten(), [logits.size, 1])
+    L += np.einsum('i,i->', u, lp)
+    pu = fu.softmax(logits)
+    du = u - pu
+    dpu_dlogit = np.einsum('i,ij->j', u, grad.softmax(logits))
+
+    HB, Hq = hess.log_softmax(B, q)
+
+    D2lp_lr   += B*np.dot(np.einsum('i,ij->j', du, D2Q_lr)   - B*np.einsum('i,ij->j', dpu_dlogit, DQ_lr**2), x)
+    D2lp_dc   += B*np.dot(np.einsum('i,ij->j', du, D2Q_dc)   - B*np.einsum('i,ij->j', dpu_dlogit, DQ_dc**2), x)
+    D2lp_td   += B*np.dot(np.einsum('i,ij->j', du, D2Q_td)   - B*np.einsum('i,ij->j', dpu_dlogit, DQ_td**2), x)
+    D2lp_lrdc += B*np.dot(np.einsum('i,ij->j', du, D2Q_lrdc) - B*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_dc), x)
+    D2lp_lrtd += B*np.dot(np.einsum('i,ij->j', du, D2Q_lrtd) - B*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_td), x)
+    D2lp_dctd += B*np.dot(np.einsum('i,ij->j', du, D2Q_dctd) - B*np.einsum('i,ij->j', dpu_dlogit, DQ_dc*DQ_td), x)
+
+    D2lp_B    += np.dot(u, HB)
+    D2lp_lrB  += B*np.dot(np.einsum('i,ij->j', du, DQ_lr) - B*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*Q), x)
+    D2lp_Bdc  += B*np.dot(np.einsum('i,ij->j', du, DQ_dc) - B*np.einsum('i,ij->j', dpu_dlogit, DQ_dc*Q), x)
+    D2lp_Btd  += B*np.dot(np.einsum('i,ij->j', du, DQ_td) - B*np.einsum('i,ij->j', dpu_dlogit, DQ_td*Q), x)
+
+    # Derivatives of log-probability with respect to learning rate
+    Dlp_B += np.einsum('i,ij,j->', u, Dlp_logit, Dlogit_B)
+    Dlp_q =  Dlp_logit*Dlogit_q
+
+    #   First order
+    Dq_lr = np.einsum('ij,j->i', DQ_lr, Dq_Q)
+    Dlp_lr += np.einsum('i,ij,j->', u, Dlp_q, Dq_lr)
+
+    # Derivatives of log-probability with respect to discount factor
+    #   First order
+    Dq_dc   = np.einsum('ij,j->i', DQ_dc, Dq_Q)
+    Dlp_dc += np.einsum('i,ij,j->', u, Dlp_q, Dq_dc)
+
+    # Derivatives of log-probability with respect to trace decay
+    #   First order
+    Dq_td   = np.einsum('ij,j->i',  DQ_td, Dq_Q)
+    Dlp_td += np.einsum('i,ij,j->', u, Dlp_q, Dq_td)
+
+    grad_ = np.array([Dlp_lr, Dlp_B, Dlp_dc, Dlp_td])
+    hess_ = np.array([[D2lp_lr  , D2lp_lrB, D2lp_lrdc, D2lp_lrtd],
+                      [D2lp_lrB ,   D2lp_B,  D2lp_Bdc,  D2lp_Btd],
+                      [D2lp_lrdc, D2lp_Bdc, D2lp_dc  , D2lp_dctd],
+                      [D2lp_lrtd, D2lp_Btd, D2lp_dctd,   D2lp_td]])
+
+    #Reset trace
+    if done == 0:
+        D2z_dc   = np.zeros((task.nactions, task.nstates))
+        D2z_td   = np.zeros((task.nactions, task.nstates))
+        D2z_dctd = np.zeros((task.nactions, task.nstates))
+        Dz_dc    = np.zeros((task.nactions, task.nstates))
+        Dz_td    = np.zeros((task.nactions, task.nstates))
+        z        = np.zeros((task.nactions, task.nstates))
+
+    Drpe_Q     = dc*np.outer(u_, x_) - np.outer(u, x)
+
+    # Compute derivatives
+    D2z_dc = td*(2*Dz_dc + dc*D2z_dc)
+    D2z_td = dc*(2*Dz_td + td*D2z_td)
+    D2z_dctd = z + dc*Dz_dc + td*Dz_td + dc*td*D2z_dctd
+    Dz_dc = td*(z + dc*Dz_dc)
+    Dz_td = dc*(z + td*Dz_td)
+
+    # Update trace
+    z = np.outer(u, x) + dc*td*z
+
+    # REWARD PREDICTION ERROR
+    # Compute derivatives
+    #   Second order
+
+    D2rpe_lr   = np.sum(D2Q_lr*Drpe_Q)
+    D2rpe_dc   = np.sum(D2Q_dc*Drpe_Q) + 2*np.einsum('i,ij,j->', u_, DQ_dc, x_)
+    D2rpe_td   = np.sum(D2Q_td*Drpe_Q)
+    D2rpe_lrdc = np.sum(D2Q_lrdc*Drpe_Q) + np.einsum('i,ij,j->', u_, DQ_lr, x_)
+    D2rpe_lrtd = np.sum(D2Q_lrtd*Drpe_Q)
+    D2rpe_dctd = np.sum(D2Q_dctd*DQ_lr) + np.einsum('i,ij,j->', u_, DQ_td, x_)
+    D2rpe_dcQ  = np.outer(u_, x_)
+
+    #   First order
+
+    Drpe_lr = np.sum(DQ_lr*Drpe_Q)
+    Drpe_dc = np.sum(DQ_dc*Drpe_Q) + np.einsum('i,ij,j->', u_, Q, x_)
+    Drpe_td = np.sum(DQ_td*Drpe_Q)
+
+    # Compute RPE
+    rpe = r + dc*np.einsum('i,ij,j->',u_,Q,x_) - np.einsum('i,ij,j->',u,Q,x)
+
+    # Q PARAMETERS
+    # Compute derivatives
+    #   Second order
+    D2Q_lr   += (2*Drpe_lr + lr*D2rpe_lr)*z
+    D2Q_dc   += lr*(D2rpe_dc*z + rpe*Dz_dc + Drpe_dc*z + rpe*D2z_dc)
+    D2Q_td   += lr*(D2rpe_td*z + rpe*Dz_td + Drpe_td*z + rpe*D2z_td)
+    D2Q_lrdc += Drpe_dc*z + lr*D2rpe_lrdc*z + (rpe + lr*Drpe_lr)*Dz_dc
+    D2Q_lrtd += Drpe_td*z + lr*D2rpe_lrtd*z + (rpe + lr*Drpe_lr)*Dz_td
+    D2Q_dctd += lr*(D2rpe_dctd*z + Drpe_dc*Dz_td + Drpe_td*Dz_dc + rpe*D2z_dctd)
+
+    #   First order
+    DQ_lr += (rpe + lr*Drpe_lr)*z
+    DQ_dc += lr*(Drpe_dc*z + rpe*Dz_dc)
+    DQ_td += lr*(Drpe_td*z + rpe*Dz_td)
+
+    # Update value function
+    Q += lr*rpe*z
+
+def f(w):
+    Q = np.zeros((task.nactions, task.nstates))
+    L = 0
+    for t in range(R.size):
+        x=X[0,t]; u=U[0,t]; r=R.flatten()[t]; x_=X_[0,t]; u_=U_[0,t]; done=DONE.flatten()[t]
+
+        logits = w[1]*np.einsum('ij,j->i', Q, x)
+        lp = logits - fu.logsumexp(logits)
+        L += np.einsum('i,i->', u, lp)
+
+        #Reset trace
+        if done == 0:
+            z  = np.zeros((task.nactions, task.nstates))
+        # Update trace
+        z = np.outer(u, x) + w[2]*w[3]*z
+
+        # Compute RPE
+        rpe = r + w[2]*np.einsum('i,ij,j->', u_, Q, x_) - np.einsum('i,ij,j->', u, Q, x)
+
+        # Update value function
+        Q += w[0]*rpe*z
+
+    return L
+
+
+g = lambda lr: f(np.array([lr, B, dc, td]))
+g
+hessian(f)(w)
+hess_
+g(dc)
+
+DQ_lr
+B = hessian(f)(w)
+A = hessian(g)(lr)
+A
+
+D2lp_lr
+D2lp_dc
+
+
+U,S,V = np.linalg.svd(hess_)
+
+
+jacobian(g)(lr)
+hessian(g)(lr)
+
+agent_inv.d_logprob['learning_rate']
+agent_inv.hess_logprob['learning_rate']
+agent_inv.hess_logprob['discount_factor']
+
+D2lp_lr
+
+agent_inv.critic.hess_Q['learning_rate']
+agent_inv.critic.hess_Q['discount_factor']
+agent_inv.critic.hess_Q['trace_decay']
+
+B[:,:,0,0]
+D2Q_lr
+
+B[:,:,0,2]
+D2Q_lrdc
+
+B[:,:,0,3]
+D2Q_lrtd
+
+B[:,:,2,3]
+D2Q_dctd
+
+B[:,:,2,2]
+D2Q_dc
+D2Q_td
