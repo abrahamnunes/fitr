@@ -44,10 +44,7 @@ def l_bfgs_b(f,
         bic_: Scalar Bayesian Information Criterion at optimum
         hess_inv: `ndarray((nparams, nparams))`. Inv at optimum
     """
-    if jac:
-        nlog_prob = lambda x: f(x, data[i])[:2]
-    else:
-        nlog_prob = lambda x: f(x, data[i])[0]
+    nlog_prob = lambda x: f(x, data[i])
     fmin    = np.inf
     fevals  = 0
     niters  = 0
