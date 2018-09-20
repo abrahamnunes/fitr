@@ -240,7 +240,8 @@ class SARSASoftmaxAgent(MDPAgent):
             'learning_rate': 0,
             'discount_factor': 0,
             'trace_decay': 0,
-            'inverse_softmax_temp': 0
+            'inverse_softmax_temp': 0, 
+            'Q': np.zeros(self.critic.Q.shape)
         }
 
         self.d_action_values = {
@@ -278,53 +279,58 @@ class SARSASoftmaxAgent(MDPAgent):
             state: `ndarray(nstates)`. One-hot state vector
 
         """
-        lr             = self.critic.learning_rate
-        beta           = self.actor.inverse_softmax_temp
-        Qx             = self.critic.Qx(state)
-        du             = action - fu.softmax(Qx)
-        self.logprob_ += np.dot(action, self.actor.log_prob(Qx))
-        dpu_dlogit     = np.einsum('i,ij->j', action, grad.softmax(self.actor.logits))
+        lr = self.critic.learning_rate
+        beta = self.actor.inverse_softmax_temp
+        q  = self.critic.Qx(state)
+        self.logprob_ += np.dot(action, self.actor.log_prob(q))
+        logits=beta*q
+        Dq_Q = state
+        Dlogit_B = q 
+        Dlogit_q = beta
+        Dlp_logit = np.eye(action.size) - np.tile(fu.softmax(logits).flatten(), [logits.size, 1])
+        pu = self.actor.action_prob(q)
+        du = action - pu
+        dpu_logit = grad.softmax(logits)
+        DQ_lr_state = np.einsum('ij,j->i', self.critic.dQ['learning_rate'], state)
+        DQ_dc_state = np.einsum('ij,j->i', self.critic.dQ['discount_factor'], state)
+        DQ_td_state = np.einsum('ij,j->i', self.critic.dQ['trace_decay'], state)
+        dpu_lr = beta*np.einsum('ij,j->i', dpu_logit, DQ_lr_state)
+        dpu_B  =      np.einsum('ij,j->i', dpu_logit, Dlogit_B)
+        dpu_dc = beta*np.einsum('ij,j->i', dpu_logit, DQ_dc_state)
+        dpu_td = beta*np.einsum('ij,j->i', dpu_logit, DQ_td_state)
 
         # Second order derivatives
-        D2Q_lr        	 = self.critic.hess_Q['learning_rate']
-        D2Q_gamma     	 = self.critic.hess_Q['discount_factor']
-        D2Q_lamda    	 = self.critic.hess_Q['trace_decay']
-        D2Q_lr_gamma  	 = self.critic.hess_Q['learning_rate_discount_factor']
-        D2Q_lr_lamda 	 = self.critic.hess_Q['learning_rate_trace_decay']
-        D2Q_gamma_lamda  = self.critic.hess_Q['discount_factor_trace_decay']
-        DQ_lr         	 = self.critic.dQ['learning_rate']
-        DQ_gamma      	 = self.critic.dQ['discount_factor']
-        DQ_lamda     	 = self.critic.dQ['trace_decay']
+        self.hess_logprob['learning_rate']   += beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate'])   - np.einsum('i,ij->j', dpu_lr, self.critic.dQ['learning_rate']), state)
+        self.hess_logprob['discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['discount_factor']) - np.einsum('i,ij->j', dpu_dc, self.critic.dQ['discount_factor']), state)
+        self.hess_logprob['trace_decay']     += beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['trace_decay'])     - np.einsum('i,ij->j', dpu_td, self.critic.dQ['trace_decay']), state)
 
-        self.hess_logprob['learning_rate'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr**2), state)
-        self.hess_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
-        self.hess_logprob['discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma**2), state)
-        self.hess_logprob['trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lamda**2), state)
-        self.hess_logprob['learning_rate_inverse_softmax_temp'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lr) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*self.critic.Q), state)
-        self.hess_logprob['learning_rate_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_gamma), state)
-        self.hess_logprob['learning_rate_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_lr_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lr*DQ_lamda), state)
-        self.hess_logprob['inverse_softmax_temp_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_gamma) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*self.critic.Q), state)
-        self.hess_logprob['inverse_softmax_temp_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, DQ_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_lamda*self.critic.Q), state)
-        self.hess_logprob['discount_factor_trace_decay'] += beta*np.dot(np.einsum('i,ij->j', du, D2Q_gamma_lamda) - beta*np.einsum('i,ij->j', dpu_dlogit, DQ_gamma*DQ_lamda), state)
+        self.hess_logprob['learning_rate_discount_factor'] += beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate_discount_factor']) - np.einsum('i,ij->j', dpu_dc, self.critic.dQ['learning_rate']), state)
+        self.hess_logprob['learning_rate_trace_decay']     += beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['learning_rate_trace_decay'])     - np.einsum('i,ij->j', dpu_td, self.critic.dQ['learning_rate']), state)
+        self.hess_logprob['discount_factor_trace_decay']   += beta*np.dot(np.einsum('i,ij->j', du, self.critic.hess_Q['discount_factor_trace_decay'])   - np.einsum('i,ij->j', dpu_td, self.critic.dQ['discount_factor']), state)
+
+        self.hess_logprob['inverse_softmax_temp']                 += np.dot(action, self.actor.hess_logprob['inverse_softmax_temp'])
+        self.hess_logprob['learning_rate_inverse_softmax_temp']   += np.dot(du - beta*dpu_B, DQ_lr_state)
+        self.hess_logprob['inverse_softmax_temp_discount_factor'] += np.dot(du - beta*dpu_B, DQ_dc_state)
+        self.hess_logprob['inverse_softmax_temp_trace_decay']     += np.dot(du - beta*dpu_B, DQ_td_state)
 
         # Derivatives of log-probability with respect to inverse softmax temperature
         #   First order
         self.d_logprob['inverse_softmax_temp'] += np.dot(action, self.actor.d_logprob['inverse_softmax_temp'])
+        self.d_logprob['Q'] = Dlp_logit*Dlogit_q
 
         # Derivatives of log-probability with respect to learning rate
         #   First order
-        self.d_action_values['Q'] = state
-        self.d_action_values['learning_rate'] = np.dot(self.critic.dQ['learning_rate'], self.d_action_values['Q'])
-        self.d_logprob['learning_rate'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['learning_rate'])
+        self.d_action_values['learning_rate'] = np.dot(self.critic.dQ['learning_rate'], Dq_Q)
+        self.d_logprob['learning_rate']      += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['learning_rate'])
 
         # Derivatives of log-probability with respect to discount factor
         #   First order
-        self.d_action_values['discount_factor'] = np.dot(self.critic.dQ['discount_factor'], self.d_action_values['Q'])
+        self.d_action_values['discount_factor'] = np.dot(self.critic.dQ['discount_factor'], Dq_Q)
         self.d_logprob['discount_factor'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['discount_factor'])
 
         # Derivatives of log-probability with respect to trace decay
         #   First order
-        self.d_action_values['trace_decay'] = np.dot(self.critic.dQ['trace_decay'], self.d_action_values['Q'])
+        self.d_action_values['trace_decay'] = np.dot(self.critic.dQ['trace_decay'], Dq_Q)
         self.d_logprob['trace_decay'] += np.einsum('i,ij,j->', action, self.actor.d_logprob['action_values'], self.d_action_values['trace_decay'])
 
         # Organize the gradient and hessian

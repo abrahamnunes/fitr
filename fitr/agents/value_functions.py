@@ -456,36 +456,39 @@ class SARSALearner(ValueFunction):
         z_    = np.outer(u_, x_)
         uQx   = self.uQx(u, x)
         u_Qx_ = self.uQx(u_, x_)
+        
+        # Although derivatives for RPE are computed later, this must be computed now since some other (earlier) calculations depend on it.
+        self.d_rpe['Q'] = self.discount_factor*z_ - z
 
         # ELIGIBILITY TRACE
         # Reset derivatives if eligibility trace was reset at start of trial
         if np.all(np.equal(self.etrace, 0)):
-            self.hess_etrace['discount_factor'] = np.zeros(self.etrace.shape)
-            self.hess_etrace['trace_decay'] = np.zeros(self.etrace.shape)
+            self.hess_etrace['discount_factor']             = np.zeros(self.etrace.shape)
+            self.hess_etrace['trace_decay']                 = np.zeros(self.etrace.shape)
             self.hess_etrace['discount_factor_trace_decay'] = np.zeros(self.etrace.shape)
-            self.d_etrace['discount_factor'] = np.zeros(self.etrace.shape)
-            self.d_etrace['trace_decay'] = np.zeros(self.etrace.shape)
+            self.d_etrace['discount_factor']                = np.zeros(self.etrace.shape)
+            self.d_etrace['trace_decay']                    = np.zeros(self.etrace.shape)
+
 
         # Compute derivatives
-        self.hess_etrace['discount_factor'] = self.trace_decay*(2*self.d_etrace['discount_factor'] + self.discount_factor*self.hess_etrace['discount_factor'])
-        self.hess_etrace['trace_decay'] = self.discount_factor*(2*self.d_etrace['trace_decay'] + self.trace_decay*self.hess_etrace['trace_decay'])
-        self.hess_etrace['discount_factor_trace_decay'] = self.etrace + self.discount_factor*self.d_etrace['discount_factor'] + self.trace_decay*self.d_etrace['trace_decay'] + self.discount_factor*self.trace_decay*self.hess_etrace['discount_factor_trace_decay']
-        self.d_etrace['discount_factor'] = self.trace_decay*(self.etrace + self.discount_factor*self.d_etrace['discount_factor'])
-        self.d_etrace['trace_decay'] = self.discount_factor*(self.etrace + self.trace_decay*self.d_etrace['trace_decay'])
+        self.hess_etrace['discount_factor']             = self.trace_decay*(2*self.d_etrace['discount_factor'] + self.discount_factor*self.hess_etrace['discount_factor'])
+        self.hess_etrace['trace_decay']                 = self.discount_factor*(2*self.d_etrace['trace_decay'] + self.trace_decay*self.hess_etrace['trace_decay'])
+        self.hess_etrace['discount_factor_trace_decay'] = self.etrace + self.discount_factor*self.d_etrace['discount_factor'] + self.trace_decay*self.d_etrace['trace_decay'] + self.discount_factor*self.trace_decay*self.hess_etrace['trace_decay']
+        self.d_etrace['discount_factor']                = self.trace_decay*(self.etrace + self.discount_factor*self.d_etrace['discount_factor'])
+        self.d_etrace['trace_decay']                    = self.discount_factor*(self.etrace + self.trace_decay*self.d_etrace['trace_decay'])
 
         # Update trace
         self.etrace = z + self.discount_factor*self.trace_decay*self.etrace
 
         # REWARD PREDICTION ERROR
-        self.d_rpe['Q'] = self.discount_factor*z_ - z # Must be computed here, ahead of the high order derivatives
-
         # Compute derivatives
         #   Second order
         self.hess_rpe['learning_rate']   = np.sum(self.hess_Q['learning_rate']*self.d_rpe['Q'])
-        self.hess_rpe['discount_factor'] = np.sum(self.hess_Q['discount_factor']*self.d_rpe['Q']) + np.einsum('i,ij,j->', u_, self.dQ['discount_factor'], x_)
+        self.hess_rpe['discount_factor'] = np.sum(self.hess_Q['discount_factor']*self.d_rpe['Q']) + 2*np.einsum('i,ij,j->', u_, self.dQ['discount_factor'], x_)
         self.hess_rpe['trace_decay']     = np.sum(self.hess_Q['trace_decay']*self.d_rpe['Q'])
+
         self.hess_rpe['learning_rate_discount_factor'] = np.sum(self.hess_Q['learning_rate_discount_factor']*self.d_rpe['Q']) + np.einsum('i,ij,j->', u_, self.dQ['learning_rate'], x_)
-        self.hess_rpe['learning_rate_trace_decay'] = np.sum(self.hess_Q['learning_rate_trace_decay']*self.d_rpe['Q'])
+        self.hess_rpe['learning_rate_trace_decay']     = np.sum(self.hess_Q['learning_rate_trace_decay']*self.d_rpe['Q'])
 
         self.hess_rpe['discount_factor_trace_decay'] = np.sum(self.hess_Q['discount_factor_trace_decay']*self.d_rpe['Q']) + np.einsum('i,ij,j->', u_, self.dQ['trace_decay'], x_)
         self.hess_rpe['discount_factor_Q'] = z_
@@ -502,28 +505,12 @@ class SARSALearner(ValueFunction):
         # Q PARAMETERS
         # Compute derivatives
         #   Second order
-        lr         = self.learning_rate
-        D2z_dc     = self.hess_etrace['discount_factor']
-        Dz_dc      = self.d_etrace['discount_factor']
-        D2z_td     = self.hess_etrace['trace_decay']
-        Dz_td      = self.d_etrace['trace_decay']
-        D2z_dctd   = self.hess_etrace['discount_factor_trace_decay']
-        D2rpe_lr   = self.hess_rpe['learning_rate']
-        Drpe_lr    = self.d_rpe['learning_rate']
-        D2rpe_dc   = self.hess_rpe['discount_factor']
-        Drpe_dc    = self.d_rpe['discount_factor']
-        D2rpe_td   = self.hess_rpe['trace_decay']
-        Drpe_td    = self.d_rpe['trace_decay']
-        D2rpe_lrdc = self.hess_rpe['learning_rate_discount_factor']
-        D2rpe_lrtd = self.hess_rpe['learning_rate_trace_decay']
-        D2rpe_dctd = self.hess_rpe['discount_factor_trace_decay']
-
-        self.hess_Q['learning_rate']                 += (2*Drpe_lr + lr*D2rpe_lr)*self.etrace
-        self.hess_Q['discount_factor']               += lr*(D2rpe_dc*self.etrace + rpe*Dz_dc + Drpe_dc*Dz_dc + rpe*D2z_dc)
-        self.hess_Q['trace_decay']                   += lr*(D2rpe_td*self.etrace + rpe*Dz_td + Drpe_td*Dz_td + rpe*D2z_td)
-        self.hess_Q['learning_rate_discount_factor'] += Drpe_dc*self.etrace + lr*D2rpe_lrdc*self.etrace + (rpe + lr*Drpe_lr)*Dz_dc
-        self.hess_Q['learning_rate_trace_decay']     += Drpe_td*self.etrace + lr*D2rpe_lrtd*self.etrace + (rpe + lr*Drpe_lr)*Dz_td
-        self.hess_Q['discount_factor_trace_decay']   += lr*(D2rpe_dctd*self.etrace + Drpe_dc*Dz_td + Drpe_td*Dz_dc + rpe*D2z_dctd)
+        self.hess_Q['learning_rate'] += (2*self.d_rpe['learning_rate'] + self.learning_rate*self.hess_rpe['learning_rate'])*self.etrace
+        self.hess_Q['discount_factor'] += self.learning_rate*(self.hess_rpe['discount_factor']*self.etrace + self.d_rpe['discount_factor']*(self.d_etrace['discount_factor'] + self.hess_etrace['discount_factor']))
+        self.hess_Q['trace_decay'] += self.learning_rate*(self.hess_rpe['trace_decay']*self.etrace + self.d_rpe['trace_decay']*(self.d_etrace['trace_decay'] + self.hess_etrace['trace_decay'])) 
+        self.hess_Q['learning_rate_discount_factor'] += self.d_rpe['discount_factor']*self.etrace + rpe*self.d_etrace['discount_factor'] + self.learning_rate*self.d_rpe['learning_rate']*self.d_etrace['discount_factor'] + self.learning_rate*self.hess_rpe['learning_rate_discount_factor']*self.etrace
+        self.hess_Q['learning_rate_trace_decay'] += self.d_rpe['trace_decay']*self.etrace + rpe*self.d_etrace['trace_decay'] + self.learning_rate*self.d_rpe['learning_rate']*self.d_etrace['trace_decay'] + self.learning_rate*self.hess_rpe['learning_rate_trace_decay']*self.etrace
+        self.hess_Q['discount_factor_trace_decay'] += self.learning_rate*(self.hess_rpe['discount_factor_trace_decay']*self.etrace + self.d_rpe['discount_factor']*self.d_etrace['trace_decay'] + self.d_rpe['trace_decay']*self.d_etrace['discount_factor'] + rpe*self.hess_etrace['discount_factor_trace_decay'])
 
         #   First order
         self.dQ['learning_rate'] += (rpe + self.learning_rate*self.d_rpe['learning_rate'])*self.etrace

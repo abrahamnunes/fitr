@@ -434,9 +434,7 @@ def test_grad_sarsasoftmaxagent():
     ag = jacobian(f)(w)
     aH = hessian(f)(w)
     assert(np.linalg.norm(q.grad_ - ag) < 1e-6)
-
-    print(np.round(q.hess_, 3))
-    print(np.round(aH, 3))
+    assert(np.linalg.norm(q.hess_ - aH) < 1e-6)
 
 
 # ------------------
