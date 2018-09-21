@@ -18,6 +18,7 @@ def bms(L, ftol=1e-12, nsamples=1000000, rng=np.random.RandomState(), verbose=Tr
         verbose: `bool (default=True)`. If `False`, no output provided.
 
     Returns:
+    
         pxp: `ndarray(nmodels)`. Protected exceedance probabilities
         xp: `ndarray(nmodels)`. Exceedance probabilities
         bor: `ndarray(nmodels)`. Bayesian Omnibus Risk

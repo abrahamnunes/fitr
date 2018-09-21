@@ -126,7 +126,7 @@ Returns:
 ## bms
 
 ```python
-fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7f0a8a22b0d8>, verbose=True)
+fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7f7848a3f048>, verbose=True)
 ```
 
 Implements variational Bayesian Model Selection as per Rigoux et al. (2014).
@@ -140,6 +140,7 @@ Arguments:
 - **verbose**: `bool (default=True)`. If `False`, no output provided.
 
 Returns:
+
 - **pxp**: `ndarray(nmodels)`. Protected exceedance probabilities
 - **xp**: `ndarray(nmodels)`. Exceedance probabilities
 - **bor**: `ndarray(nmodels)`. Bayesian Omnibus Risk

@@ -240,7 +240,7 @@ class SARSASoftmaxAgent(MDPAgent):
             'learning_rate': 0,
             'discount_factor': 0,
             'trace_decay': 0,
-            'inverse_softmax_temp': 0, 
+            'inverse_softmax_temp': 0,
             'Q': np.zeros(self.critic.Q.shape)
         }
 
@@ -273,6 +273,219 @@ class SARSASoftmaxAgent(MDPAgent):
     def log_prob(self, state, action):
         """ Computes the log-probability of the given action and state under the model, while also computing first and second order derivatives.
 
+        This model has four free parameters:
+
+    	- Learning rate $\\alpha$
+        - Inverse softmax temperature $\\beta$
+        - Discount factor $\\gamma$
+        - Trace decay $\\lambda$
+
+        __First-order partial derivatives__
+
+        We can break down the computation using the chain rule to reuse previously computed derivatives:
+
+        $$
+        \\pd{\\cL}{\\alpha}  = \\pd{\\cL}{\\logits} \\pd{\\logits}{\\mathbf q} \\pd{\\mathbf q}{\\mathbf Q} \\pd{\\mathbf Q}{\\alpha}
+        $$
+
+        $$
+        \\pd{\\cL}{\\beta}   = \\pd{\\cL}{\\logits} \\pd{\\logits}{\\beta}
+        $$
+
+        $$
+        \\pd{\\cL}{\\gamma}  = \\pd{\\cL}{\\logits} \\pd{\\logits}{\\mathbf q} \\pd{\\mathbf q}{\\mathbf Q} \\pd{\\mathbf Q}{\\gamma}
+        $$
+
+        $$
+        \\pd{\\cL}{\\lambda} = \\pd{\\cL}{\\logits} \\pd{\\logits}{\\mathbf q} \\pd{\\mathbf q}{\\mathbf Q} \\pd{\\mathbf Q}{\\lambda}
+        $$
+
+        _Action Probabilities_
+
+        $$
+        \\partial_\\alpha \\varsigma = \\pd{\\varsigma}{\\logits} \\pd{\\logits}{\\mathbf q} \\pd{\\mathbf q}{\\mathbf Q} \\big( \\partial_\\alpha \\mathbf Q \\big) = \\beta \\big(\\partial_{\\logits} \\varsigma \\big)_i \\big( \\partial_\\alpha Q \\big)^i_j x^j
+        $$
+
+        _Value Function_
+
+        $$
+        \\partial_\\alpha Q_{ij} =  \\partial_\\alpha Q_{ij} + (\\delta + \\alpha \\partial_\\alpha \\delta) z_{ij}
+        $$
+
+        $$
+        \\partial_\\gamma Q_{ij} =  \\partial_\\gamma Q_{ij} + \\alpha \\big( (\\partial_\\gamma \\delta) z_{ij} + \\delta (\\partial_\\gamma z_{ij}) \\big)
+        $$
+
+        $$
+        \\partial_\\lambda Q_{ij} =  \\partial_\\lambda Q_{ij} + \\alpha \\big( (\\partial_\\lambda \\delta) z_{ij} + \\delta (\\partial_\\lambda z_{ij}) \\big)
+        $$
+
+        _Reward Prediction Error_
+
+        $$
+        \\partial_\\alpha \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial_\\alpha Q)^{ij}
+        $$
+
+        $$
+        \\partial_\\gamma \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial_\\gamma Q)^{ij} + \\tilde{u}_i Q^i_j \\tilde{x}^j
+        $$
+
+        $$
+        \\partial_\\lambda \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial_\\lambda Q)^{ij}
+        $$
+
+        _Trace Decay_
+
+        $$
+        \\partial_\\gamma z_{ij} = \\lambda \\big(z_{ij} + \\gamma (\\partial_\\gamma z_{ij}) \\big)
+        $$
+
+        $$
+        \\partial_\\lambda z_{ij} = \\gamma \\big(z_{ij} + \\lambda (\\partial_\\lambda z_{ij}) \\big)
+        $$
+
+        _Simplified Components of the Gradient Vector_
+
+        $$
+        \\pd{\\cL}{\\alpha}  = \\beta \\big[\\mathbf u - \\varsigma(\\logits) \\big]_i \\big( \\partial_\\alpha Q \\big)^i_j x^j   = \\beta \\big[ u_i (\\partial_\\alpha Q)^i_j x^j - p(u_i) (\\partial_\\alpha Q)^i_j x^j \\big]
+        $$
+
+        $$
+        \\pd{\\cL}{\\beta}   =  \\big[\\mathbf u - \\varsigma(\\logits)\\big]_i Q^i_j x^j = u_i Q^i_j x^j - p(u_i) Q^i_j x^j
+        $$
+
+        $$
+        \\pd{\\cL}{\\gamma}  = \\beta \\big[\\mathbf u - \\varsigma(\\logits) \\big]_i \\big( \\partial_\\gamma Q \\big)^i_j x^j
+        $$
+
+        $$
+        \\pd{\\cL}{\\lambda} = \\beta \\big[\\mathbf u - \\varsigma(\\logits) \\big]_i \\big( \\partial_\\lambda Q \\big)^i_j x^j
+        $$
+
+        __Second-Order Partial Derivatives__
+
+        The Hessian matrix for this model is
+
+        $$
+        \\mathbf H = \\left[
+        \\begin{array}{cccc}
+        \\pHd{\\cL}{\\alpha} 		   & \\pHo{\\cL}{\\alpha}{\\beta}  & \\pHo{\\cL}{\\alpha}{\\gamma}  & \\pHo{\\cL}{\\alpha}{\\lambda} \\\\
+        \\pHo{\\cL}{\\beta}{\\alpha}   & \\pHd{\\cL}{\\beta} 		   & \\pHo{\\cL}{\\beta}{\\gamma}   & \\pHo{\\cL}{\\beta}{\\lambda}  \\\\
+        \\pHo{\\cL}{\\gamma}{\\alpha}  & \\pHo{\\cL}{\\gamma}{\\beta}  & \\pHd{\\cL}{\\gamma} 		    & \\pHo{\\cL}{\\gamma}{\\lambda} \\\\
+        \\pHo{\\cL}{\\lambda}{\\alpha} & \\pHo{\\cL}{\\lambda}{\\beta} & \\pHo{\\cL}{\\lambda}{\\gamma} & \\pHd{\\cL}{\\lambda} 		 \\\\
+        \\end{array}\\right],
+        $$
+
+        where the second-order partial derivatives are such that $\\mathbf H$ is symmetrical. We must therefore compute 10 second order partial derivatives, shown below:
+
+        $$
+        \\pHd{\\cL}{\\alpha} = \\beta \\Big[ (\\mathbf u - \\varsigma(\\logits))_i \\big( \\partial^2_\\alpha Q \\big)^i - \\big( \\partial_\\alpha \\varsigma \\big)_j \\big( \\partial_\\alpha Q)^j_k x^k \\Big]_l x^l
+        $$
+
+        $$
+        \\pHd{\\cL}{\\beta} = \\Big( q_i \\varsigma(\\logits)^i \\Big)^2 - \\mathbf q \\odot \\mathbf q \\odot \\varsigma(\\logits)
+        $$
+
+        $$
+        \\pHd{\\cL}{\\gamma}  = \\beta \\Big[ (\\mathbf u - \\varsigma(\\logits))_i \\big( \\partial^2_\\gamma Q \\big)^i - \\big( \\partial_\\gamma \\varsigma \\big)_j \\big( \\partial_\\gamma Q)^j_k x^k \\Big]_l x^l
+        $$
+
+        $$
+        \\pHd{\\cL}{\\lambda}  = \\beta \\Big[ (\\mathbf u - \\varsigma(\\logits))_i \\big( \\partial^2_\\lambda Q \\big)^i - \\big( \\partial_\\lambda \\varsigma \\big)_j \\big( \\partial_\\lambda Q)^j_k x^k \\Big]_l x^l
+        $$
+        
+        The off diagonal elements of the Hessian are as follows:
+
+        $$
+        \\pHo{\\cL}{\\alpha}{\\beta}   = \\bigg(\\mathbf u - \\varsigma(\\logits) - \\beta \\big(\\partial_\\beta \\varsigma \\big) \\bigg)_i \\big( \\partial_\\alpha Q \\big)^i_j x^j
+        $$
+
+        $$
+        \\pHo{\\cL}{\\beta}{\\gamma}   =  \\bigg(\\mathbf u - \\varsigma(\\logits) - \\beta \\big(\\partial_\\beta \\varsigma \\big) \\bigg)_i \\big( \\partial_\\gamma Q \\big)^i_j x^j
+        $$
+
+        $$
+        \\pHo{\\cL}{\\beta}{\\lambda}  =  \\bigg(\\mathbf u - \\varsigma(\\logits) - \\beta \\big(\\partial_\\beta \\varsigma \\big) \\bigg)_i \\big( \\partial_\\lambda Q \\big)^i_j x^j
+        $$
+
+        $$
+        \\pHo{\\cL}{\\alpha}{\\gamma}  = \\beta \\Big((\\mathbf u - \\varsigma(\\logits))_i \\big(\\partial_\\alpha \\partial_\\gamma Q \\big)^i - \\big( \\partial_\\gamma \\varsigma \\big)_j \\big( \\partial_\\alpha Q \\big)^j \\Big)_k x^k
+        $$
+
+        $$
+        \\pHo{\\cL}{\\alpha}{\\lambda} =  \\beta \\Big((\\mathbf u - \\varsigma(\\logits))_i \\big(\\partial_\\alpha \\partial_\\lambda Q \\big)^i - \\big( \\partial_\\lambda \\varsigma \\big)_j \\big( \\partial_\\alpha Q \\big)^j \\Big)_k x^k
+        $$
+
+        $$
+        \\pHo{\\cL}{\\gamma}{\\lambda} =  \\beta \\Big((\\mathbf u - \\varsigma(\\logits))_i \\big(\\partial_\\lambda \\partial_\\gamma Q \\big)^i - \\big( \\partial_\\lambda \\varsigma \\big)_j \\big( \\partial_\\gamma Q \\big)^j \\Big)_k x^k
+        $$
+
+        _Reward Prediction Error_
+
+        $$
+        \\partial^2_\\alpha \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial^2_\\alpha Q)^{ij}
+        $$
+
+        $$
+        \\partial^2_\\gamma \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial^2_\\gamma Q)^{ij} + 2 \\tilde{u}_i \\big(\\partial_\\gamma Q\\big)^i_j \\tilde{x}^j
+        $$
+
+        $$
+        \\partial^2_\\lambda \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial^2_\\lambda Q)^{ij}
+        $$
+
+        $$
+        \\partial_\\alpha \\partial_\\gamma \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial_\\gamma \\partial_\\alpha Q)^{ij} + \\tilde{u}_i \\big(\\partial_\\alpha Q\\big)^i_j \\tilde{x}^j
+        $$
+
+        $$
+        \\partial_\\alpha \\partial_\\lambda \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial_\\alpha \\partial_\\lambda Q)^{ij}
+        $$
+
+        $$
+        \\partial_\\gamma \\partial_\\lambda \\delta = (\\partial_{\\mathbf Q} \\delta)_{ij} (\\partial_\\gamma \\partial_\\lambda Q)^{ij} + \\tilde{u}_i \\big(\\partial_\\lambda Q\\big)^i_j \\tilde{x}^j
+        $$
+
+        _Value Function_
+
+        $$
+        \\partial^2_\\alpha Q_{ij} = \\partial^2_\\alpha Q_{ij} + 2(\\partial_\\alpha \\delta) z_{ij} + \\alpha (\\partial^2_\\alpha \\delta) z_{ij}
+        $$
+
+        $$
+        \\partial^2_\\gamma Q_{ij} = \\partial^2_\\gamma Q_{ij} +  \\alpha \\Big( \\big(\\partial^2_\\gamma \\delta \\big)z_{ij} +  \\big(\\partial_\\gamma \\delta \\big) \\big(\\partial_\\gamma z_{ij}\\big) + \\big(\\partial_\\gamma \\delta \\big) \\big(\\partial^2_\\gamma z_{ij}\\big) \\Big)
+        $$
+
+        $$
+        \\partial^2_\\lambda Q_{ij} = \\partial^2_\\lambda Q_{ij} +  \\alpha \\Big( \\big(\\partial^2_\\lambda \\delta \\big)z_{ij} +  \\big(\\partial_\\lambda \\delta \\big) \\big(\\partial_\\lambda z_{ij}\\big) + \\big(\\partial_\\lambda \\delta \\big) \\big(\\partial^2_\\lambda z_{ij}\\big) \\Big)
+        $$
+
+        $$
+        \\partial_\\alpha \\partial_\\gamma Q_{ij} =  \\partial_\\alpha \\partial_\\gamma Q_{ij} + (\\partial_\\gamma \\delta) z_{ij} + \\delta \\big(\\partial_\\gamma z_{ij} \\big) + \\alpha(\\partial_\\alpha \\delta)\\big(\\partial_\\gamma z_{ij} \\big) + \\alpha(\\partial_\\alpha \\partial_\\gamma \\delta) z_{ij}
+        $$
+
+        $$
+        \\partial_\\alpha \\partial_\\lambda Q_{ij} = \\partial_\\alpha \\partial_\\lambda Q_{ij} + (\\partial_\\lambda \\delta) z_{ij} + \\delta \\big(\\partial_\\lambda z_{ij} \\big) + \\alpha(\\partial_\\alpha \\delta)\\big(\\partial_\\lambda z_{ij} \\big) + \\alpha(\\partial_\\alpha \\partial_\\lambda \\delta) z_{ij}
+        $$
+
+        $$
+        \\partial_\\gamma \\partial_\\lambda Q_{ij} = \\partial_\\gamma \\partial_\\lambda Q_{ij} + \\alpha \\Big[ \\big( \\partial_\\lambda \\partial_\\gamma \\delta \\big) z_{ij} + \\big( \\partial_\\gamma \\delta \\big)\\big(\\partial_\\lambda z_{ij} \\big) + \\big(\\partial_\\lambda \\delta \\big)\\big(\\partial_\\gamma z_{ij} \\big) + \\delta \\big(\\partial_\\lambda \\partial_\\gamma z_{ij} \\big) \\Big]
+        $$
+
+        _Trace Decay_
+
+        $$
+        \\partial^2_\\gamma z = \\lambda \\Big( 2\\big(\\partial_\\gamma z\\big) + \\gamma \\big(\\partial^2_\\gamma z \\big) \\Big)
+        $$
+
+        $$
+        \\partial^2_\\lambda z = \\gamma \\Big( 2\\big(\\partial_\\lambda z\\big) + \\lambda \\big(\\partial^2_\\lambda z \\big) \\Big)
+        $$
+
+        $$
+        \\partial_\\gamma \\partial_\\lambda z = z  + \\gamma \\big( \\partial_\\gamma z \\big) + \\lambda \\big( \\partial_\\lambda z \\big) + \\lambda \\gamma \\big( \\partial_\\gamma \\partial_\\lambda z \\big)
+        $$
+
         Arguments:
 
             action: `ndarray(nactions)`. One-hot action vector
@@ -285,7 +498,7 @@ class SARSASoftmaxAgent(MDPAgent):
         self.logprob_ += np.dot(action, self.actor.log_prob(q))
         logits=beta*q
         Dq_Q = state
-        Dlogit_B = q 
+        Dlogit_B = q
         Dlogit_q = beta
         Dlp_logit = np.eye(action.size) - np.tile(fu.softmax(logits).flatten(), [logits.size, 1])
         pu = self.actor.action_prob(q)

@@ -2175,7 +2175,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2188,6 +2188,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -2443,7 +2449,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2456,6 +2462,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -2606,7 +2618,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2619,6 +2631,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -2670,6 +2688,229 @@ Arguments:
 
 Computes the log-probability of the given action and state under the
 model, while also computing first and second order derivatives.
+
+This model has four free parameters:
+
+\begin{itemize}
+\tightlist
+\item
+  Learning rate \(\alpha\)
+\item
+  Inverse softmax temperature \(\beta\)
+\item
+  Discount factor \(\gamma\)
+\item
+  Trace decay \(\lambda\)
+\end{itemize}
+
+\textbf{First-order partial derivatives}
+
+We can break down the computation using the chain rule to reuse
+previously computed derivatives:
+
+\[
+\pd{\cL}{\alpha}  = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\alpha}
+\]
+
+\[
+\pd{\cL}{\beta}   = \pd{\cL}{\logits} \pd{\logits}{\beta}
+\]
+
+\[
+\pd{\cL}{\gamma}  = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\gamma}
+\]
+
+\[
+\pd{\cL}{\lambda} = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\lambda}
+\]
+
+\emph{Action Probabilities}
+
+\[
+\partial_\alpha \varsigma = \pd{\varsigma}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \big( \partial_\alpha \mathbf Q \big) = \beta \big(\partial_{\logits} \varsigma \big)_i \big( \partial_\alpha Q \big)^i_j x^j
+\]
+
+\emph{Value Function}
+
+\[
+\partial_\alpha Q_{ij} =  \partial_\alpha Q_{ij} + (\delta + \alpha \partial_\alpha \delta) z_{ij}
+\]
+
+\[
+\partial_\gamma Q_{ij} =  \partial_\gamma Q_{ij} + \alpha \big( (\partial_\gamma \delta) z_{ij} + \delta (\partial_\gamma z_{ij}) \big)
+\]
+
+\[
+\partial_\lambda Q_{ij} =  \partial_\lambda Q_{ij} + \alpha \big( (\partial_\lambda \delta) z_{ij} + \delta (\partial_\lambda z_{ij}) \big)
+\]
+
+\emph{Reward Prediction Error}
+
+\[
+\partial_\alpha \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\alpha Q)^{ij}
+\]
+
+\[
+\partial_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma Q)^{ij} + \tilde{u}_i Q^i_j \tilde{x}^j
+\]
+
+\[
+\partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\lambda Q)^{ij}
+\]
+
+\emph{Trace Decay}
+
+\[
+\partial_\gamma z_{ij} = \lambda \big(z_{ij} + \gamma (\partial_\gamma z_{ij}) \big)
+\]
+
+\[
+\partial_\lambda z_{ij} = \gamma \big(z_{ij} + \lambda (\partial_\lambda z_{ij}) \big)
+\]
+
+\emph{Simplified Components of the Gradient Vector}
+
+\[
+\pd{\cL}{\alpha}  = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\alpha Q \big)^i_j x^j   = \beta \big[ u_i (\partial_\alpha Q)^i_j x^j - p(u_i) (\partial_\alpha Q)^i_j x^j \big]
+\]
+
+\[
+\pd{\cL}{\beta}   =  \big[\mathbf u - \varsigma(\logits)\big]_i Q^i_j x^j = u_i Q^i_j x^j - p(u_i) Q^i_j x^j
+\]
+
+\[
+\pd{\cL}{\gamma}  = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\gamma Q \big)^i_j x^j
+\]
+
+\[
+\pd{\cL}{\lambda} = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\lambda Q \big)^i_j x^j
+\]
+
+\textbf{Second-Order Partial Derivatives}
+
+The Hessian matrix for this model is
+
+\[
+\mathbf H = \left[
+\begin{array}{cccc}
+\pHd{\cL}{\alpha}                  & \pHo{\cL}{\alpha}{\beta}  & \pHo{\cL}{\alpha}{\gamma}  & \pHo{\cL}{\alpha}{\lambda} \\
+\pHo{\cL}{\beta}{\alpha}   & \pHd{\cL}{\beta}              & \pHo{\cL}{\beta}{\gamma}   & \pHo{\cL}{\beta}{\lambda}  \\
+\pHo{\cL}{\gamma}{\alpha}  & \pHo{\cL}{\gamma}{\beta}  & \pHd{\cL}{\gamma}                  & \pHo{\cL}{\gamma}{\lambda} \\
+\pHo{\cL}{\lambda}{\alpha} & \pHo{\cL}{\lambda}{\beta} & \pHo{\cL}{\lambda}{\gamma} & \pHd{\cL}{\lambda}                 \\
+\end{array}\right],
+\]
+
+where the second-order partial derivatives are such that \(\mathbf H\)
+is symmetrical. We must therefore compute 10 second order partial
+derivatives, shown below:
+
+\[
+\pHd{\cL}{\alpha} = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\alpha Q \big)^i - \big( \partial_\alpha \varsigma \big)_j \big( \partial_\alpha Q)^j_k x^k \Big]_l x^l
+\]
+
+\[
+\pHd{\cL}{\beta} = \Big( q_i \varsigma(\logits)^i \Big)^2 - \mathbf q \odot \mathbf q \odot \varsigma(\logits)
+\]
+
+\[
+\pHd{\cL}{\gamma}  = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\gamma Q \big)^i - \big( \partial_\gamma \varsigma \big)_j \big( \partial_\gamma Q)^j_k x^k \Big]_l x^l
+\]
+
+\[
+\pHd{\cL}{\lambda}  = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\lambda Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\lambda Q)^j_k x^k \Big]_l x^l
+\]
+
+The off diagonal elements of the Hessian are as follows:
+
+\[
+\pHo{\cL}{\alpha}{\beta}   = \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\alpha Q \big)^i_j x^j
+\]
+
+\[
+\pHo{\cL}{\beta}{\gamma}   =  \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\gamma Q \big)^i_j x^j
+\]
+
+\[
+\pHo{\cL}{\beta}{\lambda}  =  \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\lambda Q \big)^i_j x^j
+\]
+
+\[
+\pHo{\cL}{\alpha}{\gamma}  = \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\alpha \partial_\gamma Q \big)^i - \big( \partial_\gamma \varsigma \big)_j \big( \partial_\alpha Q \big)^j \Big)_k x^k
+\]
+
+\[
+\pHo{\cL}{\alpha}{\lambda} =  \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\alpha \partial_\lambda Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\alpha Q \big)^j \Big)_k x^k
+\]
+
+\[
+\pHo{\cL}{\gamma}{\lambda} =  \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\lambda \partial_\gamma Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\gamma Q \big)^j \Big)_k x^k
+\]
+
+\emph{Reward Prediction Error}
+
+\[
+\partial^2_\alpha \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\alpha Q)^{ij}
+\]
+
+\[
+\partial^2_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\gamma Q)^{ij} + 2 \tilde{u}_i \big(\partial_\gamma Q\big)^i_j \tilde{x}^j
+\]
+
+\[
+\partial^2_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\lambda Q)^{ij}
+\]
+
+\[
+\partial_\alpha \partial_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma \partial_\alpha Q)^{ij} + \tilde{u}_i \big(\partial_\alpha Q\big)^i_j \tilde{x}^j
+\]
+
+\[
+\partial_\alpha \partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\alpha \partial_\lambda Q)^{ij}
+\]
+
+\[
+\partial_\gamma \partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma \partial_\lambda Q)^{ij} + \tilde{u}_i \big(\partial_\lambda Q\big)^i_j \tilde{x}^j
+\]
+
+\emph{Value Function}
+
+\[
+\partial^2_\alpha Q_{ij} = \partial^2_\alpha Q_{ij} + 2(\partial_\alpha \delta) z_{ij} + \alpha (\partial^2_\alpha \delta) z_{ij}
+\]
+
+\[
+\partial^2_\gamma Q_{ij} = \partial^2_\gamma Q_{ij} +  \alpha \Big( \big(\partial^2_\gamma \delta \big)z_{ij} +  \big(\partial_\gamma \delta \big) \big(\partial_\gamma z_{ij}\big) + \big(\partial_\gamma \delta \big) \big(\partial^2_\gamma z_{ij}\big) \Big)
+\]
+
+\[
+\partial^2_\lambda Q_{ij} = \partial^2_\lambda Q_{ij} +  \alpha \Big( \big(\partial^2_\lambda \delta \big)z_{ij} +  \big(\partial_\lambda \delta \big) \big(\partial_\lambda z_{ij}\big) + \big(\partial_\lambda \delta \big) \big(\partial^2_\lambda z_{ij}\big) \Big)
+\]
+
+\[
+\partial_\alpha \partial_\gamma Q_{ij} =  \partial_\alpha \partial_\gamma Q_{ij} + (\partial_\gamma \delta) z_{ij} + \delta \big(\partial_\gamma z_{ij} \big) + \alpha(\partial_\alpha \delta)\big(\partial_\gamma z_{ij} \big) + \alpha(\partial_\alpha \partial_\gamma \delta) z_{ij}
+\]
+
+\[
+\partial_\alpha \partial_\lambda Q_{ij} = \partial_\alpha \partial_\lambda Q_{ij} + (\partial_\lambda \delta) z_{ij} + \delta \big(\partial_\lambda z_{ij} \big) + \alpha(\partial_\alpha \delta)\big(\partial_\lambda z_{ij} \big) + \alpha(\partial_\alpha \partial_\lambda \delta) z_{ij}
+\]
+
+\[
+\partial_\gamma \partial_\lambda Q_{ij} = \partial_\gamma \partial_\lambda Q_{ij} + \alpha \Big[ \big( \partial_\lambda \partial_\gamma \delta \big) z_{ij} + \big( \partial_\gamma \delta \big)\big(\partial_\lambda z_{ij} \big) + \big(\partial_\lambda \delta \big)\big(\partial_\gamma z_{ij} \big) + \delta \big(\partial_\lambda \partial_\gamma z_{ij} \big) \Big]
+\]
+
+\emph{Trace Decay}
+
+\[
+\partial^2_\gamma z = \lambda \Big( 2\big(\partial_\gamma z\big) + \gamma \big(\partial^2_\gamma z \big) \Big)
+\]
+
+\[
+\partial^2_\lambda z = \gamma \Big( 2\big(\partial_\lambda z\big) + \lambda \big(\partial^2_\lambda z \big) \Big)
+\]
+
+\[
+\partial_\gamma \partial_\lambda z = z  + \gamma \big( \partial_\gamma z \big) + \lambda \big( \partial_\lambda z \big) + \lambda \gamma \big( \partial_\gamma \partial_\lambda z \big)
+\]
 
 Arguments:
 
@@ -2794,7 +3035,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2807,6 +3048,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -2957,7 +3204,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2970,6 +3217,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:

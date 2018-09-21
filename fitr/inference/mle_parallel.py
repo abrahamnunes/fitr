@@ -139,7 +139,15 @@ def second_order_optimizer(f,
     done    = False
     succeeded = False
     while not done:
-        xinit = np.random.normal(0, init_sd, size=nparams)
+        xinit = None
+        lbest = np.inf
+        for _ in range(15):
+            xtest = np.random.normal(0, init_sd, size=nparams)
+            ll, _ = nlog_prob(xtest)
+            if ll <= lbest:
+                lbest = ll
+                xinit = xtest
+
         res = minimize(nlog_prob,
                        xinit,
                        jac=jac,

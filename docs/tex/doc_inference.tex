@@ -218,7 +218,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.inference.bms.bms(L, ftol}\OperatorTok{=}\FloatTok{1e-12}\NormalTok{, nsamples}\OperatorTok{=}\DecValTok{1000000}\NormalTok{, rng}\OperatorTok{=<}\NormalTok{mtrand.RandomState }\BuiltInTok{object}\NormalTok{ at }\BaseNTok{0x7f0a8a22b0d8}\OperatorTok{>}\NormalTok{, verbose}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\NormalTok{fitr.inference.bms.bms(L, ftol}\OperatorTok{=}\FloatTok{1e-12}\NormalTok{, nsamples}\OperatorTok{=}\DecValTok{1000000}\NormalTok{, rng}\OperatorTok{=<}\NormalTok{mtrand.RandomState }\BuiltInTok{object}\NormalTok{ at }\BaseNTok{0x7f7848a3f048}\OperatorTok{>}\NormalTok{, verbose}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -246,17 +246,34 @@ Arguments:
   output provided.
 \end{itemize}
 
-Returns: - \textbf{pxp}: \texttt{ndarray(nmodels)}. Protected exceedance
-probabilities - \textbf{xp}: \texttt{ndarray(nmodels)}. Exceedance
-probabilities - \textbf{bor}: \texttt{ndarray(nmodels)}. Bayesian
-Omnibus Risk - \textbf{pe}: \texttt{ndarray(niter)}. Prediction error
-time series throughout optimization - \textbf{q\_m}:
-\texttt{ndarray((nsubjects,\ nmodels))}. Posterior distribution over
-models for each subject - \textbf{alpha}: \texttt{ndarray(nmodels)}.
-Posterior estimates of Dirichlet parameters - \textbf{f0}:
-\texttt{float}. Free energy of null model - \textbf{f1}: \texttt{float}.
-Free energy of alternative model - \textbf{niter}: \texttt{int}. Number
-of iterations of posterior optimization
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{pxp}: \texttt{ndarray(nmodels)}. Protected exceedance
+  probabilities
+\item
+  \textbf{xp}: \texttt{ndarray(nmodels)}. Exceedance probabilities
+\item
+  \textbf{bor}: \texttt{ndarray(nmodels)}. Bayesian Omnibus Risk
+\item
+  \textbf{pe}: \texttt{ndarray(niter)}. Prediction error time series
+  throughout optimization
+\item
+  \textbf{q\_m}: \texttt{ndarray((nsubjects,\ nmodels))}. Posterior
+  distribution over models for each subject
+\item
+  \textbf{alpha}: \texttt{ndarray(nmodels)}. Posterior estimates of
+  Dirichlet parameters
+\item
+  \textbf{f0}: \texttt{float}. Free energy of null model
+\item
+  \textbf{f1}: \texttt{float}. Free energy of alternative model
+\item
+  \textbf{niter}: \texttt{int}. Number of iterations of posterior
+  optimization
+\end{itemize}
 
 Examples:
 

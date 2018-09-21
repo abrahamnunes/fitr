@@ -91,10 +91,10 @@ for t in range(R.size):
 
     HB, Hq = hess.log_softmax(B, q)
 
-    D2lp_lr   += B*np.dot(np.einsum('i,ij->j', du, D2Q_lr)  - np.einsum('i,ij->j', dpu_lr, DQ_lr), x) 
+    D2lp_lr   += B*np.dot(np.einsum('i,ij->j', du, D2Q_lr)  - np.einsum('i,ij->j', dpu_lr, DQ_lr), x)
     D2lp_dc   += B*np.dot(np.einsum('i,ij->j', du, D2Q_dc)  - np.einsum('i,ij->j', dpu_dc, DQ_dc), x)
     D2lp_td   += B*np.dot(np.einsum('i,ij->j', du, D2Q_td)  - np.einsum('i,ij->j', dpu_td, DQ_td), x)
-    
+
     D2lp_lrdc += B*np.dot(np.einsum('i,ij->j', du, D2Q_lrdc) - np.einsum('i,ij->j', dpu_dc, DQ_lr), x)
     D2lp_lrtd += B*np.dot(np.einsum('i,ij->j', du, D2Q_lrtd) - np.einsum('i,ij->j', dpu_td, DQ_lr), x)
     D2lp_dctd += B*np.dot(np.einsum('i,ij->j', du, D2Q_dctd) - np.einsum('i,ij->j', dpu_td, DQ_dc), x)
@@ -110,7 +110,7 @@ for t in range(R.size):
 
     #   First order
     Dq_lr = np.einsum('ij,j->i', DQ_lr, Dq_Q)
-    Dlp_lr += np.einsum('i,ij,j->', u, Dlp_q, Dq_lr) 
+    Dlp_lr += np.einsum('i,ij,j->', u, Dlp_q, Dq_lr)
     # Derivatives of log-probability with respect to discount factor
     #   First order
     Dq_dc   = np.einsum('ij,j->i', DQ_dc, Dq_Q)
@@ -173,7 +173,7 @@ for t in range(R.size):
     #   Second order
     D2Q_lr   += (2*Drpe_lr + lr*D2rpe_lr)*z
     D2Q_dc   += lr*(D2rpe_dc*z + Drpe_dc*(Dz_dc + D2z_dc))
-    D2Q_td   += lr*(D2rpe_td*z + Drpe_td*(Dz_td + D2z_td)) 
+    D2Q_td   += lr*(D2rpe_td*z + Drpe_td*(Dz_td + D2z_td))
     D2Q_lrdc += Drpe_dc*z + rpe*Dz_dc + lr*Drpe_lr*Dz_dc + lr*D2rpe_lrdc*z
     D2Q_lrtd += Drpe_td*z + rpe*Dz_td + lr*Drpe_lr*Dz_td + lr*D2rpe_lrtd*z
     D2Q_dctd += lr*(D2rpe_dctd*z + Drpe_dc*Dz_td + Drpe_td*Dz_dc + rpe*D2z_dctd)
@@ -186,6 +186,7 @@ for t in range(R.size):
     # Update value function
     Q += lr*rpe*z
 
+# Functions to run through Autograd
 def fQ(w):
     Q = np.zeros((task.nactions, task.nstates))
     L = 0
@@ -224,7 +225,7 @@ def f(w):
         Q += w[0]*rpe*z
     return L
 
-
+# Compare with autograd and the SARSASoftmax object.
 print(' AUTOGRAD  \n\n ')
 agH = hessian(f)(w)
 print(agH)
