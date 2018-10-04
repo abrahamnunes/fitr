@@ -37,6 +37,24 @@ def test_max():
         fitr_grad = grad.max(x)
         assert(np.linalg.norm(ag_grad-fitr_grad) < 1e-6)
 
+def test_matrix_max():
+    rng = np.random.RandomState(236)
+    A = rng.randint(9, size=(3, 5)).astype(np.float32)
+    def maxrow(A):
+        return np.max(A, axis=0)
+
+    def maxcol(A):
+        return np.max(A, axis=1)
+
+    agR = elementwise_grad(maxrow)(A)
+    agC = elementwise_grad(maxcol)(A)
+
+    fR = grad.matrix_max(A, axis=0)
+    fC = grad.matrix_max(A, axis=1)
+
+    assert(np.linalg.norm(agR - fR) < 1e-6)
+    assert(np.linalg.norm(agC - fC) < 1e-6)
+
 def test_sigmoid():
     x = np.linspace(-5, 5, 10)
     f = lambda x: utils.sigmoid(x)

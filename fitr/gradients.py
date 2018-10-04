@@ -42,7 +42,7 @@ def logsumexp(x):
     return fu.softmax(x)
 
 def max(x):
-    """ Gradient of a max reduction over a vector, with respect to that vector
+    """ Gradient of a max reduction over a vector, elementwise
 
     Arguments:
 
@@ -59,6 +59,25 @@ def max(x):
     nmax = wheremax.astype(np.int).sum()
     out[wheremax] = 1/nmax
     return out
+
+def matrix_max(X, axis=0):
+    """ Gradient of a max reduction over a matrix's rows or columns, elementwise
+
+    Arguments:
+
+        X: `ndarray((n,m))`. Matrix to which the `max` operation is applied
+        axis: `int`. Over which axis the `max` operation is applied
+
+    Returns:
+
+        `ndarray((n,m))`
+
+    """
+    if axis == 0:
+        G = np.hstack(max(X[:,j]).reshape(-1, 1) for j in range(X.shape[1]))
+    elif axis == 1:
+        G = np.vstack(max(X[i,:]).reshape(1, -1) for i in range(X.shape[0]))
+    return G
 
 def softmax(x):
     """ Jacobian of the softmax function.
