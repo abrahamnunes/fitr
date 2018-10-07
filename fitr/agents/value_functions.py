@@ -456,7 +456,7 @@ class SARSALearner(ValueFunction):
         z_    = np.outer(u_, x_)
         uQx   = self.uQx(u, x)
         u_Qx_ = self.uQx(u_, x_)
-        
+
         # Although derivatives for RPE are computed later, this must be computed now since some other (earlier) calculations depend on it.
         self.d_rpe['Q'] = self.discount_factor*z_ - z
 
@@ -507,7 +507,7 @@ class SARSALearner(ValueFunction):
         #   Second order
         self.hess_Q['learning_rate'] += (2*self.d_rpe['learning_rate'] + self.learning_rate*self.hess_rpe['learning_rate'])*self.etrace
         self.hess_Q['discount_factor'] += self.learning_rate*(self.hess_rpe['discount_factor']*self.etrace + self.d_rpe['discount_factor']*(self.d_etrace['discount_factor'] + self.hess_etrace['discount_factor']))
-        self.hess_Q['trace_decay'] += self.learning_rate*(self.hess_rpe['trace_decay']*self.etrace + self.d_rpe['trace_decay']*(self.d_etrace['trace_decay'] + self.hess_etrace['trace_decay'])) 
+        self.hess_Q['trace_decay'] += self.learning_rate*(self.hess_rpe['trace_decay']*self.etrace + self.d_rpe['trace_decay']*(self.d_etrace['trace_decay'] + self.hess_etrace['trace_decay']))
         self.hess_Q['learning_rate_discount_factor'] += self.d_rpe['discount_factor']*self.etrace + rpe*self.d_etrace['discount_factor'] + self.learning_rate*self.d_rpe['learning_rate']*self.d_etrace['discount_factor'] + self.learning_rate*self.hess_rpe['learning_rate_discount_factor']*self.etrace
         self.hess_Q['learning_rate_trace_decay'] += self.d_rpe['trace_decay']*self.etrace + rpe*self.d_etrace['trace_decay'] + self.learning_rate*self.d_rpe['learning_rate']*self.d_etrace['trace_decay'] + self.learning_rate*self.hess_rpe['learning_rate_trace_decay']*self.etrace
         self.hess_Q['discount_factor_trace_decay'] += self.learning_rate*(self.hess_rpe['discount_factor_trace_decay']*self.etrace + self.d_rpe['discount_factor']*self.d_etrace['trace_decay'] + self.d_rpe['trace_decay']*self.d_etrace['discount_factor'] + rpe*self.hess_etrace['discount_factor_trace_decay'])

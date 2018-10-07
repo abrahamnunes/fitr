@@ -393,7 +393,7 @@ class SARSASoftmaxAgent(MDPAgent):
         $$
         \\pHd{\\cL}{\\lambda}  = \\beta \\Big[ (\\mathbf u - \\varsigma(\\logits))_i \\big( \\partial^2_\\lambda Q \\big)^i - \\big( \\partial_\\lambda \\varsigma \\big)_j \\big( \\partial_\\lambda Q)^j_k x^k \\Big]_l x^l
         $$
-        
+
         The off diagonal elements of the Hessian are as follows:
 
         $$
@@ -772,6 +772,9 @@ class RWSoftmaxAgent(BanditAgent):
             'inverse_softmax_temp': 0,
             'learning_rate_inverse_softmax_temp': 0
         }
+
+        self.grad_ = None
+        self.hess_ = None
 
     def action(self, state):
         return self.actor.sample(self.critic.Qx(state))
@@ -1180,3 +1183,255 @@ class RWSoftmaxAgentRewardSensitivity(BanditAgent):
     def learning(self, state, action, reward, next_state, next_action):
         reward *= self.rs
         self.critic.update(state, action, reward, next_state, None)
+
+class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
+    """ An agent specifically constructed for the two-step task (Daw et al. 2011) including a softmax policy with a SARSA learning rule for the model free value function. The model-based value function backs up the maximal second step action value to the first step, and weights this value with the model-free state-action values.
+
+    This agent includes a pre-computed gradient with respect to the parameters. Second order derivatives have not yet been added.
+
+    Note this agent is not a composition of a `ValueFunction` and `Policy` as the other agents are, on account of some nuances to the two-step task. Further development of `fitr` will split this into the separate component objects.
+    """
+    def __init__(self,
+                 task,
+                 learning_rate_1=0.1,
+                 learning_rate_2=0.1,
+                 inverse_softmax_temp_1=1.,
+                 inverse_softmax_temp_2=1.,
+                 trace_decay=1.,
+                 mb_weight=0.5,
+                 perseveration=0.1,
+                 rng=np.random.RandomState()):
+        """
+
+        Arguments:
+
+            task: `fitr.environments.Graph`
+            learning_rate_1: `0 < float < 1`. First step learning rate
+            learning_rate_2: `0 < float < 1`. Second step learning rate
+            inverse_softmax_temp_1: `float`. First step inverse softmax temperature
+            inverse_softmax_temp_2: `float`. Second step inverse softmax temperature
+            trace_decay: '0<float<1'. Eligibility trace decay
+            mb_weight: '0<float<1'. Proportion of value coming from model based system
+            perseveration: `float`. Weight on taking same first-step action as last trial
+            rng: `np.random.RandomState`
+
+
+        """
+        self.nstates = task.nstates
+        self.nactions = task.nactions
+        self.learning_rates = [learning_rate_1, learning_rate_2]
+        self.inverse_softmax_temps = [inverse_softmax_temp_1, inverse_softmax_temp_2]
+        self.trace_decay = trace_decay
+        self.mb_weight = mb_weight
+        self.perseveration = perseveration
+        self.rng = rng
+
+        # Get the transition matrix from the task object and preprocess
+        self.T = task.T
+        self.T[:,1:,1:] = 0
+
+        # Initialize last-action for sticky softmax
+        self.a_last = np.zeros(self.nactions)
+
+        # Initialize value functions and gradients
+        self.Q = np.zeros((self.nactions, self.nstates))
+        self.Qmb = np.zeros((self.nactions, self.nstates))
+        self.Qmf = np.zeros((self.nactions, self.nstates))
+
+        self.dQ = {
+            'Qmf': 1-self.mb_weight,
+            'Qmb': self.mb_weight,
+            'learning_rate_1': np.zeros((self.nactions, self.nstates)),
+            'learning_rate_2': np.zeros((self.nactions, self.nstates)),
+            'trace_decay': np.zeros((self.nactions, self.nstates)),
+            'mb_weight': self.Qmb - self.Qmf
+        }
+
+        self.dQmb = {
+            'Qmf': np.zeros((self.nactions, self.nstates)),
+            'learning_rate_1': np.zeros((self.nactions, self.nstates)),
+            'learning_rate_2': np.zeros((self.nactions, self.nstates)),
+            'trace_decay': np.zeros((self.nactions, self.nstates))
+        }
+
+        self.dQmf = {
+            'learning_rate_1': np.zeros((self.nactions, self.nstates)),
+            'learning_rate_2': np.zeros((self.nactions, self.nstates)),
+            'trace_decay': np.zeros((self.nactions, self.nstates))
+        }
+
+        # Initialize derivatives with respect to log-probability
+        self.d_logprob = {
+            'learning_rate_1': 0,
+            'learning_rate_2': 0,
+            'inverse_softmax_temp_1': 0,
+            'inverse_softmax_temp_2': 0,
+            'trace_decay': 0,
+            'mb_weight': 0,
+            'perseveration': 0
+        }
+
+        # Log probability and gradient vector
+        self.logprob_ = 0
+        self.grad_ = None
+
+    def action_step1(self, state):
+        """ Returns the action the agent will take at the first step of a trial.
+
+        This function is separate from the second step action because of the perseveration element.
+
+        Arguments:
+
+            state: `ndarray(nstates)`. First-step state (one-hot vector)
+
+        Returns:
+
+            action: `ndarray(nactions)`. First-step action (one-hot)
+        """
+        q = np.einsum('ij,j->i', self.Q, state)
+        value_logits  = self.inverse_softmax_temps[0]*q
+        persev_logits = self.perseveration*self.a_last
+        logits = value_logits + persev_logits
+        pu = fu.softmax(logits)
+        action = self.rng.multinomial(1, pvals=pu)
+        self.a_last = action
+        return action
+
+    def action_step2(self, state):
+        """ Returns the action the agent will take at the second step of a trial.
+
+        This function is separate from the first step action because of the perseveration element in the first step. Also, at the second step, the agent only uses model-free values.
+
+        Arguments:
+
+            state: `ndarray(nstates)`. Second-step state (one-hot vector)
+
+        Returns:
+
+            action: `ndarray(nactions)`. Second-step action (one-hot)
+        """
+        q = np.einsum('ij,j->i', self.Qmf, state)
+        logits  = self.inverse_softmax_temps[1]*q
+        pu = fu.softmax(logits)
+        action = self.rng.multinomial(1, pvals=pu)
+        return action
+
+    def log_prob(self, x, u, x_, u_):
+        """ Computes the log-probability of a behavioural sequence on a trial
+
+        Note here we have shortened the variable names since the gradient equations are quite long. This was done in order to facilitate comparison of the gradient equations with the mathematical representations.
+
+        Arguments:
+
+            x: `ndarray(nstates)`. First-step state
+            u: `ndarray(nactions)`. First-step action
+            x_: `ndarray(nstates)`. Second-step state
+            u_: `ndarray(nactions)`. Second-step action
+
+
+        """
+        q          = np.einsum('ij,j->i', self.Q, x)
+        q_         = np.einsum('ij,j->i', self.Qmf, x_)
+        B1         = self.inverse_softmax_temps[0]
+        B2         = self.inverse_softmax_temps[1]
+        logits1    = B1*q
+        logits2    = B2*q_
+        pu1        = fu.softmax(logits1)
+        pu2        = fu.softmax(logits2)
+        Dlp_logit1 = np.eye(q.size)  - np.tile(grad.logsumexp(B1*q), [q.size, 1])
+        Dlp_logit2 = np.eye(q_.size) - np.tile(grad.logsumexp(B2*q_), [q_.size, 1])
+        Dlogit1_q1 = B1
+        Dlogit2_q2 = B2
+        Dlogit1_B1 = q
+        Dlogit2_B2 = q_
+        Dlp_q1     = B1*np.eye(q.size)  - np.tile(B1*grad.logsumexp(B1*q), [q.size, 1])
+        Dlp_q2     = B2*np.eye(q_.size)  - np.tile(B2*grad.logsumexp(B2*q_), [q_.size, 1])
+        Dq1_Q      = x
+        Dq2_Q      = x_
+        Dq2_Qmf    = x_
+        self.dQ['mb_weight'] = self.Qmb - self.Qmf
+
+        # Update log probability
+        self.logprob_ += np.dot(u, logits1 - fu.logsumexp(logits1))
+        self.logprob_ += np.dot(u_, logits2 - fu.logsumexp(logits2))
+
+        # Compute derivatives
+        self.d_logprob['learning_rate_1'] += np.dot(u,  np.einsum('ij,jk,k->i', Dlp_q1, self.dQ['learning_rate_1'], Dq1_Q))
+        self.d_logprob['learning_rate_1'] += np.dot(u_, np.einsum('ij,jk,k->i', Dlp_q2, self.dQmf['learning_rate_1'], Dq2_Qmf))
+        self.d_logprob['learning_rate_2'] += np.dot(u,  np.einsum('ij,jk,k->i', Dlp_q1, self.dQ['learning_rate_2'], Dq1_Q))
+        self.d_logprob['learning_rate_2'] += np.dot(u_, np.einsum('ij,jk,k->i', Dlp_q2, self.dQmf['learning_rate_2'], Dq2_Qmf))
+        self.d_logprob['mb_weight'] += np.dot(u,  np.dot(Dlp_q1, np.dot(self.dQ['mb_weight'], Dq1_Q)))
+
+        self.dQ['trace_decay'] = (self.dQ['Qmb']*self.dQmb['Qmf'] + self.dQ['Qmf'])*self.dQmf['trace_decay']
+        self.d_logprob['trace_decay'] += np.dot(u,  np.einsum('ij,jk,k->i', Dlp_q1, self.dQ['trace_decay'], Dq1_Q))
+        self.d_logprob['trace_decay'] += np.dot(u_, np.einsum('ij,jk,k->i', Dlp_q2, self.dQmf['trace_decay'], Dq2_Qmf))
+
+        self.d_logprob['inverse_softmax_temp_1']  += u@Dlp_logit1@Dlogit1_B1
+        self.d_logprob['inverse_softmax_temp_2']  += u_@Dlp_logit2@Dlogit2_B2
+
+
+        # Create gradient vector
+        self.grad_ = np.array([self.d_logprob['learning_rate_1'],
+                               self.d_logprob['learning_rate_2'],
+                               self.d_logprob['inverse_softmax_temp_1'],
+                               self.d_logprob['inverse_softmax_temp_2'],
+                               self.d_logprob['trace_decay'],
+                               self.d_logprob['mb_weight']])
+
+    def learning(self, x, u, x_, u_, r):
+        """ Updates the agent's value functions
+
+        Note here we have shortened the variable names since the gradient equations are quite long. This was done in order to facilitate comparison of the gradient equations with the mathematical representations.
+
+        Arguments:
+
+            x: `ndarray(nstates)`. First-step state
+            u: `ndarray(nactions)`. First-step action
+            x_: `ndarray(nstates)`. Second-step state
+            u_: `ndarray(nactions)`. Second-step action
+            r: `float`. Reward received in the trial
+
+        """
+        # Eligibility trace
+        z1   = np.outer(u, x)
+        z2   = np.outer(u_, x_) + self.trace_decay*z1
+
+        # Precompute some reused values
+        u_Qmfx_     = u_.T@self.Qmf@x_
+        uQmfx       = u.T@self.Qmf@x
+        u_DQmflr1x_ = u_.T@self.dQmf['learning_rate_1']@x_
+        uDQmflr1x   = u.T@self.dQmf['learning_rate_1']@x
+
+        u_DQmflr2x_ = u_.T@self.dQmf['learning_rate_2']@x_
+        uDQmflr2x   = u.T@self.dQmf['learning_rate_2']@x
+
+        u_DQmftdx_ = u_.T@self.dQmf['trace_decay']@x_
+        uDQmftdx   = u.T@self.dQmf['trace_decay']@x
+
+        # First partial derivatives of model-free values with respect to parameters
+        self.dQmf['learning_rate_1'] += (u_Qmfx_- uQmfx)*z1 + self.learning_rates[0]*((u_DQmflr1x_ - uDQmflr1x)*z1 - u_DQmflr1x_*z2)
+        self.dQmf['learning_rate_2'] += self.learning_rates[0]*(u_DQmflr2x_ - uDQmflr2x)*z1 + (r - u_Qmfx_ - self.learning_rates[1]*u_DQmflr2x_)*z2
+        self.dQmf['trace_decay']  += self.learning_rates[0]*(u_DQmftdx_ - uDQmftdx)*z1 + self.learning_rates[1]*((r - u_Qmfx_)*z1 - u_DQmftdx_*z2)
+
+        # Update model-free value function
+        self.Qmf += self.learning_rates[0]*u_Qmfx_*z1 - self.learning_rates[0]*uQmfx*z1 + self.learning_rates[1]*r*z2 - self.learning_rates[1]*u_Qmfx_*z2
+
+        # First partial derivatives with respect to model-based value and net value function
+        DmaxQmf_Qmf = grad.matrix_max(self.Qmf, axis=0)
+        DQmb_maxQmf = np.tile(np.sum(np.sum(self.T, axis=0), axis=1), [self.nactions, 1])
+        self.dQmb['Qmf'] = DQmb_maxQmf*DmaxQmf_Qmf
+        self.dQ['Qmf']   = 1 - self.mb_weight + self.mb_weight*self.dQmb['Qmf']
+
+        DmaxQmf_lr1 = np.einsum('ij,ij->j', DmaxQmf_Qmf, self.dQmf['learning_rate_1'])
+        self.dQmb['learning_rate_1'] = np.einsum('ijk,j->ik', self.T, DmaxQmf_lr1)
+        self.dQ['learning_rate_1'] = self.mb_weight*self.dQmb['learning_rate_1'] + (1-self.mb_weight)*self.dQmf['learning_rate_1']
+
+        DmaxQmf_lr2 = np.einsum('ij,ij->j', DmaxQmf_Qmf, self.dQmf['learning_rate_2'])
+        self.dQmb['learning_rate_2'] = np.einsum('ijk,j->ik', self.T, DmaxQmf_lr2)
+        self.dQ['learning_rate_2'] = self.mb_weight*self.dQmb['learning_rate_2'] + (1-self.mb_weight)*self.dQmf['learning_rate_2']
+        self.dQ['trace_decay'] = self.dQ['Qmf']*self.dQmf['trace_decay']
+
+        # Update the model based value function and weight it with the model free one
+        maxQmf = np.max(self.Qmf, axis=0)
+        self.Qmb    = np.einsum('ijk,j->ik', self.T, maxQmf)
+        self.Q      = self.mb_weight*self.Qmb + (1-self.mb_weight)*self.Qmf

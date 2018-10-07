@@ -1,12 +1,12 @@
 import numpy as np
-from fitr.environments import TwoStep
+from fitr.environments import DawTwoStep
 
 
 def test_set_seed():
-    task = TwoStep()
+    task = DawTwoStep()
     task.set_seed(235)
 
-    task2 = TwoStep()
+    task2 = DawTwoStep()
     task2.set_seed(235)
 
     state1 = task.rng.get_state()

@@ -5,7 +5,7 @@ from fitr import utils
 from fitr import gradients as grad
 from fitr import hessians as hess
 from fitr.environments import TwoArmedBandit
-from fitr.environments import TwoStep
+from fitr.environments import DawTwoStep
 from fitr.agents import RWSoftmaxAgent
 from fitr.agents import RWStickySoftmaxAgent
 from fitr.agents import SARSASoftmaxAgent
