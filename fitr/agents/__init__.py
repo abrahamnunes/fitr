@@ -11,6 +11,8 @@ from fitr.agents.agents import QLearningSoftmaxAgent
 from fitr.agents.agents import RWSoftmaxAgent
 from fitr.agents.agents import RWStickySoftmaxAgent
 from fitr.agents.agents import RWSoftmaxAgentRewardSensitivity
+from fitr.agents.agents import TwoStepStickySoftmaxSARSABellmanMaxAgent
+
 
 __all__ = ['policies',
            'value_functions',
@@ -24,4 +26,5 @@ __all__ = ['policies',
            'QLearningSoftmaxAgent',
            'RWSoftmaxAgent',
            'RWStickySoftmaxAgent',
-           'RWSoftmaxAgentRewardSensitivity']
+           'RWSoftmaxAgentRewardSensitivity', 
+           'TwoStepStickySoftmaxSARSABellmanMaxAgent']

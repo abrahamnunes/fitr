@@ -23,7 +23,7 @@ def l_bfgs_b(f,
 
     Arguments:
 
-        f: Log likelihood function
+        f: (Negative!) Log likelihood function
         i: `int`. Subject being optimized (slices first dimension of `data`)
         data: Object subscriptable along first dimension to indicate subject being optimized
         nparams: `int`. Number of parameters in the model
@@ -63,7 +63,7 @@ def l_bfgs_b(f,
         # Convergence test
         if nstarts < maxstarts:
             if res.success is True and res.fun < fmin:
-                fmin = res.fun
+                fmin = -res.fun
                 xmin = res.x
                 hess_inv = res.hess_inv.todense()
                 lme_ = lme(fmin, nparams, hess_inv)
@@ -107,7 +107,7 @@ def second_order_optimizer(f,
 
     Arguments:
 
-        f: Log likelihood function
+        f: (Negative!) Log likelihood function.
         i: `int`. Subject being optimized (slices first dimension of `data`)
         data: Object subscriptable along first dimension to indicate subject being optimized
         nparams: `int`. Number of parameters in the model
@@ -161,7 +161,7 @@ def second_order_optimizer(f,
         # Convergence test
         if nstarts < maxstarts:
             if res.success is True and res.fun < fmin:
-                fmin = res.fun
+                fmin = -res.fun
                 xmin = res.x
                 hess_inv = np.linalg.pinv(res.hess)
                 lme_ = lme(fmin, nparams, hess_inv)

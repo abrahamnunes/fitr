@@ -19,14 +19,14 @@ pages:
   tags:
   - tag: environments
     classes_with_methods:
-    - fitr.environments.Graph
-    - fitr.environments.TwoArmedBandit
-    - fitr.environments.OrthogonalGoNoGo
-    - fitr.environments.TwoStep
-    - fitr.environments.ReverseTwoStep
-    - fitr.environments.MouthTask
-    - fitr.environments.IGT
-    - fitr.environments.RandomContextualBandit
+    - fitr.environments.graph.Graph
+    - fitr.environments.twoarmedbandit.TwoArmedBandit
+    - fitr.environments.orthogonal_gonogo.OrthogonalGoNoGo
+    - fitr.environments.dawtwostep.DawTwoStep
+    - fitr.environments.kooltwostep.KoolTwoStep
+    - fitr.environments.mouthtask.MouthTask
+    - fitr.environments.igt.IGT
+    - fitr.environments.randombandit.RandomContextualBandit
 - page: doc_metrics.md
   template: doc_metrics.md
   tags:

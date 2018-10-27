@@ -22,7 +22,6 @@ def bms(L, ftol=1e-12, nsamples=1000000, rng=np.random.RandomState(), verbose=Tr
         pxp: `ndarray(nmodels)`. Protected exceedance probabilities
         xp: `ndarray(nmodels)`. Exceedance probabilities
         bor: `ndarray(nmodels)`. Bayesian Omnibus Risk
-        pe: `ndarray(niter)`. Prediction error time series throughout optimization
         q_m: `ndarray((nsubjects, nmodels))`. Posterior distribution over models for each subject
         alpha: `ndarray(nmodels)`. Posterior estimates of Dirichlet parameters
         f0: `float`. Free energy of null model

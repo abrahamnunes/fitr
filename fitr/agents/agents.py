@@ -1334,18 +1334,18 @@ class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
         q_         = np.einsum('ij,j->i', self.Qmf, x_)
         B1         = self.inverse_softmax_temps[0]
         B2         = self.inverse_softmax_temps[1]
-        logits1    = B1*q
+        logits1    = B1*q + self.perseveration*self.a_last
         logits2    = B2*q_
         pu1        = fu.softmax(logits1)
         pu2        = fu.softmax(logits2)
-        Dlp_logit1 = np.eye(q.size)  - np.tile(grad.logsumexp(B1*q), [q.size, 1])
-        Dlp_logit2 = np.eye(q_.size) - np.tile(grad.logsumexp(B2*q_), [q_.size, 1])
+        Dlp_logit1 = np.eye(q.size)  - np.tile(grad.logsumexp(logits1), [q.size, 1])
+        Dlp_logit2 = np.eye(q_.size) - np.tile(grad.logsumexp(logits2), [q_.size, 1])
         Dlogit1_q1 = B1
         Dlogit2_q2 = B2
         Dlogit1_B1 = q
         Dlogit2_B2 = q_
-        Dlp_q1     = B1*np.eye(q.size)  - np.tile(B1*grad.logsumexp(B1*q), [q.size, 1])
-        Dlp_q2     = B2*np.eye(q_.size)  - np.tile(B2*grad.logsumexp(B2*q_), [q_.size, 1])
+        Dlp_q1     = B1*np.eye(q.size)  - np.tile(B1*grad.logsumexp(logits1), [q.size, 1])
+        Dlp_q2     = B2*np.eye(q_.size)  - np.tile(B2*grad.logsumexp(logits2), [q_.size, 1])
         Dq1_Q      = x
         Dq2_Q      = x_
         Dq2_Qmf    = x_
@@ -1367,8 +1367,11 @@ class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
         self.d_logprob['trace_decay'] += np.dot(u_, np.einsum('ij,jk,k->i', Dlp_q2, self.dQmf['trace_decay'], Dq2_Qmf))
 
         self.d_logprob['inverse_softmax_temp_1']  += u@Dlp_logit1@Dlogit1_B1
+        self.d_logprob['perseveration']           += u@Dlp_logit1@self.a_last
         self.d_logprob['inverse_softmax_temp_2']  += u_@Dlp_logit2@Dlogit2_B2
 
+        # Update the last action
+        self.a_last = u
 
         # Create gradient vector
         self.grad_ = np.array([self.d_logprob['learning_rate_1'],
@@ -1376,7 +1379,32 @@ class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
                                self.d_logprob['inverse_softmax_temp_1'],
                                self.d_logprob['inverse_softmax_temp_2'],
                                self.d_logprob['trace_decay'],
-                               self.d_logprob['mb_weight']])
+                               self.d_logprob['mb_weight'],
+                               self.d_logprob['perseveration']])
+
+    def _log_prob_noderivatives(self, x, u, x_, u_):
+        """ Computes the log-probability of an action taken by the agent in a given state without updating partial derivatives with respect to the parameters.
+
+        This function is only implemented for purposes of unit testing for comparison with `autograd` package.
+
+        Arguments:
+
+            x: `ndarray(nstates)`. First-step state
+            u: `ndarray(nactions)`. First-step action
+            x_: `ndarray(nstates)`. Second-step state
+            u_: `ndarray(nactions)`. Second-step action
+
+        """
+        q          = np.einsum('ij,j->i', self.Q, x)
+        q_         = np.einsum('ij,j->i', self.Qmf, x_)
+        logits1    = self.inverse_softmax_temps[0]*q + self.perseveration*self.a_last
+        logits2    = self.inverse_softmax_temps[1]*q_
+
+        # Update log probability
+        self.logprob_ += np.dot(u, logits1 - fu.logsumexp(logits1))
+        self.logprob_ += np.dot(u_, logits2 - fu.logsumexp(logits2))
+
+        self.a_last = u
 
     def learning(self, x, u, x_, u_, r):
         """ Updates the agent's value functions
@@ -1430,6 +1458,36 @@ class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
         self.dQmb['learning_rate_2'] = np.einsum('ijk,j->ik', self.T, DmaxQmf_lr2)
         self.dQ['learning_rate_2'] = self.mb_weight*self.dQmb['learning_rate_2'] + (1-self.mb_weight)*self.dQmf['learning_rate_2']
         self.dQ['trace_decay'] = self.dQ['Qmf']*self.dQmf['trace_decay']
+
+        # Update the model based value function and weight it with the model free one
+        maxQmf = np.max(self.Qmf, axis=0)
+        self.Qmb    = np.einsum('ijk,j->ik', self.T, maxQmf)
+        self.Q      = self.mb_weight*self.Qmb + (1-self.mb_weight)*self.Qmf
+
+
+    def _learning_noderivatives(self, x, u, x_, u_, r):
+        """ Updates the agent's value functions without computing derivatives.
+
+        This method exists only to facilitate unit testing with comparison against autograd.
+
+        Arguments:
+
+            x: `ndarray(nstates)`. First-step state
+            u: `ndarray(nactions)`. First-step action
+            x_: `ndarray(nstates)`. Second-step state
+            u_: `ndarray(nactions)`. Second-step action
+            r: `float`. Reward received in the trial
+
+        """
+        # Eligibility trace
+        z1   = np.outer(u, x)
+        z2   = np.outer(u_, x_) + self.trace_decay*z1
+
+        u_Qmfx_     = u_.T@self.Qmf@x_
+        uQmfx       = u.T@self.Qmf@x
+
+        # Update model-free value function
+        self.Qmf += self.learning_rates[0]*u_Qmfx_*z1 - self.learning_rates[0]*uQmfx*z1 + self.learning_rates[1]*r*z2 - self.learning_rates[1]*u_Qmfx_*z2
 
         # Update the model based value function and weight it with the model free one
         maxQmf = np.max(self.Qmf, axis=0)

@@ -16,6 +16,7 @@ from fitr.agents.value_functions import ValueFunction
 from fitr.agents.value_functions import InstrumentalRescorlaWagnerLearner
 from fitr.agents.value_functions import QLearner
 from fitr.agents.value_functions import SARSALearner
+from fitr.agents import TwoStepStickySoftmaxSARSABellmanMaxAgent
 
 def test_logsumexp():
     x = np.array([1., 0., 0.])
@@ -453,6 +454,56 @@ def test_grad_sarsasoftmaxagent():
     aH = hessian(f)(w)
     assert(np.linalg.norm(q.grad_ - ag) < 1e-6)
     assert(np.linalg.norm(q.hess_ - aH) < 1e-6)
+
+def test_grad_twostep_stickysoftmax_bellmanmax_agent():
+    # Generate some data
+    task = DawTwoStep(rng=np.random.RandomState(23))
+    agent = TwoStepStickySoftmaxSARSABellmanMaxAgent(task, 0.1, 0.2, 2., 1.5, 1., 0.5, 0.01, rng=np.random.RandomState(743))
+    X=[]; U=[]; X_=[]; U_=[]; R=[]
+    for t in range(20):
+        x = task.observation()
+        u = agent.action_step1(x)
+        x_, _, _ = task.step(u)
+        u_ = agent.action_step2(x_)
+        _, r, _ = task.step(u_)
+        agent.learning(x, u, x_, u_, r)
+        X.append(x); U.append(u); X_.append(x_); U_.append(u_); R.append(r)
+
+    # Define function for testing with autograd
+    def f(w):
+        agent = TwoStepStickySoftmaxSARSABellmanMaxAgent(DawTwoStep(),
+                                                         learning_rate_1=w[0],
+                                                         learning_rate_2=w[1],
+                                                         inverse_softmax_temp_1=w[2],
+                                                         inverse_softmax_temp_2=w[3],
+                                                         trace_decay=w[4],
+                                                         mb_weight=w[5],
+                                                         perseveration=w[6])
+        for t in range(20):
+            agent._log_prob_noderivatives(X[t], U[t], X_[t], U_[t])
+            agent._learning_noderivatives(X[t], U[t], X_[t], U_[t], R[t])
+
+        return -agent.logprob_
+
+    # Compute gradient with fitr
+    w = np.array([0.1, 0.2, 2., 1.5, 1., 0.5, 0.01])
+    agent = TwoStepStickySoftmaxSARSABellmanMaxAgent(DawTwoStep(),
+                                                     learning_rate_1=w[0],
+                                                     learning_rate_2=w[1],
+                                                     inverse_softmax_temp_1=w[2],
+                                                     inverse_softmax_temp_2=w[3],
+                                                     trace_decay=w[4],
+                                                     mb_weight=w[5],
+                                                     perseveration=w[6])
+    for t in range(20):
+        agent.log_prob(X[t], U[t], X_[t], U_[t])
+        agent.learning(X[t], U[t], X_[t], U_[t], R[t])
+
+    # Check that the gradients are the same
+    J_fitr = -agent.grad_
+    J_ag = jacobian(f)(w)
+    assert(np.linalg.norm(J_ag-J_fitr) < 1e-6)
+
 
 
 # ------------------
