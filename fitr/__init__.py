@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-
 from fitr import agents
 from fitr import data
 from fitr import environments
 from fitr import inference
 from fitr import criticism
 from fitr import utils
-from fitr import metrics
+from fitr import stats
 from fitr import gradients
 from fitr import hessians
+
 
 from fitr.environments import generate_behavioural_data
 
@@ -19,7 +19,7 @@ __all__ = ['agents',
            'generate_behavioural_data',
            'inference',
            'criticism',
-           'metrics'
            'utils',
+           'stats',
            'gradients',
            'hessians']

@@ -4,8 +4,8 @@ from numpy.linalg import matrix_rank
 from joblib import Parallel, delayed
 from scipy.stats import multivariate_normal as _N
 from scipy.optimize import minimize
-from fitr.metrics import lme
-from fitr.metrics import bic
+from fitr.stats import lme
+from fitr.stats import bic
 from fitr.inference import OptimizationResult
 
 def l_bfgs_b(f,
