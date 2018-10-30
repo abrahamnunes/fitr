@@ -1,12 +1,12 @@
-\section{\texorpdfstring{\texttt{fitr.metrics}}{fitr.metrics}}\label{fitr.metrics}
+\section{\texorpdfstring{\texttt{fitr.stats}}{fitr.stats}}\label{fitr.stats}
 
-Metrics and performance statistics.
+Functions for statistical analyses.
 
 \subsection{bic}\label{bic}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.metrics.bic(log_prob, nparams, ntrials)}
+\NormalTok{fitr.stats.model_evaluation.bic(log_prob, nparams, ntrials)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -30,65 +30,11 @@ Scalar estimate of BIC.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsection{linear\_correlation}\label{linear_correlation}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{fitr.metrics.linear_correlation(X, Y)}
-\end{Highlighting}
-\end{Shaded}
-
-Linear correlation coefficient.
-
-Will compute the following formula
-
-\[
-\rho = \frac{\mathbf x^\top \mathbf y}{\lVert \mathbf x 
-Vert \cdot \lVert \mathbf y 
-Vert}
-\]
-
-where each vector \(\mathbf x\) and \(\mathbf y\) are rows of the
-matrices \(\mathbf X\) and \(\mathbf Y\), respectively.
-
-Arguments:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{X}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
-  2. If \texttt{X} is a 1D array, it will be converted to 2D prior to
-  computation
-\item
-  \textbf{Y}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
-  2. If \texttt{Y} is a 1D array, it will be converted to 2D prior to
-  computation
-\end{itemize}
-
-Returns:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{rho}: \texttt{ndarray((nfeatures,))}. Correlation
-  coefficient(s)
-\end{itemize}
-
-TODO:
-
-\begin{itemize}
-\tightlist
-\item
-  {[} {]} Create error raised when X and Y are not same dimension
-\end{itemize}
-
-\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
-
 \subsection{lme}\label{lme}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.metrics.lme(log_prob, nparams, hess_inv)}
+\NormalTok{fitr.stats.model_evaluation.lme(log_prob, nparams, hess_inv)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -112,18 +58,198 @@ Scalar approximation of the log model evidence
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsection{log\_loss}\label{log_loss}
+\subsection{pearson\_rho}\label{pearson_rho}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.metrics.log_loss(p, q)}
+\NormalTok{fitr.stats.correlations.pearson_rho(X, Y, comparison}\OperatorTok{=}\StringTok{'diagonal'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-Computes log loss.
+Linear (Pearson) correlation coefficient.
+
+Will compute the following formula
 
 \[
-\mathcal L = \mathbf p^\top \log \mathbf q + (1-\mathbf p)^\top \log (1 - \mathbf q)
+\rho = \frac{\mathbf x^\top \mathbf y}{\lVert \mathbf x 
+Vert \cdot \lVert \mathbf y 
+Vert}
+\]
+
+where each vector \(\mathbf x\) and \(\mathbf y\) are rows of the
+matrices \(\mathbf X\) and \(\mathbf Y\), respectively.
+
+Also returns a two-tailed p-value where the hypotheses being tested are
+
+\[
+H_o: \rho = 0
+\]
+
+\[
+H_a: \rho \neq 0
+\]
+
+and where the test statistic is
+
+\[
+T = \frac{\rho \sqrt{n_s-2}}{\sqrt{1 - \rho^2}}
+\]
+
+and the p-value is thus
+
+\[
+p = 2*(1 - \mathcal T(T, n_s-2))
+\]
+
+given the CDF of the Student T-distribution with degrees of freedom
+\(n_s-2\).
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
+  2. If \texttt{X} is a 1D array, it will be converted to 2D prior to
+  computation
+\item
+  \textbf{Y}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
+  2. If \texttt{Y} is a 1D array, it will be converted to 2D prior to
+  computation
+\item
+  \textbf{comparison}: \texttt{str}. Here
+  \texttt{\textquotesingle{}diagonal\textquotesingle{}} computes
+  correlations individually, column-for-column between matrices.
+  Otherwise \texttt{\textquotesingle{}pairwise\textquotesingle{}}
+  computes pairwise correlations between columns in \texttt{X} and
+  \texttt{Y}.
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{rho}: \texttt{ndarray((nfeatures,))}. Correlation
+  coefficient(s). Will be an \texttt{X.shape{[}1{]}} by
+  \texttt{Y.shape{[}1{]}} matrix if
+  \texttt{comparison=\textquotesingle{}pairwise\textquotesingle{}}
+\item
+  \textbf{p}: \texttt{ndarray((nfeatures,))}. P-values for correlation
+  coefficient(s). Will be an \texttt{X.shape{[}1{]}} by
+  \texttt{Y.shape{[}1{]}} matrix if
+  \texttt{comparison=\textquotesingle{}pairwise\textquotesingle{}}
+\end{itemize}
+
+TODO:
+
+\begin{itemize}
+\tightlist
+\item
+  {[} {]} Create error raised when X and Y are not same dimension
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{spearman\_rho}\label{spearman_rho}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.stats.correlations.spearman_rho(X, Y, comparison}\OperatorTok{=}\StringTok{'diagonal'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Spearman's rank correlation
+
+Note this function takes correlations between the columns of \texttt{X}
+and \texttt{Y}.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
+  2. If \texttt{X} is a 1D array, it will be converted to 2D prior to
+  computation
+\item
+  \textbf{Y}: \texttt{ndarray((nsamples,\ nfeatures))} of dimension 1 or
+  2. If \texttt{Y} is a 1D array, it will be converted to 2D prior to
+  computation
+\item
+  \textbf{comparison}: \texttt{str}. Here
+  \texttt{\textquotesingle{}diagonal\textquotesingle{}} computes
+  correlations individually, column-for-column between matrices.
+  Otherwise \texttt{\textquotesingle{}pairwise\textquotesingle{}}
+  computes pairwise correlations between columns in \texttt{X} and
+  \texttt{Y}.
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{rho}: \texttt{ndarray((nfeatures,))}. Correlation
+  coefficient(s). Will be an \texttt{X.shape{[}1{]}} by
+  \texttt{Y.shape{[}1{]}} matrix if
+  \texttt{comparison=\textquotesingle{}pairwise\textquotesingle{}}
+\item
+  \textbf{p}: \texttt{ndarray((nfeatures,))}. P-values for correlation
+  coefficient(s). Will be an \texttt{X.shape{[}1{]}} by
+  \texttt{Y.shape{[}1{]}} matrix if
+  \texttt{comparison=\textquotesingle{}pairwise\textquotesingle{}}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{linear\_regression}\label{linear_regression}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.stats.linear_regression.linear_regression(X, y, add_intercept}\OperatorTok{=}\VariableTok{True}\NormalTok{, scale_x}\OperatorTok{=}\VariableTok{False}\NormalTok{, scale_y}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Performs ordinary least squares linear regression, returning MLEs of the
+coefficients
+
+\subsection{Hypothesis testing on the
+model}\label{hypothesis-testing-on-the-model}
+
+Compute sum of squares:
+
+\[
+SS_R  = (\mathbf y - \bar{y})^      op (\mathbf y - \bar{y})
+\]
+
+\[
+SS_{Res} = \mathbf y^\top \mathbf y - \mathbf w^\top \mathbf X^\top \mathbf y
+\]
+
+\[
+SS_T = \mathbf y^\top \mathbf y - \frac{(\mathbf 1^\top \mathbf y)^\top}{n_s}
+\]
+
+The test statistic is defined as follows:
+
+\[
+F = \frac{SS_R (n-k-1)}{SS_{Res} k} \sim F(k, n-k-1)
+\]
+
+The adjusted \(R^2\) is
+
+\[
+R^2_{Adj} = 1 - \frac{SS_R (n-1)}{SS_T (n-k-1)}
+\]
+
+\subsection{Hypothesis testing on the
+coefficients}\label{hypothesis-testing-on-the-coefficients}
+
+The test statistic is
+
+\[
+\frac{w_i}{SE(w_i)} \sim StudentT(n-k-1)
 \]
 
 Arguments:
@@ -131,14 +257,128 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{p}: Binary vector of true labels \texttt{ndarray((nsamples,))}
+  \textbf{X}: \texttt{ndarray((nsamples,\ nfeatures))}. Predictors
 \item
-  \textbf{q}: Vector of estimates (between 0 and 1) of type
-  \texttt{ndarray((nsamples,))}
+  \textbf{y}: \texttt{ndarray(nsamples)}. Target
+\item
+  \textbf{add\_intercept}: \texttt{bool}. Whether to add an intercept
+  term (pads on LHS of \texttt{X} with column of ones)
+\item
+  \textbf{scale\_x}: \texttt{bool}. Whether to scale the columns of
+  \texttt{X}
+\item
+  \textbf{scale\_y}: \texttt{bool}. Whether to scale the columns of
+  \texttt{y}
 \end{itemize}
 
 Returns:
 
-Scalar log loss
+\texttt{LinearRegressionResult}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{kruskal\_wallis}\label{kruskal_wallis}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.stats.nonparametric.kruskal_wallis(x, g, dist}\OperatorTok{=}\StringTok{'beta'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Kruskal-Wallis one-way analysis of variance (one-way ANOVA on ranks)
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray(nsamples)}. Vector of data to be compared
+\item
+  \textbf{g}: \texttt{ndarray(nsamples)}. Group ID's
+\item
+  \textbf{dist}:
+  \texttt{str\ \{\textquotesingle{}chi2\textquotesingle{},\ \textquotesingle{}beta\textquotesingle{}\}}.
+  Which distributional approximation to make
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{T}: \texttt{float}. Test statistic
+\item
+  \textbf{p}: \texttt{float}. P-value for the comparison
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{conover}\label{conover}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.stats.nonparametric.conover(x, g, alpha}\OperatorTok{=}\FloatTok{0.05}\NormalTok{, adjust}\OperatorTok{=}\StringTok{'bonferroni'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Conover's nonparametric test of homogeneity.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray(nsamples)}. Vector of data to be compared
+\item
+  \textbf{g}: \texttt{ndarray(nsamples)}. Group ID's
+\item
+  \textbf{alpha}: \texttt{0\ \textless{}\ float\ \textless{}\ 1}.
+  Significance threshold
+\item
+  \textbf{adjust}: \texttt{str}. Method to adjust p-values (see below)
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{T}: \texttt{float}. Test statistic
+\item
+  \textbf{p}: \texttt{float}. P-value for the comparison
+\end{itemize}
+
+Notes:
+
+Adjustment methods include the following:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{bonferroni} : one-step correction
+\item
+  \texttt{sidak} : one-step correction
+\item
+  \texttt{holm-sidak} : step down method using Sidak adjustments
+\item
+  \texttt{holm} : step-down method using Bonferroni adjustments
+\item
+  \texttt{simes-hochberg} : step-up method (independent)
+\item
+  \texttt{hommel} : closed method based on Simes tests (non-negative)
+\item
+  \texttt{fdr\_bh} : Benjamini/Hochberg (non-negative)
+\item
+  \texttt{fdr\_by} : Benjamini/Yekutieli (negative)
+\item
+  \texttt{fdr\_tsbh} : two stage fdr correction (non-negative)
+\item
+  \texttt{fdr\_tsbky} : two stage fdr correction (non-negative)
+\end{itemize}
+
+References:
+
+W. J. Conover and R. L. Iman (1979), On multiple-comparisons procedures,
+Tech. Rep.~LA-7677-MS, Los Alamos Scientific Laboratory.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

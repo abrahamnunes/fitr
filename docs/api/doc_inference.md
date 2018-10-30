@@ -126,7 +126,7 @@ Returns:
 ## bms
 
 ```python
-fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7f3b711caf30>, verbose=True)
+fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7f58f3ab5048>, verbose=True)
 ```
 
 Implements variational Bayesian Model Selection as per Rigoux et al. (2014).

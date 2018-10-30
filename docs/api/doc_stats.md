@@ -153,23 +153,23 @@ SS_R  = (\mathbf y - \bar{y})^      op (\mathbf y - \bar{y})
 $$
 
 $$
-SS_{Res} = \mathbf y^       op \mathbf y - \mathbf w^       op \mathbf X^   op \mathbf y
+SS_{Res} = \mathbf y^\top \mathbf y - \mathbf w^\top \mathbf X^\top \mathbf y
 $$
 
 $$
-SS_T = \mathbf y^   op \mathbf y - rac{(\mathbf 1^ op \mathbf y)^  op}{n_s}
+SS_T = \mathbf y^\top \mathbf y - \frac{(\mathbf 1^\top \mathbf y)^\top}{n_s}
 $$
 
 The test statistic is defined as follows:
 
 $$
-F = rac{SS_R (n-k-1)}{SS_{Res} k} \sim F(k, n-k-1)
+F = \frac{SS_R (n-k-1)}{SS_{Res} k} \sim F(k, n-k-1)
 $$
 
 The adjusted $R^2$ is
 
 $$
-R^2_{Adj} = 1 - rac{SS_R (n-1)}{SS_T (n-k-1)}
+R^2_{Adj} = 1 - \frac{SS_R (n-1)}{SS_T (n-k-1)}
 $$
 
 ## Hypothesis testing on the coefficients
@@ -177,7 +177,7 @@ $$
 The test statistic is
 
 $$
-rac{w_i}{SE(w_i)} \sim StudentT(n-k-1)
+\frac{w_i}{SE(w_i)} \sim StudentT(n-k-1)
 $$
 
 
