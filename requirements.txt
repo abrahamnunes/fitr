@@ -8,3 +8,5 @@ networkx==2.1
 pydot==1.2.4
 graphviz==0.8.4
 autograd==1.2
+sklearn
+statsmodels
