@@ -92,6 +92,12 @@ pages:
     - fitr.inference.mlepar
     - fitr.inference.mle_parallel.l_bfgs_b
     - fitr.inference.bms
+- page: doc_hclr.md
+  template: doc_hclr.md
+  tags:
+  - tag: hclr
+    classes_with_methods:
+    - fitr.hclr.HCLR 
 - page: doc_criticism.md
   template: doc_criticism.md
   tags:
