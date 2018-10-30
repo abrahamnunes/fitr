@@ -1,13 +1,17 @@
-import numpy as np
+import autograd.numpy as np
+from sklearn.metrics import log_loss as skl_logloss
 from scipy.special import logsumexp as scipy_logsumexp
 from fitr.utils import batch_softmax
+from fitr.utils import batch_transform
 from fitr.utils import I
+from fitr.utils import log_loss
 from fitr.utils import logsumexp
 from fitr.utils import reduce_then_tile
 from fitr.utils import relu
 from fitr.utils import scale_data
 from fitr.utils import sigmoid
 from fitr.utils import softmax
+from fitr.utils import softmax_components
 from fitr.utils import stable_exp
 from fitr.utils import transform
 from fitr.utils import tanh
@@ -21,9 +25,22 @@ def test_batch_softmax():
     assert np.all(np.equal(p0, p1))
     assert np.all(np.equal(p0_0.round(4), p1_0.round(4).T))
 
+def test_batch_transform():
+    X = np.random.normal(0, 5, size=(10, 2))
+    Y = batch_transform(X, [sigmoid, stable_exp])
+    assert(np.all(np.equal(X.shape, Y.shape)))
+    assert(np.all(np.logical_and(np.greater_equal(Y[:,0], 0), np.less_equal(Y[:,0], 1))))
+    assert(np.all(np.greater_equal(Y[:,0], 0)))
+
 def test_I():
     x = np.ones(5)
     assert np.all(np.equal(x, I(x)))
+
+def test_logloss(): 
+    rng = np.random.RandomState(457)
+    y = np.random.binomial(1, p=0.6, size=20)
+    yhat = np.random.uniform(0, 1, size=20)
+    assert(np.linalg.norm(log_loss(y, yhat) - skl_logloss(y, yhat)) < 1e-10)
 
 def test_logsumexp():
     x = np.arange(5)
@@ -47,7 +64,7 @@ def test_relu():
     assert np.max(y2) == 10
     assert np.min(y2) == 0
 
-def test_scale_data(): 
+def test_scale_data():
     x = np.arange(10).reshape(-1, 1)
     x = np.outer(x, np.ones(5))
     x = scale_data(x, with_mean=True, with_var=True)
@@ -59,6 +76,15 @@ def test_softmax():
     assert p.sum() == 1
     assert np.logical_and(np.all(np.greater_equal(p, 0)),
                           np.all(np.less_equal(p, 1)))
+
+def test_softmax_partition_potential():
+    x = np.arange(10).astype(np.float)
+    B = 1.5
+    potential, partition = softmax_components(B*x)
+    component_sm = potential/partition
+    original_sm = softmax(B*x)
+    assert(np.all(component_sm == original_sm))
+
 
 def test_transform():
     x  = np.array([0, 0, -10, 0, 55])

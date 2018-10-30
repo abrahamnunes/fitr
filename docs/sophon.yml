@@ -2,7 +2,7 @@ code_dir: ..
 template_dir: temp
 build_dir: api
 #repo_url: https://github.com/your_user_name/your_repo
-branch: overhaul
+branch: gradients
 style: sophon
 
 pages:
@@ -19,29 +19,38 @@ pages:
   tags:
   - tag: environments
     classes_with_methods:
-    - fitr.environments.Graph
-    - fitr.environments.TwoArmedBandit
-    - fitr.environments.OrthogonalGoNoGo
-    - fitr.environments.TwoStep
-    - fitr.environments.ReverseTwoStep
-    - fitr.environments.RandomContextualBandit
-- page: doc_metrics.md
-  template: doc_metrics.md
+    - fitr.environments.graph.Graph
+    - fitr.environments.twoarmedbandit.TwoArmedBandit
+    - fitr.environments.orthogonal_gonogo.OrthogonalGoNoGo
+    - fitr.environments.dawtwostep.DawTwoStep
+    - fitr.environments.kooltwostep.KoolTwoStep
+    - fitr.environments.mouthtask.MouthTask
+    - fitr.environments.igt.IGT
+    - fitr.environments.randombandit.RandomContextualBandit
+- page: doc_stats.md
+  template: doc_stats.md
   tags:
-  - tag: metrics
+  - tag: stats
     functions:
-    - fitr.metrics.bic
-    - fitr.metrics.linear_correlation
-    - fitr.metrics.lme
-    - fitr.metrics.log_loss
+    - fitr.stats.bic
+    - fitr.stats.lme
+    - fitr.stats.pearson_rho
+    - fitr.stats.spearman_rho
+    - fitr.stats.linear_regression 
+    - fitr.stats.kruskal_wallis
+    - fitr.stats.conover 
 - page: doc_utils.md
   template: doc_utils.md
   tags:
   - tag: utils
     functions:
     - fitr.utils.batch_softmax
+    - fitr.utils.batch_transform
     - fitr.utils.I
+    - fitr.utils.log_loss
     - fitr.utils.logsumexp
+    - fitr.utils.rank_data
+    - fitr.utils.rank_grouped_data
     - fitr.utils.reduce_then_tile
     - fitr.utils.relu
     - fitr.utils.scale_data

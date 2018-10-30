@@ -59,7 +59,7 @@ Computes the softmax
 fitr.agents.policies.log_prob(self, x)
 ```
 
-Computes the log-probability of an action $\mathbf u$
+Computes the log-probability of an action $\mathbf u$, in addition to computing derivatives up to second order
 
 $$
 \log p(\mathbf u|\mathbf v) = \beta \mathbf v - \log \sum_{v_i} e^{\beta \mathbf v_i}
@@ -133,11 +133,11 @@ Computes the softmax
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
+- **x**: `ndarray((nactions,))` action value vector
 
 Returns:
 
-`ndarray((nstates,))` vector of action probabilities
+`ndarray((nactions,))` vector of action probabilities
 
 ---
 
@@ -158,7 +158,7 @@ $$
 
 Arguments:
 
-- **x**: State vector of type `ndarray((nstates,))`
+- **x**: State vector of type `ndarray((nactions,))`
 
 Returns:
 
@@ -179,11 +179,11 @@ Samples from the action distribution
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
+- **x**: `ndarray((nactions,))` action value vector
 
 Returns:
 
-`ndarray((nstates,))` one-hot action vector
+`ndarray((nactions,))` one-hot action vector
 
 ---
 
@@ -262,7 +262,10 @@ A value function here is task specific and consists of several attributes:
 - `nactions`: Number of actions in the task, $|\mathcal U|$
 - `V`: State value function $\mathbf v = \mathcal V(\mathbf x)$
 - `Q`: State-action value function $\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)$
+- `rpe`: Reward prediction error history
 - `etrace`: An eligibility trace (optional)
+- `dV`: A dictionary storing gradients with respect to parameters (named keys)
+- `dQ`: A dictionary storing gradients with respect to parameters (named keys)
 
 Note that in general we rely on matrix-vector notation for value functions, rather than function notation. Vectors in the mathematical typesetting are by default column vectors.
 
@@ -369,6 +372,100 @@ Arguments:
 Returns:
 
 Scalar value of state $\mathbf x$
+
+---
+
+
+
+
+### ValueFunction.grad_Qx
+
+```python
+fitr.agents.value_functions.grad_Qx(self, x)
+```
+
+Compute gradient of action values for a given state
+
+$$
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+`ndarray((nactions,))` vector of values for actions in the given state
+
+---
+
+
+
+
+### ValueFunction.grad_Vx
+
+```python
+fitr.agents.value_functions.grad_Vx(self, x)
+```
+
+Compute the gradient of state value function with respect to parameters $\mathbf v$
+
+$$
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of state $\mathbf x$
+
+---
+
+
+
+
+### ValueFunction.grad_uQx
+
+```python
+fitr.agents.value_functions.grad_uQx(self, u, x)
+```
+
+Compute derivative of value of taking action $\mathbf u$ in state $\mathbf x$ with respect to value function parameters $\mathbf Q$
+
+$$
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+$$
+
+where the derivative is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+$$
+
+Arguments:
+
+- **u**: `ndarray((nactions,))` one-hot action vector
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of action $\mathbf u$ in state $\mathbf x$
 
 ---
 
@@ -536,6 +633,100 @@ Arguments:
 Returns:
 
 Scalar value of state $\mathbf x$
+
+---
+
+
+
+
+### DummyLearner.grad_Qx
+
+```python
+fitr.agents.value_functions.grad_Qx(self, x)
+```
+
+Compute gradient of action values for a given state
+
+$$
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+`ndarray((nactions,))` vector of values for actions in the given state
+
+---
+
+
+
+
+### DummyLearner.grad_Vx
+
+```python
+fitr.agents.value_functions.grad_Vx(self, x)
+```
+
+Compute the gradient of state value function with respect to parameters $\mathbf v$
+
+$$
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of state $\mathbf x$
+
+---
+
+
+
+
+### DummyLearner.grad_uQx
+
+```python
+fitr.agents.value_functions.grad_uQx(self, u, x)
+```
+
+Compute derivative of value of taking action $\mathbf u$ in state $\mathbf x$ with respect to value function parameters $\mathbf Q$
+
+$$
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+$$
+
+where the derivative is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+$$
+
+Arguments:
+
+- **u**: `ndarray((nactions,))` one-hot action vector
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of action $\mathbf u$ in state $\mathbf x$
 
 ---
 
@@ -718,6 +909,100 @@ Scalar value of state $\mathbf x$
 
 
 
+### InstrumentalRescorlaWagnerLearner.grad_Qx
+
+```python
+fitr.agents.value_functions.grad_Qx(self, x)
+```
+
+Compute gradient of action values for a given state
+
+$$
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+`ndarray((nactions,))` vector of values for actions in the given state
+
+---
+
+
+
+
+### InstrumentalRescorlaWagnerLearner.grad_Vx
+
+```python
+fitr.agents.value_functions.grad_Vx(self, x)
+```
+
+Compute the gradient of state value function with respect to parameters $\mathbf v$
+
+$$
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of state $\mathbf x$
+
+---
+
+
+
+
+### InstrumentalRescorlaWagnerLearner.grad_uQx
+
+```python
+fitr.agents.value_functions.grad_uQx(self, u, x)
+```
+
+Compute derivative of value of taking action $\mathbf u$ in state $\mathbf x$ with respect to value function parameters $\mathbf Q$
+
+$$
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+$$
+
+where the derivative is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+$$
+
+Arguments:
+
+- **u**: `ndarray((nactions,))` one-hot action vector
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of action $\mathbf u$ in state $\mathbf x$
+
+---
+
+
+
+
 ### InstrumentalRescorlaWagnerLearner.uQx
 
 ```python
@@ -750,17 +1035,27 @@ Scalar value of action $\mathbf u$ in state $\mathbf x$
 fitr.agents.value_functions.update(self, x, u, r, x_, u_)
 ```
 
-Updates the value function
+Computes the value function update of the instrumental Rescorla-Wagner learning rule and computes derivative with respect to the learning rate.
 
-In the context of the base `ValueFunction` class, this is merely a placeholder. The specific update rule will depend on the specific value function desired.
+This derivative is defined as
+
+$$
+\frac{\partial}{\partial \alpha} \mathcal Q(\mathbf x, \mathbf u; \alpha) = \delta \mathbf u \mathbf x^\top + \frac{\partial}{\partial \alpha} \mathcal Q(\mathbf x, \mathbf u; \alpha) (1-\alpha \mathbf u \mathbf x^\top)
+$$
+
+and the second order derivative with respect to learning rate is
+
+$$
+\frac{\partial}{\partial \alpha} \mathcal Q(\mathbf x, \mathbf u; \alpha) = - 2 \mathbf u \mathbf x^\top \partial_\alpha \mathcal Q(\mathbf x, \mathbf u; \alpha) + \partial^2_\alpha \mathcal Q(\mathbf x, \mathbf u; \alpha) (1 - \alpha \mathbf u \mathbf x^\top)
+$$
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector
-- **r**: Scalar reward
-- **x_**: `ndarray((nstates,))` one-hot next-state vector
-- **u_**: `ndarray((nactions,))` one-hot next-action vector
+- **x**: `ndarray((nstates, ))`. State vector
+- **u**: `ndarray((nactions, ))`. Action vector
+- **r**: `float`. Reward received
+- **x_**: `ndarray((nstates, ))`. For compatibility
+- **u_**: `ndarray((nactions, ))`. For compatibility
 
 ---
 
@@ -898,6 +1193,100 @@ Scalar value of state $\mathbf x$
 
 
 
+### QLearner.grad_Qx
+
+```python
+fitr.agents.value_functions.grad_Qx(self, x)
+```
+
+Compute gradient of action values for a given state
+
+$$
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+`ndarray((nactions,))` vector of values for actions in the given state
+
+---
+
+
+
+
+### QLearner.grad_Vx
+
+```python
+fitr.agents.value_functions.grad_Vx(self, x)
+```
+
+Compute the gradient of state value function with respect to parameters $\mathbf v$
+
+$$
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of state $\mathbf x$
+
+---
+
+
+
+
+### QLearner.grad_uQx
+
+```python
+fitr.agents.value_functions.grad_uQx(self, u, x)
+```
+
+Compute derivative of value of taking action $\mathbf u$ in state $\mathbf x$ with respect to value function parameters $\mathbf Q$
+
+$$
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+$$
+
+where the derivative is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+$$
+
+Arguments:
+
+- **u**: `ndarray((nactions,))` one-hot action vector
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of action $\mathbf u$ in state $\mathbf x$
+
+---
+
+
+
+
 ### QLearner.uQx
 
 ```python
@@ -930,17 +1319,7 @@ Scalar value of action $\mathbf u$ in state $\mathbf x$
 fitr.agents.value_functions.update(self, x, u, r, x_, u_)
 ```
 
-Updates the value function
-
-In the context of the base `ValueFunction` class, this is merely a placeholder. The specific update rule will depend on the specific value function desired.
-
-Arguments:
-
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector
-- **r**: Scalar reward
-- **x_**: `ndarray((nstates,))` one-hot next-state vector
-- **u_**: `ndarray((nactions,))` one-hot next-action vector
+Computes value function updates and their derivatives for the Q-learning model 
 
 ---
 
@@ -1078,6 +1457,100 @@ Scalar value of state $\mathbf x$
 
 
 
+### SARSALearner.grad_Qx
+
+```python
+fitr.agents.value_functions.grad_Qx(self, x)
+```
+
+Compute gradient of action values for a given state
+
+$$
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+`ndarray((nactions,))` vector of values for actions in the given state
+
+---
+
+
+
+
+### SARSALearner.grad_Vx
+
+```python
+fitr.agents.value_functions.grad_Vx(self, x)
+```
+
+Compute the gradient of state value function with respect to parameters $\mathbf v$
+
+$$
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+$$
+
+where the gradient is defined as
+
+$$
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+$$
+
+Arguments:
+
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of state $\mathbf x$
+
+---
+
+
+
+
+### SARSALearner.grad_uQx
+
+```python
+fitr.agents.value_functions.grad_uQx(self, u, x)
+```
+
+Compute derivative of value of taking action $\mathbf u$ in state $\mathbf x$ with respect to value function parameters $\mathbf Q$
+
+$$
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+$$
+
+where the derivative is defined as
+
+$$
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+$$
+
+Arguments:
+
+- **u**: `ndarray((nactions,))` one-hot action vector
+- **x**: `ndarray((nstates,))` one-hot state vector
+
+Returns:
+
+Scalar value of action $\mathbf u$ in state $\mathbf x$
+
+---
+
+
+
+
 ### SARSALearner.uQx
 
 ```python
@@ -1110,17 +1583,7 @@ Scalar value of action $\mathbf u$ in state $\mathbf x$
 fitr.agents.value_functions.update(self, x, u, r, x_, u_)
 ```
 
-Updates the value function
-
-In the context of the base `ValueFunction` class, this is merely a placeholder. The specific update rule will depend on the specific value function desired.
-
-Arguments:
-
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector
-- **r**: Scalar reward
-- **x_**: `ndarray((nstates,))` one-hot next-state vector
-- **u_**: `ndarray((nactions,))` one-hot next-action vector
+Computes value function updates and their derivatives for the SARSA model 
 
 ---
 
@@ -1169,7 +1632,7 @@ Arguments:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -1189,15 +1652,14 @@ Arguments:
 ### Agent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -1266,7 +1728,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -1309,15 +1771,14 @@ Returns:
 ### BanditAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -1364,7 +1825,7 @@ Arguments:
 ### MDPAgent.generate_data
 
 ```python
-fitr.agents.agents.generate_data(self, ntrials)
+fitr.agents.agents.generate_data(self, ntrials, state_only=False)
 ```
 
 For the parent agent, this function generates data from a Markov Decision Process (MDP) task
@@ -1372,6 +1833,7 @@ For the parent agent, this function generates data from a Markov Decision Proces
 Arguments:
 
 - **ntrials**: `int` number of trials
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 Returns:
 
@@ -1388,7 +1850,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -1408,15 +1870,14 @@ Arguments:
 ### MDPAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -1482,7 +1943,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -1525,15 +1986,14 @@ Returns:
 ### RandomBanditAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -1578,7 +2038,7 @@ Arguments:
 ### RandomMDPAgent.generate_data
 
 ```python
-fitr.agents.agents.generate_data(self, ntrials)
+fitr.agents.agents.generate_data(self, ntrials, state_only=False)
 ```
 
 For the parent agent, this function generates data from a Markov Decision Process (MDP) task
@@ -1586,6 +2046,7 @@ For the parent agent, this function generates data from a Markov Decision Proces
 Arguments:
 
 - **ntrials**: `int` number of trials
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 Returns:
 
@@ -1602,7 +2063,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -1622,15 +2083,14 @@ Arguments:
 ### RandomMDPAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -1704,7 +2164,7 @@ Arguments:
 ### SARSASoftmaxAgent.generate_data
 
 ```python
-fitr.agents.agents.generate_data(self, ntrials)
+fitr.agents.agents.generate_data(self, ntrials, state_only=False)
 ```
 
 For the parent agent, this function generates data from a Markov Decision Process (MDP) task
@@ -1712,6 +2172,7 @@ For the parent agent, this function generates data from a Markov Decision Proces
 Arguments:
 
 - **ntrials**: `int` number of trials
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 Returns:
 
@@ -1728,7 +2189,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -1745,18 +2206,248 @@ Arguments:
 
 
 
+### SARSASoftmaxAgent.log_prob
+
+```python
+fitr.agents.agents.log_prob(self, state, action)
+```
+
+Computes the log-probability of the given action and state under the model, while also computing first and second order derivatives.
+
+This model has four free parameters:
+
+- Learning rate $\alpha$
+- Inverse softmax temperature $\beta$
+- Discount factor $\gamma$
+- Trace decay $\lambda$
+
+__First-order partial derivatives__
+
+We can break down the computation using the chain rule to reuse previously computed derivatives:
+
+$$
+\pd{\cL}{\alpha}  = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\alpha}
+$$
+
+$$
+\pd{\cL}{\beta}   = \pd{\cL}{\logits} \pd{\logits}{\beta}
+$$
+
+$$
+\pd{\cL}{\gamma}  = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\gamma}
+$$
+
+$$
+\pd{\cL}{\lambda} = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\lambda}
+$$
+
+_Action Probabilities_
+
+$$
+\partial_\alpha \varsigma = \pd{\varsigma}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \big( \partial_\alpha \mathbf Q \big) = \beta \big(\partial_{\logits} \varsigma \big)_i \big( \partial_\alpha Q \big)^i_j x^j
+$$
+
+_Value Function_
+
+$$
+\partial_\alpha Q_{ij} =  \partial_\alpha Q_{ij} + (\delta + \alpha \partial_\alpha \delta) z_{ij}
+$$
+
+$$
+\partial_\gamma Q_{ij} =  \partial_\gamma Q_{ij} + \alpha \big( (\partial_\gamma \delta) z_{ij} + \delta (\partial_\gamma z_{ij}) \big)
+$$
+
+$$
+\partial_\lambda Q_{ij} =  \partial_\lambda Q_{ij} + \alpha \big( (\partial_\lambda \delta) z_{ij} + \delta (\partial_\lambda z_{ij}) \big)
+$$
+
+_Reward Prediction Error_
+
+$$
+\partial_\alpha \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\alpha Q)^{ij}
+$$
+
+$$
+\partial_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma Q)^{ij} + \tilde{u}_i Q^i_j \tilde{x}^j
+$$
+
+$$
+\partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\lambda Q)^{ij}
+$$
+
+_Trace Decay_
+
+$$
+\partial_\gamma z_{ij} = \lambda \big(z_{ij} + \gamma (\partial_\gamma z_{ij}) \big)
+$$
+
+$$
+\partial_\lambda z_{ij} = \gamma \big(z_{ij} + \lambda (\partial_\lambda z_{ij}) \big)
+$$
+
+_Simplified Components of the Gradient Vector_
+
+$$
+\pd{\cL}{\alpha}  = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\alpha Q \big)^i_j x^j   = \beta \big[ u_i (\partial_\alpha Q)^i_j x^j - p(u_i) (\partial_\alpha Q)^i_j x^j \big]
+$$
+
+$$
+\pd{\cL}{\beta}   =  \big[\mathbf u - \varsigma(\logits)\big]_i Q^i_j x^j = u_i Q^i_j x^j - p(u_i) Q^i_j x^j
+$$
+
+$$
+\pd{\cL}{\gamma}  = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\gamma Q \big)^i_j x^j
+$$
+
+$$
+\pd{\cL}{\lambda} = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\lambda Q \big)^i_j x^j
+$$
+
+__Second-Order Partial Derivatives__
+
+The Hessian matrix for this model is
+
+$$
+\mathbf H = \left[
+\begin{array}{cccc}
+\pHd{\cL}{\alpha}                  & \pHo{\cL}{\alpha}{\beta}  & \pHo{\cL}{\alpha}{\gamma}  & \pHo{\cL}{\alpha}{\lambda} \\
+\pHo{\cL}{\beta}{\alpha}   & \pHd{\cL}{\beta}              & \pHo{\cL}{\beta}{\gamma}   & \pHo{\cL}{\beta}{\lambda}  \\
+\pHo{\cL}{\gamma}{\alpha}  & \pHo{\cL}{\gamma}{\beta}  & \pHd{\cL}{\gamma}                  & \pHo{\cL}{\gamma}{\lambda} \\
+\pHo{\cL}{\lambda}{\alpha} & \pHo{\cL}{\lambda}{\beta} & \pHo{\cL}{\lambda}{\gamma} & \pHd{\cL}{\lambda}                 \\
+\end{array}\right],
+$$
+
+where the second-order partial derivatives are such that $\mathbf H$ is symmetrical. We must therefore compute 10 second order partial derivatives, shown below:
+
+$$
+\pHd{\cL}{\alpha} = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\alpha Q \big)^i - \big( \partial_\alpha \varsigma \big)_j \big( \partial_\alpha Q)^j_k x^k \Big]_l x^l
+$$
+
+$$
+\pHd{\cL}{\beta} = \Big( q_i \varsigma(\logits)^i \Big)^2 - \mathbf q \odot \mathbf q \odot \varsigma(\logits)
+$$
+
+$$
+\pHd{\cL}{\gamma}  = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\gamma Q \big)^i - \big( \partial_\gamma \varsigma \big)_j \big( \partial_\gamma Q)^j_k x^k \Big]_l x^l
+$$
+
+$$
+\pHd{\cL}{\lambda}  = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\lambda Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\lambda Q)^j_k x^k \Big]_l x^l
+$$
+
+The off diagonal elements of the Hessian are as follows:
+
+$$
+\pHo{\cL}{\alpha}{\beta}   = \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\alpha Q \big)^i_j x^j
+$$
+
+$$
+\pHo{\cL}{\beta}{\gamma}   =  \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\gamma Q \big)^i_j x^j
+$$
+
+$$
+\pHo{\cL}{\beta}{\lambda}  =  \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\lambda Q \big)^i_j x^j
+$$
+
+$$
+\pHo{\cL}{\alpha}{\gamma}  = \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\alpha \partial_\gamma Q \big)^i - \big( \partial_\gamma \varsigma \big)_j \big( \partial_\alpha Q \big)^j \Big)_k x^k
+$$
+
+$$
+\pHo{\cL}{\alpha}{\lambda} =  \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\alpha \partial_\lambda Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\alpha Q \big)^j \Big)_k x^k
+$$
+
+$$
+\pHo{\cL}{\gamma}{\lambda} =  \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\lambda \partial_\gamma Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\gamma Q \big)^j \Big)_k x^k
+$$
+
+_Reward Prediction Error_
+
+$$
+\partial^2_\alpha \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\alpha Q)^{ij}
+$$
+
+$$
+\partial^2_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\gamma Q)^{ij} + 2 \tilde{u}_i \big(\partial_\gamma Q\big)^i_j \tilde{x}^j
+$$
+
+$$
+\partial^2_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\lambda Q)^{ij}
+$$
+
+$$
+\partial_\alpha \partial_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma \partial_\alpha Q)^{ij} + \tilde{u}_i \big(\partial_\alpha Q\big)^i_j \tilde{x}^j
+$$
+
+$$
+\partial_\alpha \partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\alpha \partial_\lambda Q)^{ij}
+$$
+
+$$
+\partial_\gamma \partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma \partial_\lambda Q)^{ij} + \tilde{u}_i \big(\partial_\lambda Q\big)^i_j \tilde{x}^j
+$$
+
+_Value Function_
+
+$$
+\partial^2_\alpha Q_{ij} = \partial^2_\alpha Q_{ij} + 2(\partial_\alpha \delta) z_{ij} + \alpha (\partial^2_\alpha \delta) z_{ij}
+$$
+
+$$
+\partial^2_\gamma Q_{ij} = \partial^2_\gamma Q_{ij} +  \alpha \Big( \big(\partial^2_\gamma \delta \big)z_{ij} +  \big(\partial_\gamma \delta \big) \big(\partial_\gamma z_{ij}\big) + \big(\partial_\gamma \delta \big) \big(\partial^2_\gamma z_{ij}\big) \Big)
+$$
+
+$$
+\partial^2_\lambda Q_{ij} = \partial^2_\lambda Q_{ij} +  \alpha \Big( \big(\partial^2_\lambda \delta \big)z_{ij} +  \big(\partial_\lambda \delta \big) \big(\partial_\lambda z_{ij}\big) + \big(\partial_\lambda \delta \big) \big(\partial^2_\lambda z_{ij}\big) \Big)
+$$
+
+$$
+\partial_\alpha \partial_\gamma Q_{ij} =  \partial_\alpha \partial_\gamma Q_{ij} + (\partial_\gamma \delta) z_{ij} + \delta \big(\partial_\gamma z_{ij} \big) + \alpha(\partial_\alpha \delta)\big(\partial_\gamma z_{ij} \big) + \alpha(\partial_\alpha \partial_\gamma \delta) z_{ij}
+$$
+
+$$
+\partial_\alpha \partial_\lambda Q_{ij} = \partial_\alpha \partial_\lambda Q_{ij} + (\partial_\lambda \delta) z_{ij} + \delta \big(\partial_\lambda z_{ij} \big) + \alpha(\partial_\alpha \delta)\big(\partial_\lambda z_{ij} \big) + \alpha(\partial_\alpha \partial_\lambda \delta) z_{ij}
+$$
+
+$$
+\partial_\gamma \partial_\lambda Q_{ij} = \partial_\gamma \partial_\lambda Q_{ij} + \alpha \Big[ \big( \partial_\lambda \partial_\gamma \delta \big) z_{ij} + \big( \partial_\gamma \delta \big)\big(\partial_\lambda z_{ij} \big) + \big(\partial_\lambda \delta \big)\big(\partial_\gamma z_{ij} \big) + \delta \big(\partial_\lambda \partial_\gamma z_{ij} \big) \Big]
+$$
+
+_Trace Decay_
+
+$$
+\partial^2_\gamma z = \lambda \Big( 2\big(\partial_\gamma z\big) + \gamma \big(\partial^2_\gamma z \big) \Big)
+$$
+
+$$
+\partial^2_\lambda z = \gamma \Big( 2\big(\partial_\lambda z\big) + \lambda \big(\partial^2_\lambda z \big) \Big)
+$$
+
+$$
+\partial_\gamma \partial_\lambda z = z  + \gamma \big( \partial_\gamma z \big) + \lambda \big( \partial_\lambda z \big) + \lambda \gamma \big( \partial_\gamma \partial_\lambda z \big)
+$$
+
+Arguments:
+
+- **action**: `ndarray(nactions)`. One-hot action vector
+- **state**: `ndarray(nstates)`. One-hot state vector
+
+---
+
+
+
+
 ### SARSASoftmaxAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -1831,7 +2522,7 @@ Arguments:
 ### SARSAStickySoftmaxAgent.generate_data
 
 ```python
-fitr.agents.agents.generate_data(self, ntrials)
+fitr.agents.agents.generate_data(self, ntrials, state_only=False)
 ```
 
 For the parent agent, this function generates data from a Markov Decision Process (MDP) task
@@ -1839,6 +2530,7 @@ For the parent agent, this function generates data from a Markov Decision Proces
 Arguments:
 
 - **ntrials**: `int` number of trials
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 Returns:
 
@@ -1855,7 +2547,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -1875,15 +2567,14 @@ Arguments:
 ### SARSAStickySoftmaxAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -1957,7 +2648,7 @@ Arguments:
 ### QLearningSoftmaxAgent.generate_data
 
 ```python
-fitr.agents.agents.generate_data(self, ntrials)
+fitr.agents.agents.generate_data(self, ntrials, state_only=False)
 ```
 
 For the parent agent, this function generates data from a Markov Decision Process (MDP) task
@@ -1965,6 +2656,7 @@ For the parent agent, this function generates data from a Markov Decision Proces
 Arguments:
 
 - **ntrials**: `int` number of trials
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 Returns:
 
@@ -1981,7 +2673,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -2001,15 +2693,14 @@ Arguments:
 ### QLearningSoftmaxAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -2101,7 +2792,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -2121,20 +2812,70 @@ Arguments:
 ### RWSoftmaxAgent.log_prob
 
 ```python
-fitr.agents.agents.log_prob(self, state)
+fitr.agents.agents.log_prob(self, state, action)
 ```
 
-Computes the log-likelihood over actions for a given state under the present agent parameters.
+Computes the log-probability of an action taken by the agent in a given state, as well as updates all partial derivatives with respect to the parameters.
 
-Presently this only works for the state-action value function. In all other cases, you should define your own log-likelihood function. However, this can be used as a template.
+This function overrides the `log_prob` method of the parent class.
+
+Let
+
+- $n_u \in \mathbb N_+$ be the dimensionality of the action space
+- $n_x \in \mathbb N_+$ be the dimensionality of the state space
+- $\mathbf u = (u_0, u_1, u_{n_u})^\top$ be a one-hot action vector
+- $\mathbf x = (x_0, x_1, x_{n_x})^\top$ be a one-hot action vector
+- $\mathbf Q \in \mathbb R^{n_u \times n_x}$ be the state-action value function parameters
+- $\beta \in \mathbb R$ be the inverse softmax temperature
+- $\alpha \in [0, 1]$ be the learning rate
+- $\varsigma(\boldsymbol\pi) = p(\mathbf u | \mathbf Q, \beta)$ be a softmax function with logits $\pi_i = \beta Q_{ij} x^j$ (shown in Einstein summation convention).
+- $\mathcal L = \log p(\mathbf u | \mathbf Q, \beta)$ be the log-likelihood function for trial $t$
+- $q_i = Q_{ij} x^j$ be the value of the state $x^j$
+- $v^i = e^{\beta q_i}$ be the softmax potential
+- $\eta(\boldsymbol\pi)$ be the softmax partition function.
+
+Then we have the partial derivative of $\mathcal L$ at trial $t$ with respect to $\alpha$
+
+$$
+\partial_{\alpha} \mathcal L = \beta \Big[ \big(\mathbf u - \varsigma(\pi)\big)_i (\partial_{\alpha} Q)^i_j x^j \Big],
+$$
+
+and with respect to $\beta$
+
+$$
+\partial_{\beta} \mathcal L = u_i \Big(\mathbf I_{n_u \times n_u} - \varsigma(\boldsymbol\pi)\Big)^i_j Q_{jk} x^k.
+$$
+
+We also compute the Hessian $\mathbf H$, defined as
+
+$$
+\mathbf H = \left[
+\begin{array}{cc}
+\partial^2_{\alpha} \mathcal L & \partial_{\alpha} \partial_{\beta} \mathcal L \\
+\partial_{\beta} \partial_{\alpha} \mathcal L & \partial^2_{\beta} \mathcal L \\
+\end{array}\right].
+$$
+
+The components of $\mathbf H$ are
+
+$$
+\partial^2_{\alpha} \mathcal L = \beta \Big( (\mathbf u - \varsigma(\boldsymbol\pi))_i (\partial^2_\alpha \mathbf Q)^i - \partial_{\alpha} \varsigma(\boldsymbol\pi)_i (\partial_{\alpha} \mathbf Q)^i \Big)_j x^j,
+$$
+
+$$
+\partial^2_{\beta} \mathcal L = u_i \Big( \Big),
+$$
+
+$$
+\partial_{\alpha} \partial_{\beta} \mathcal L = \Bigg[ (u - \varsigma(\boldsymbol\pi)) - \beta \partial_{\beta} \varsigma(\boldsymbol\pi) \Bigg]_i (\partial_{\alpha} Q)^i_k x^k.
+$$
+
+and where $\partial_{\beta} \partial_{\alpha} \mathcal L = \partial_{\alpha} \partial_{\beta} \mathcal L$ since the second derivatives of $\mathcal L$ are continuous in the neighbourhood of the parameters.
 
 Arguments:
 
-- **state**: `ndarray((nstates,))` one-hot state vector
-
-Returns:
-
-`ndarray((nactions,))` log-likelihood vector
+- **action**: `ndarray(nactions)`. One-hot action vector
+- **state**: `ndarray(nstates)`. One-hot state vector
 
 ---
 
@@ -2144,15 +2885,14 @@ Returns:
 ### RWSoftmaxAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -2245,7 +2985,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -2265,20 +3005,87 @@ Arguments:
 ### RWStickySoftmaxAgent.log_prob
 
 ```python
-fitr.agents.agents.log_prob(self, state)
+fitr.agents.agents.log_prob(self, state, action)
 ```
 
-Computes the log-likelihood over actions for a given state under the present agent parameters.
+Computes the log-probability of an action taken by the agent in a given state, as well as updates all partial derivatives with respect to the parameters.
 
-Presently this only works for the state-action value function. In all other cases, you should define your own log-likelihood function. However, this can be used as a template.
+This function overrides the `log_prob` method of the parent class.
+
+Let
+
+- $n_u \in \mathbb N_+$ be the dimensionality of the action space
+- $n_x \in \mathbb N_+$ be the dimensionality of the state space
+- $\mathbf u = (u_0, u_1, u_{n_u})^\top$ be a one-hot action vector
+- $\tilde{\mathbf u}$ be a one-hot vector representing the last trial's action, where at trial 0, $\tilde{\mathbf u} = \mathbf 0$.
+- $\mathbf x = (x_0, x_1, x_{n_x})^\top$ be a one-hot action vector
+- $\mathbf Q \in \mathbb R^{n_u \times n_x}$ be the state-action value function parameters
+- $\beta \in \mathbb R$ be the inverse softmax temperature scaling the action values
+- $\rho \in \mathbb R$ be the inverse softmax temperature scaling the influence of the past trial's action
+- $\alpha \in [0, 1]$ be the learning rate
+- $\varsigma(\boldsymbol\pi) = p(\mathbf u | \mathbf Q, \beta, \rho)$ be a softmax function with logits $\pi_i = \beta Q_{ij} x^j + \rho \tilde{u}_i$ (shown in Einstein summation convention).
+- $\mathcal L = \log p(\mathbf u | \mathbf Q, \beta, \rho)$ be the log-likelihood function for trial $t$
+- $q_i = Q_{ij} x^j$ be the value of the state $x^j$
+- $v^i = e^{\beta q_i + \rho \tilde{u}_i}$ be the softmax potential
+- $\eta(\boldsymbol\pi)$ be the softmax partition function.
+
+Then we have the partial derivative of $\mathcal L$ at trial $t$ with respect to $\alpha$
+
+$$
+\partial_{\alpha} \mathcal L = \beta \Big[ \big(\mathbf u - \varsigma(\pi)\big)_i (\partial_{\alpha} Q)^i_j x^j \Big],
+$$
+
+and with respect to $\beta$
+
+$$
+\partial_{\beta} \mathcal L = u_i \Big(\mathbf I_{n_u \times n_u} - \varsigma(\boldsymbol\pi)\Big)^i_j Q_{jk} x^k
+$$
+
+and with respect to $\rho$
+
+$$
+\partial_{\rho} \mathcal L = u_i \Big(\mathbf I_{n_u \times n_u} - \varsigma(\boldsymbol\pi)\Big)^i_j \tilde{u}^j.
+$$
+
+We also compute the Hessian $\mathbf H$, defined as
+
+$$
+\mathbf H = \left[
+\begin{array}{ccc}
+\partial^2_{\alpha} \mathcal L & \partial_{\alpha} \partial_{\beta} \mathcal L & \partial_{\alpha} \partial_{\rho} \mathcal L \\
+\partial_{\beta} \partial_{\alpha} \mathcal L & \partial^2_{\beta} \mathcal L & \partial_{\beta} \partial_{\rho} \mathcal L \\
+\partial_{\rho} \partial_{\alpha} \mathcal L & \partial_{\rho} \partial_{\beta} \mathcal L & \partial^2_{\rho} \mathcal L \\
+\end{array}\right].
+$$
+
+The components of $\mathbf H$ are virtually identical to that of `RWSoftmaxAgent`, with the exception of the $\partial_{\rho} \partial_{\alpha} \mathcal L$ and $\partial_{\beta} \partial_{\rho} \mathcal L$
+
+$$
+\partial^2_{\alpha} \mathcal L = \beta \Big( (\mathbf u - \varsigma(\boldsymbol\pi))_i (\partial^2_{\alpha} \mathbf Q)^i - \partial_{\alpha} \varsigma(\boldsymbol\pi)_i (\partial_{\alpha} \mathbf Q)^i \Big)_j x^j,
+$$
+
+$$
+\partial^2_{\beta} \mathcal L = u_k \Bigg(\frac{(q_i q_i v^i v^i}{z^2} - \frac{q_i q_i v^i}{z} \Bigg)^k
+$$
+
+$$
+\partial_{\alpha} \partial_{\beta} \mathcal L = \Bigg[ (u - \varsigma(\boldsymbol\pi)) - \beta \partial_{\beta} \varsigma(\boldsymbol\pi) \Bigg]_i (\partial_{\alpha} Q)^i_k x^k
+$$
+
+$$
+\partial_{\alpha} \partial_{\rho} \mathcal L = - \beta \Big( \partial_{\boldsymbol\pi} \varsigma(\boldsymbol\pi)_i \tilde{u}^i \Big)_j (\partial_{\alpha} Q)^j_k x^k
+$$
+
+and where $\mathbf H$ is symmetric since the second derivatives of $\mathcal L$ are continuous in the neighbourhood of the parameters.
 
 Arguments:
 
-- **state**: `ndarray((nstates,))` one-hot state vector
+- **action**: `ndarray(nactions)`. One-hot action vector
+- **state**: `ndarray(nstates)`. One-hot state vector
 
 Returns:
 
-`ndarray((nactions,))` log-likelihood vector
+`float`
 
 ---
 
@@ -2288,15 +3095,14 @@ Returns:
 ### RWStickySoftmaxAgent.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 
@@ -2389,7 +3195,7 @@ Returns:
 fitr.agents.agents.learning(self, state, action, reward, next_state, next_action)
 ```
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and environment.
 
@@ -2432,15 +3238,14 @@ Returns:
 ### RWSoftmaxAgentRewardSensitivity.reset_trace
 
 ```python
-fitr.agents.agents.reset_trace(self, x, u=None)
+fitr.agents.agents.reset_trace(self, state_only=False)
 ```
 
 For agents with eligibility traces, this resets the eligibility trace (for episodic tasks)
 
 Arguments:
 
-- **x**: `ndarray((nstates,))` one-hot state vector
-- **u**: `ndarray((nactions,))` one-hot action vector (optional)
+- **state_only**: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
 
 ---
 

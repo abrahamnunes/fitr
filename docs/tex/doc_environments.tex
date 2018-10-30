@@ -6,7 +6,7 @@ Functions to synthesize data from behavioural tasks.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.Graph()}
+\NormalTok{fitr.environments.graph.Graph()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -94,7 +94,7 @@ starting state distribution \(p(\mathbf x)\) and reward function
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -106,7 +106,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -128,7 +128,7 @@ trial of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -140,7 +140,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -152,7 +152,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -165,7 +165,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -177,7 +177,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -189,7 +189,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -219,7 +219,7 @@ Examples:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -234,7 +234,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -246,7 +246,7 @@ Plots the directed graph of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -259,7 +259,7 @@ decomposition.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -286,11 +286,34 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{Graph.set\_seed}\label{graph.set_seed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{Graph.step}\label{graph.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -318,7 +341,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.TwoArmedBandit()}
+\NormalTok{fitr.environments.twoarmedbandit.TwoArmedBandit()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -330,7 +353,7 @@ A simple 2-armed bandit task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -342,7 +365,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -364,7 +387,7 @@ trial of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -376,7 +399,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -388,7 +411,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -401,7 +424,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -413,7 +436,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -425,7 +448,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -455,7 +478,7 @@ Examples:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -470,7 +493,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -482,7 +505,7 @@ Plots the directed graph of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -495,7 +518,7 @@ decomposition.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -522,11 +545,34 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{TwoArmedBandit.set\_seed}\label{twoarmedbandit.set_seed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{TwoArmedBandit.step}\label{twoarmedbandit.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -554,7 +600,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.OrthogonalGoNoGo()}
+\NormalTok{fitr.environments.orthogonal_gonogo.OrthogonalGoNoGo()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -566,7 +612,7 @@ The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -578,7 +624,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -600,7 +646,7 @@ trial of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -612,7 +658,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -624,7 +670,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -637,7 +683,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -649,7 +695,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -661,7 +707,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -691,7 +737,7 @@ Examples:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -706,7 +752,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -718,7 +764,7 @@ Plots the directed graph of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -731,7 +777,7 @@ decomposition.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -758,11 +804,34 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{OrthogonalGoNoGo.set\_seed}\label{orthogonalgonogo.set_seed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{OrthogonalGoNoGo.step}\label{orthogonalgonogo.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -786,11 +855,11 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsection{TwoStep}\label{twostep}
+\subsection{DawTwoStep}\label{dawtwostep}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.TwoStep()}
+\NormalTok{fitr.environments.dawtwostep.DawTwoStep()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -810,11 +879,11 @@ Arguments:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.adjacency\_matrix\_decomposition}\label{twostep.adjacency_matrix_decomposition}
+\subsubsection{DawTwoStep.adjacency\_matrix\_decomposition}\label{dawtwostep.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -822,21 +891,21 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.f\_reward}\label{twostep.f_reward}
+\subsubsection{DawTwoStep.f\_reward}\label{dawtwostep.f_reward}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
+\NormalTok{fitr.environments.dawtwostep.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.get\_graph\_depth}\label{twostep.get_graph_depth}
+\subsubsection{DawTwoStep.get\_graph\_depth}\label{dawtwostep.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -854,11 +923,11 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.laplacian\_matrix\_decomposition}\label{twostep.laplacian_matrix_decomposition}
+\subsubsection{DawTwoStep.laplacian\_matrix\_decomposition}\label{dawtwostep.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -866,11 +935,11 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.make\_action\_labels}\label{twostep.make_action_labels}
+\subsubsection{DawTwoStep.make\_action\_labels}\label{dawtwostep.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -878,11 +947,11 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.make\_digraph}\label{twostep.make_digraph}
+\subsubsection{DawTwoStep.make\_digraph}\label{dawtwostep.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -891,11 +960,11 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.make\_state\_labels}\label{twostep.make_state_labels}
+\subsubsection{DawTwoStep.make\_state\_labels}\label{dawtwostep.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -903,11 +972,11 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.make\_undirected\_graph}\label{twostep.make_undirected_graph}
+\subsubsection{DawTwoStep.make\_undirected\_graph}\label{dawtwostep.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -915,11 +984,11 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.observation}\label{twostep.observation}
+\subsubsection{DawTwoStep.observation}\label{dawtwostep.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -945,11 +1014,11 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.plot\_action\_outcome\_probabilities}\label{twostep.plot_action_outcome_probabilities}
+\subsubsection{DawTwoStep.plot\_action\_outcome\_probabilities}\label{dawtwostep.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -960,11 +1029,11 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.plot\_graph}\label{twostep.plot_graph}
+\subsubsection{DawTwoStep.plot\_graph}\label{dawtwostep.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -972,21 +1041,21 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.plot\_reward\_paths}\label{twostep.plot_reward_paths}
+\subsubsection{DawTwoStep.plot\_reward\_paths}\label{dawtwostep.plot_reward_paths}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_reward_paths(}\VariableTok{self}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.environments.dawtwostep.plot_reward_paths(}\VariableTok{self}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.plot\_spectral\_properties}\label{twostep.plot_spectral_properties}
+\subsubsection{DawTwoStep.plot\_spectral\_properties}\label{dawtwostep.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -995,11 +1064,11 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.random\_action}\label{twostep.random_action}
+\subsubsection{DawTwoStep.random\_action}\label{dawtwostep.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1026,11 +1095,34 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{TwoStep.step}\label{twostep.step}
+\subsubsection{DawTwoStep.set\_seed}\label{dawtwostep.set_seed}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{DawTwoStep.step}\label{dawtwostep.step}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1054,11 +1146,11 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsection{ReverseTwoStep}\label{reversetwostep}
+\subsection{KoolTwoStep}\label{kooltwostep}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.ReverseTwoStep()}
+\NormalTok{fitr.environments.kooltwostep.KoolTwoStep()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1066,11 +1158,11 @@ From Kool \& Gershman 2016.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.adjacency\_matrix\_decomposition}\label{reversetwostep.adjacency_matrix_decomposition}
+\subsubsection{KoolTwoStep.adjacency\_matrix\_decomposition}\label{kooltwostep.adjacency_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1078,21 +1170,21 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.f\_reward}\label{reversetwostep.f_reward}
+\subsubsection{KoolTwoStep.f\_reward}\label{kooltwostep.f_reward}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
+\NormalTok{fitr.environments.kooltwostep.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.get\_graph\_depth}\label{reversetwostep.get_graph_depth}
+\subsubsection{KoolTwoStep.get\_graph\_depth}\label{kooltwostep.get_graph_depth}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1110,11 +1202,11 @@ trial of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.laplacian\_matrix\_decomposition}\label{reversetwostep.laplacian_matrix_decomposition}
+\subsubsection{KoolTwoStep.laplacian\_matrix\_decomposition}\label{kooltwostep.laplacian_matrix_decomposition}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1122,11 +1214,11 @@ Singular value decomposition of the graph Laplacian
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.make\_action\_labels}\label{reversetwostep.make_action_labels}
+\subsubsection{KoolTwoStep.make\_action\_labels}\label{kooltwostep.make_action_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1134,11 +1226,11 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.make\_digraph}\label{reversetwostep.make_digraph}
+\subsubsection{KoolTwoStep.make\_digraph}\label{kooltwostep.make_digraph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1147,11 +1239,11 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.make\_state\_labels}\label{reversetwostep.make_state_labels}
+\subsubsection{KoolTwoStep.make\_state\_labels}\label{kooltwostep.make_state_labels}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1159,11 +1251,11 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.make\_undirected\_graph}\label{reversetwostep.make_undirected_graph}
+\subsubsection{KoolTwoStep.make\_undirected\_graph}\label{kooltwostep.make_undirected_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1171,11 +1263,11 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.observation}\label{reversetwostep.observation}
+\subsubsection{KoolTwoStep.observation}\label{kooltwostep.observation}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1201,11 +1293,11 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.plot\_action\_outcome\_probabilities}\label{reversetwostep.plot_action_outcome_probabilities}
+\subsubsection{KoolTwoStep.plot\_action\_outcome\_probabilities}\label{kooltwostep.plot_action_outcome_probabilities}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1216,11 +1308,11 @@ probabilities for each action-outcome pair within that state.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.plot\_graph}\label{reversetwostep.plot_graph}
+\subsubsection{KoolTwoStep.plot\_graph}\label{kooltwostep.plot_graph}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1228,11 +1320,11 @@ Plots the directed graph of the task
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.plot\_spectral\_properties}\label{reversetwostep.plot_spectral_properties}
+\subsubsection{KoolTwoStep.plot\_spectral\_properties}\label{kooltwostep.plot_spectral_properties}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1241,11 +1333,11 @@ decomposition.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.random\_action}\label{reversetwostep.random_action}
+\subsubsection{KoolTwoStep.random\_action}\label{kooltwostep.random_action}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1272,11 +1364,552 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\subsubsection{ReverseTwoStep.step}\label{reversetwostep.step}
+\subsubsection{KoolTwoStep.set\_seed}\label{kooltwostep.set_seed}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{KoolTwoStep.step}\label{kooltwostep.step}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{MouthTask}\label{mouthtask}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.mouthtask.MouthTask()}
+\end{Highlighting}
+\end{Shaded}
+
+The Pizzagalli reward sensitivity signal-detection task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.adjacency\_matrix\_decomposition}\label{mouthtask.adjacency_matrix_decomposition}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.get\_graph\_depth}\label{mouthtask.get_graph_depth}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.laplacian\_matrix\_decomposition}\label{mouthtask.laplacian_matrix_decomposition}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.make\_action\_labels}\label{mouthtask.make_action_labels}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.make\_digraph}\label{mouthtask.make_digraph}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.make\_state\_labels}\label{mouthtask.make_state_labels}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.make\_undirected\_graph}\label{mouthtask.make_undirected_graph}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.observation}\label{mouthtask.observation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.plot\_action\_outcome\_probabilities}\label{mouthtask.plot_action_outcome_probabilities}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.plot\_graph}\label{mouthtask.plot_graph}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.plot\_spectral\_properties}\label{mouthtask.plot_spectral_properties}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.random\_action}\label{mouthtask.random_action}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.set\_seed}\label{mouthtask.set_seed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{MouthTask.step}\label{mouthtask.step}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Executes a state transition in the environment.
+
+Arguments:
+
+action : A one-hot vector of type \texttt{ndarray((naction,))}
+indicating the action selected at the current state.
+
+Returns:
+
+A 3-tuple representing the next state (\texttt{ndarray((noutcomes,))}),
+scalar reward, and whether the current step terminates a trial
+(\texttt{bool}).
+
+Raises:
+
+\texttt{RuntimeError} if \texttt{env.observation()} not called after a
+previous \texttt{env.step(...)} call yielded a terminal state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{IGT}\label{igt}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.igt.IGT()}
+\end{Highlighting}
+\end{Shaded}
+
+Iowa Gambling Task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.adjacency\_matrix\_decomposition}\label{igt.adjacency_matrix_decomposition}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph adjacency matrix
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.get\_graph\_depth}\label{igt.get_graph_depth}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Returns the depth of the task graph.
+
+Calculated as the depth from \texttt{START} (pre-initial state) to
+\texttt{END} (which absorbs trial from all terminal states), minus 2 to
+account for the \texttt{START-\textgreater{}node} \&
+\texttt{node-\textgreater{}END} transitions.
+
+Returns:
+
+An \texttt{int} identifying the depth of the current graph for a single
+trial of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.laplacian\_matrix\_decomposition}\label{igt.laplacian_matrix_decomposition}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Singular value decomposition of the graph Laplacian
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.make\_action\_labels}\label{igt.make_action_labels}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the actions (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.make\_digraph}\label{igt.make_digraph}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a \texttt{networkx} \texttt{DiGraph} object from the transition
+tensor for the purpose of plotting and some other analyses.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.make\_state\_labels}\label{igt.make_state_labels}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates labels for the states (for plotting) if none provided
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.make\_undirected\_graph}\label{igt.make_undirected_graph}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Converts the DiGraph to undirected and computes some stats
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.observation}\label{igt.observation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples an initial state from the start-state distribution
+\(p(\mathbf x)\)
+
+\[
+\mathbf x_0 \sim p(\mathbf x)
+\]
+
+Returns:
+
+A one-hot vector \texttt{ndarray((nstates,))} indicating the starting
+state.
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OperatorTok{=}\NormalTok{ env.observation()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.plot\_action\_outcome\_probabilities}\label{igt.plot_action_outcome_probabilities}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the probabilities of different outcomes given actions.
+
+Each plot is a heatmap for a starting state showing the transition
+probabilities for each action-outcome pair within that state.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.plot\_graph}\label{igt.plot_graph}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plots the directed graph of the task
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.plot\_spectral\_properties}\label{igt.plot_spectral_properties}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a set of subplots depicting the graph Laplacian and its spectral
+decomposition.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.random\_action}\label{igt.random_action}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Samples a random one-hot action vector uniformly over the action space.
+
+Useful for testing that your environment works, without having to create
+an agent.
+
+\[
+\mathbf u \sim \mathrm{Multinomial}\Big(1, \mathbf p=\{p_i = \frac{1}{|\mathcal U|}\}_{i=1}^{|\mathcal U|}\Big)
+\]
+
+Returns:
+
+A one-hot action vector of type \texttt{ndarray((nactions,))}
+
+Examples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{u }\OperatorTok{=}\NormalTok{ env.random_action()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.set\_seed}\label{igt.set_seed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{IGT.step}\label{igt.step}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1304,7 +1937,7 @@ previous \texttt{env.step(...)} call yielded a terminal state.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.RandomContextualBandit()}
+\NormalTok{fitr.environments.randombandit.RandomContextualBandit()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1351,7 +1984,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.adjacency_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1363,7 +1996,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
+\NormalTok{fitr.environments.randombandit.f_reward(}\VariableTok{self}\NormalTok{, R, x)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1373,7 +2006,7 @@ Singular value decomposition of the graph adjacency matrix
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.get_graph_depth(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.get_graph_depth(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1395,7 +2028,7 @@ trial of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.laplacian_matrix_decomposition(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1407,7 +2040,7 @@ Singular value decomposition of the graph Laplacian
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_action_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_action_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1419,7 +2052,7 @@ Creates labels for the actions (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_digraph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_digraph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1432,7 +2065,7 @@ tensor for the purpose of plotting and some other analyses.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_state_labels(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_state_labels(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1444,7 +2077,7 @@ Creates labels for the states (for plotting) if none provided
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.make_undirected_graph(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1456,7 +2089,7 @@ Converts the DiGraph to undirected and computes some stats
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.observation(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.observation(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1486,7 +2119,7 @@ Examples:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_action_outcome_probabilities(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'Greys_r'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1501,7 +2134,7 @@ probabilities for each action-outcome pair within that state.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_graph(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, node_size}\OperatorTok{=}\DecValTok{2000}\NormalTok{, arrowsize}\OperatorTok{=}\DecValTok{20}\NormalTok{, lw}\OperatorTok{=}\FloatTok{1.5}\NormalTok{, font_size}\OperatorTok{=}\DecValTok{12}\NormalTok{, title}\OperatorTok{=}\VariableTok{False}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1513,7 +2146,7 @@ Plots the directed graph of the task
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
+\NormalTok{fitr.environments.graph.plot_spectral_properties(}\VariableTok{self}\NormalTok{, figsize}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfile}\OperatorTok{=}\VariableTok{None}\NormalTok{, outfiletype}\OperatorTok{=}\StringTok{'pdf'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1526,7 +2159,7 @@ decomposition.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.random_action(}\VariableTok{self}\NormalTok{)}
+\NormalTok{fitr.environments.graph.random_action(}\VariableTok{self}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1553,11 +2186,34 @@ Examples:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{RandomContextualBandit.set\_seed}\label{randomcontextualbandit.set_seed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.environments.graph.set_seed(}\VariableTok{self}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Allows user to specify a seed for the pseudorandom number generator.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{seed}: \texttt{int}. Seed value. Default is \texttt{None},
+  which results in a default random state object. If user enters a
+  non-integer value, the default random state object will still be used
+  and no error will be thrown!
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{RandomContextualBandit.step}\label{randomcontextualbandit.step}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.environments.step(}\VariableTok{self}\NormalTok{, action)}
+\NormalTok{fitr.environments.graph.step(}\VariableTok{self}\NormalTok{, action)}
 \end{Highlighting}
 \end{Shaded}
 

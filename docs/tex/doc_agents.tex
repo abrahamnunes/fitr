@@ -76,7 +76,8 @@ Computes the softmax
 \end{Highlighting}
 \end{Shaded}
 
-Computes the log-probability of an action \(\mathbf u\)
+Computes the log-probability of an action \(\mathbf u\), in addition to
+computing derivatives up to second order
 
 \[
 \log p(\mathbf u|\mathbf v) = \beta \mathbf v - \log \sum_{v_i} e^{\beta \mathbf v_i}
@@ -168,12 +169,12 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+  \textbf{x}: \texttt{ndarray((nactions,))} action value vector
 \end{itemize}
 
 Returns:
 
-\texttt{ndarray((nstates,))} vector of action probabilities
+\texttt{ndarray((nactions,))} vector of action probabilities
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -196,7 +197,7 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: State vector of type \texttt{ndarray((nstates,))}
+  \textbf{x}: State vector of type \texttt{ndarray((nactions,))}
 \end{itemize}
 
 Returns:
@@ -220,12 +221,12 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+  \textbf{x}: \texttt{ndarray((nactions,))} action value vector
 \end{itemize}
 
 Returns:
 
-\texttt{ndarray((nstates,))} one-hot action vector
+\texttt{ndarray((nactions,))} one-hot action vector
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -326,7 +327,15 @@ attributes:
   \texttt{Q}: State-action value function
   \(\mathbf Q = \mathcal Q(\mathbf x, \mathbf u)\)
 \item
+  \texttt{rpe}: Reward prediction error history
+\item
   \texttt{etrace}: An eligibility trace (optional)
+\item
+  \texttt{dV}: A dictionary storing gradients with respect to parameters
+  (named keys)
+\item
+  \texttt{dQ}: A dictionary storing gradients with respect to parameters
+  (named keys)
 \end{itemize}
 
 Note that in general we rely on matrix-vector notation for value
@@ -453,6 +462,113 @@ Arguments:
 Returns:
 
 Scalar value of state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{ValueFunction.grad\_Qx}\label{valuefunction.grad_qx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute gradient of action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{ValueFunction.grad\_Vx}\label{valuefunction.grad_vx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute the gradient of state value function with respect to parameters
+\(\mathbf v\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{ValueFunction.grad\_uQx}\label{valuefunction.grad_uqx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute derivative of value of taking action \(\mathbf u\) in state
+\(\mathbf x\) with respect to value function parameters \(\mathbf Q\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+\]
+
+where the derivative is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -651,6 +767,113 @@ Arguments:
 Returns:
 
 Scalar value of state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{DummyLearner.grad\_Qx}\label{dummylearner.grad_qx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute gradient of action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{DummyLearner.grad\_Vx}\label{dummylearner.grad_vx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute the gradient of state value function with respect to parameters
+\(\mathbf v\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{DummyLearner.grad\_uQx}\label{dummylearner.grad_uqx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute derivative of value of taking action \(\mathbf u\) in state
+\(\mathbf x\) with respect to value function parameters \(\mathbf Q\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+\]
+
+where the derivative is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -864,6 +1087,113 @@ Scalar value of state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{InstrumentalRescorlaWagnerLearner.grad\_Qx}\label{instrumentalrescorlawagnerlearner.grad_qx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute gradient of action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{InstrumentalRescorlaWagnerLearner.grad\_Vx}\label{instrumentalrescorlawagnerlearner.grad_vx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute the gradient of state value function with respect to parameters
+\(\mathbf v\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{InstrumentalRescorlaWagnerLearner.grad\_uQx}\label{instrumentalrescorlawagnerlearner.grad_uqx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute derivative of value of taking action \(\mathbf u\) in state
+\(\mathbf x\) with respect to value function parameters \(\mathbf Q\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+\]
+
+where the derivative is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{InstrumentalRescorlaWagnerLearner.uQx}\label{instrumentalrescorlawagnerlearner.uqx}
 
 \begin{Shaded}
@@ -902,26 +1232,35 @@ Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 \end{Highlighting}
 \end{Shaded}
 
-Updates the value function
+Computes the value function update of the instrumental Rescorla-Wagner
+learning rule and computes derivative with respect to the learning rate.
 
-In the context of the base \texttt{ValueFunction} class, this is merely
-a placeholder. The specific update rule will depend on the specific
-value function desired.
+This derivative is defined as
+
+\[
+\frac{\partial}{\partial \alpha} \mathcal Q(\mathbf x, \mathbf u; \alpha) = \delta \mathbf u \mathbf x^\top + \frac{\partial}{\partial \alpha} \mathcal Q(\mathbf x, \mathbf u; \alpha) (1-\alpha \mathbf u \mathbf x^\top)
+\]
+
+and the second order derivative with respect to learning rate is
+
+\[
+\frac{\partial}{\partial \alpha} \mathcal Q(\mathbf x, \mathbf u; \alpha) = - 2 \mathbf u \mathbf x^\top \partial_\alpha \mathcal Q(\mathbf x, \mathbf u; \alpha) + \partial^2_\alpha \mathcal Q(\mathbf x, \mathbf u; \alpha) (1 - \alpha \mathbf u \mathbf x^\top)
+\]
 
 Arguments:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+  \textbf{x}: \texttt{ndarray((nstates,\ ))}. State vector
 \item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+  \textbf{u}: \texttt{ndarray((nactions,\ ))}. Action vector
 \item
-  \textbf{r}: Scalar reward
+  \textbf{r}: \texttt{float}. Reward received
 \item
-  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
+  \textbf{x\_}: \texttt{ndarray((nstates,\ ))}. For compatibility
 \item
-  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
+  \textbf{u\_}: \texttt{ndarray((nactions,\ ))}. For compatibility
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -1080,6 +1419,113 @@ Scalar value of state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{QLearner.grad\_Qx}\label{qlearner.grad_qx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute gradient of action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{QLearner.grad\_Vx}\label{qlearner.grad_vx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute the gradient of state value function with respect to parameters
+\(\mathbf v\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{QLearner.grad\_uQx}\label{qlearner.grad_uqx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute derivative of value of taking action \(\mathbf u\) in state
+\(\mathbf x\) with respect to value function parameters \(\mathbf Q\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+\]
+
+where the derivative is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{QLearner.uQx}\label{qlearner.uqx}
 
 \begin{Shaded}
@@ -1118,27 +1564,8 @@ Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 \end{Highlighting}
 \end{Shaded}
 
-Updates the value function
-
-In the context of the base \texttt{ValueFunction} class, this is merely
-a placeholder. The specific update rule will depend on the specific
-value function desired.
-
-Arguments:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-\item
-  \textbf{r}: Scalar reward
-\item
-  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
-\item
-  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
-\end{itemize}
+Computes value function updates and their derivatives for the Q-learning
+model
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1296,6 +1723,113 @@ Scalar value of state \(\mathbf x\)
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{SARSALearner.grad\_Qx}\label{sarsalearner.grad_qx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Qx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute gradient of action values for a given state
+
+\[
+\mathcal Q(\mathbf x, :) = \mathbf Q \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, :) = \mathbf 1 \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nactions,))} vector of values for actions in the given
+state
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{SARSALearner.grad\_Vx}\label{sarsalearner.grad_vx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_Vx(}\VariableTok{self}\NormalTok{, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute the gradient of state value function with respect to parameters
+\(\mathbf v\)
+
+\[
+\mathcal V(\mathbf x) = \mathbf v^\top \mathbf x,
+\]
+
+where the gradient is defined as
+
+\[
+\nabla_{\mathbf v} \mathcal V(\mathbf x) = \mathbf x
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{SARSALearner.grad\_uQx}\label{sarsalearner.grad_uqx}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.value_functions.grad_uQx(}\VariableTok{self}\NormalTok{, u, x)}
+\end{Highlighting}
+\end{Shaded}
+
+Compute derivative of value of taking action \(\mathbf u\) in state
+\(\mathbf x\) with respect to value function parameters \(\mathbf Q\)
+
+\[
+\mathcal Q(\mathbf x, \mathbf u) = \mathbf u^\top \mathbf Q \mathbf x,
+\]
+
+where the derivative is defined as
+
+\[
+\frac{\partial}{\partial \mathbf Q} \mathcal Q(\mathbf x, \mathbf u) = \mathbf u \mathbf x^\top,
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
+\item
+  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
+\end{itemize}
+
+Returns:
+
+Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{SARSALearner.uQx}\label{sarsalearner.uqx}
 
 \begin{Shaded}
@@ -1334,27 +1868,8 @@ Scalar value of action \(\mathbf u\) in state \(\mathbf x\)
 \end{Highlighting}
 \end{Shaded}
 
-Updates the value function
-
-In the context of the base \texttt{ValueFunction} class, this is merely
-a placeholder. The specific update rule will depend on the specific
-value function desired.
-
-Arguments:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-\item
-  \textbf{r}: Scalar reward
-\item
-  \textbf{x\_}: \texttt{ndarray((nstates,))} one-hot next-state vector
-\item
-  \textbf{u\_}: \texttt{ndarray((nactions,))} one-hot next-action vector
-\end{itemize}
+Computes value function updates and their derivatives for the SARSA
+model
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -1407,7 +1922,7 @@ Arguments:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -1436,7 +1951,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1448,10 +1963,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -1531,7 +2047,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -1589,7 +2105,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1601,10 +2117,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -1658,7 +2175,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1671,6 +2188,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -1687,7 +2210,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -1716,7 +2239,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1728,10 +2251,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -1803,7 +2327,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -1861,7 +2385,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1873,10 +2397,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -1924,7 +2449,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1937,6 +2462,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -1953,7 +2484,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -1982,7 +2513,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1994,10 +2525,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -2086,7 +2618,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2099,6 +2631,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -2115,7 +2653,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -2140,11 +2678,257 @@ Arguments:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsubsection{SARSASoftmaxAgent.log\_prob}\label{sarsasoftmaxagent.log_prob}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state, action)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes the log-probability of the given action and state under the
+model, while also computing first and second order derivatives.
+
+This model has four free parameters:
+
+\begin{itemize}
+\tightlist
+\item
+  Learning rate \(\alpha\)
+\item
+  Inverse softmax temperature \(\beta\)
+\item
+  Discount factor \(\gamma\)
+\item
+  Trace decay \(\lambda\)
+\end{itemize}
+
+\textbf{First-order partial derivatives}
+
+We can break down the computation using the chain rule to reuse
+previously computed derivatives:
+
+\[
+\pd{\cL}{\alpha}  = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\alpha}
+\]
+
+\[
+\pd{\cL}{\beta}   = \pd{\cL}{\logits} \pd{\logits}{\beta}
+\]
+
+\[
+\pd{\cL}{\gamma}  = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\gamma}
+\]
+
+\[
+\pd{\cL}{\lambda} = \pd{\cL}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \pd{\mathbf Q}{\lambda}
+\]
+
+\emph{Action Probabilities}
+
+\[
+\partial_\alpha \varsigma = \pd{\varsigma}{\logits} \pd{\logits}{\mathbf q} \pd{\mathbf q}{\mathbf Q} \big( \partial_\alpha \mathbf Q \big) = \beta \big(\partial_{\logits} \varsigma \big)_i \big( \partial_\alpha Q \big)^i_j x^j
+\]
+
+\emph{Value Function}
+
+\[
+\partial_\alpha Q_{ij} =  \partial_\alpha Q_{ij} + (\delta + \alpha \partial_\alpha \delta) z_{ij}
+\]
+
+\[
+\partial_\gamma Q_{ij} =  \partial_\gamma Q_{ij} + \alpha \big( (\partial_\gamma \delta) z_{ij} + \delta (\partial_\gamma z_{ij}) \big)
+\]
+
+\[
+\partial_\lambda Q_{ij} =  \partial_\lambda Q_{ij} + \alpha \big( (\partial_\lambda \delta) z_{ij} + \delta (\partial_\lambda z_{ij}) \big)
+\]
+
+\emph{Reward Prediction Error}
+
+\[
+\partial_\alpha \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\alpha Q)^{ij}
+\]
+
+\[
+\partial_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma Q)^{ij} + \tilde{u}_i Q^i_j \tilde{x}^j
+\]
+
+\[
+\partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\lambda Q)^{ij}
+\]
+
+\emph{Trace Decay}
+
+\[
+\partial_\gamma z_{ij} = \lambda \big(z_{ij} + \gamma (\partial_\gamma z_{ij}) \big)
+\]
+
+\[
+\partial_\lambda z_{ij} = \gamma \big(z_{ij} + \lambda (\partial_\lambda z_{ij}) \big)
+\]
+
+\emph{Simplified Components of the Gradient Vector}
+
+\[
+\pd{\cL}{\alpha}  = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\alpha Q \big)^i_j x^j   = \beta \big[ u_i (\partial_\alpha Q)^i_j x^j - p(u_i) (\partial_\alpha Q)^i_j x^j \big]
+\]
+
+\[
+\pd{\cL}{\beta}   =  \big[\mathbf u - \varsigma(\logits)\big]_i Q^i_j x^j = u_i Q^i_j x^j - p(u_i) Q^i_j x^j
+\]
+
+\[
+\pd{\cL}{\gamma}  = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\gamma Q \big)^i_j x^j
+\]
+
+\[
+\pd{\cL}{\lambda} = \beta \big[\mathbf u - \varsigma(\logits) \big]_i \big( \partial_\lambda Q \big)^i_j x^j
+\]
+
+\textbf{Second-Order Partial Derivatives}
+
+The Hessian matrix for this model is
+
+\[
+\mathbf H = \left[
+\begin{array}{cccc}
+\pHd{\cL}{\alpha}                  & \pHo{\cL}{\alpha}{\beta}  & \pHo{\cL}{\alpha}{\gamma}  & \pHo{\cL}{\alpha}{\lambda} \\
+\pHo{\cL}{\beta}{\alpha}   & \pHd{\cL}{\beta}              & \pHo{\cL}{\beta}{\gamma}   & \pHo{\cL}{\beta}{\lambda}  \\
+\pHo{\cL}{\gamma}{\alpha}  & \pHo{\cL}{\gamma}{\beta}  & \pHd{\cL}{\gamma}                  & \pHo{\cL}{\gamma}{\lambda} \\
+\pHo{\cL}{\lambda}{\alpha} & \pHo{\cL}{\lambda}{\beta} & \pHo{\cL}{\lambda}{\gamma} & \pHd{\cL}{\lambda}                 \\
+\end{array}\right],
+\]
+
+where the second-order partial derivatives are such that \(\mathbf H\)
+is symmetrical. We must therefore compute 10 second order partial
+derivatives, shown below:
+
+\[
+\pHd{\cL}{\alpha} = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\alpha Q \big)^i - \big( \partial_\alpha \varsigma \big)_j \big( \partial_\alpha Q)^j_k x^k \Big]_l x^l
+\]
+
+\[
+\pHd{\cL}{\beta} = \Big( q_i \varsigma(\logits)^i \Big)^2 - \mathbf q \odot \mathbf q \odot \varsigma(\logits)
+\]
+
+\[
+\pHd{\cL}{\gamma}  = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\gamma Q \big)^i - \big( \partial_\gamma \varsigma \big)_j \big( \partial_\gamma Q)^j_k x^k \Big]_l x^l
+\]
+
+\[
+\pHd{\cL}{\lambda}  = \beta \Big[ (\mathbf u - \varsigma(\logits))_i \big( \partial^2_\lambda Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\lambda Q)^j_k x^k \Big]_l x^l
+\]
+
+The off diagonal elements of the Hessian are as follows:
+
+\[
+\pHo{\cL}{\alpha}{\beta}   = \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\alpha Q \big)^i_j x^j
+\]
+
+\[
+\pHo{\cL}{\beta}{\gamma}   =  \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\gamma Q \big)^i_j x^j
+\]
+
+\[
+\pHo{\cL}{\beta}{\lambda}  =  \bigg(\mathbf u - \varsigma(\logits) - \beta \big(\partial_\beta \varsigma \big) \bigg)_i \big( \partial_\lambda Q \big)^i_j x^j
+\]
+
+\[
+\pHo{\cL}{\alpha}{\gamma}  = \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\alpha \partial_\gamma Q \big)^i - \big( \partial_\gamma \varsigma \big)_j \big( \partial_\alpha Q \big)^j \Big)_k x^k
+\]
+
+\[
+\pHo{\cL}{\alpha}{\lambda} =  \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\alpha \partial_\lambda Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\alpha Q \big)^j \Big)_k x^k
+\]
+
+\[
+\pHo{\cL}{\gamma}{\lambda} =  \beta \Big((\mathbf u - \varsigma(\logits))_i \big(\partial_\lambda \partial_\gamma Q \big)^i - \big( \partial_\lambda \varsigma \big)_j \big( \partial_\gamma Q \big)^j \Big)_k x^k
+\]
+
+\emph{Reward Prediction Error}
+
+\[
+\partial^2_\alpha \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\alpha Q)^{ij}
+\]
+
+\[
+\partial^2_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\gamma Q)^{ij} + 2 \tilde{u}_i \big(\partial_\gamma Q\big)^i_j \tilde{x}^j
+\]
+
+\[
+\partial^2_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial^2_\lambda Q)^{ij}
+\]
+
+\[
+\partial_\alpha \partial_\gamma \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma \partial_\alpha Q)^{ij} + \tilde{u}_i \big(\partial_\alpha Q\big)^i_j \tilde{x}^j
+\]
+
+\[
+\partial_\alpha \partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\alpha \partial_\lambda Q)^{ij}
+\]
+
+\[
+\partial_\gamma \partial_\lambda \delta = (\partial_{\mathbf Q} \delta)_{ij} (\partial_\gamma \partial_\lambda Q)^{ij} + \tilde{u}_i \big(\partial_\lambda Q\big)^i_j \tilde{x}^j
+\]
+
+\emph{Value Function}
+
+\[
+\partial^2_\alpha Q_{ij} = \partial^2_\alpha Q_{ij} + 2(\partial_\alpha \delta) z_{ij} + \alpha (\partial^2_\alpha \delta) z_{ij}
+\]
+
+\[
+\partial^2_\gamma Q_{ij} = \partial^2_\gamma Q_{ij} +  \alpha \Big( \big(\partial^2_\gamma \delta \big)z_{ij} +  \big(\partial_\gamma \delta \big) \big(\partial_\gamma z_{ij}\big) + \big(\partial_\gamma \delta \big) \big(\partial^2_\gamma z_{ij}\big) \Big)
+\]
+
+\[
+\partial^2_\lambda Q_{ij} = \partial^2_\lambda Q_{ij} +  \alpha \Big( \big(\partial^2_\lambda \delta \big)z_{ij} +  \big(\partial_\lambda \delta \big) \big(\partial_\lambda z_{ij}\big) + \big(\partial_\lambda \delta \big) \big(\partial^2_\lambda z_{ij}\big) \Big)
+\]
+
+\[
+\partial_\alpha \partial_\gamma Q_{ij} =  \partial_\alpha \partial_\gamma Q_{ij} + (\partial_\gamma \delta) z_{ij} + \delta \big(\partial_\gamma z_{ij} \big) + \alpha(\partial_\alpha \delta)\big(\partial_\gamma z_{ij} \big) + \alpha(\partial_\alpha \partial_\gamma \delta) z_{ij}
+\]
+
+\[
+\partial_\alpha \partial_\lambda Q_{ij} = \partial_\alpha \partial_\lambda Q_{ij} + (\partial_\lambda \delta) z_{ij} + \delta \big(\partial_\lambda z_{ij} \big) + \alpha(\partial_\alpha \delta)\big(\partial_\lambda z_{ij} \big) + \alpha(\partial_\alpha \partial_\lambda \delta) z_{ij}
+\]
+
+\[
+\partial_\gamma \partial_\lambda Q_{ij} = \partial_\gamma \partial_\lambda Q_{ij} + \alpha \Big[ \big( \partial_\lambda \partial_\gamma \delta \big) z_{ij} + \big( \partial_\gamma \delta \big)\big(\partial_\lambda z_{ij} \big) + \big(\partial_\lambda \delta \big)\big(\partial_\gamma z_{ij} \big) + \delta \big(\partial_\lambda \partial_\gamma z_{ij} \big) \Big]
+\]
+
+\emph{Trace Decay}
+
+\[
+\partial^2_\gamma z = \lambda \Big( 2\big(\partial_\gamma z\big) + \gamma \big(\partial^2_\gamma z \big) \Big)
+\]
+
+\[
+\partial^2_\lambda z = \gamma \Big( 2\big(\partial_\lambda z\big) + \lambda \big(\partial^2_\lambda z \big) \Big)
+\]
+
+\[
+\partial_\gamma \partial_\lambda z = z  + \gamma \big( \partial_\gamma z \big) + \lambda \big( \partial_\lambda z \big) + \lambda \gamma \big( \partial_\gamma \partial_\lambda z \big)
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{action}: \texttt{ndarray(nactions)}. One-hot action vector
+\item
+  \textbf{state}: \texttt{ndarray(nstates)}. One-hot state vector
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsubsection{SARSASoftmaxAgent.reset\_trace}\label{sarsasoftmaxagent.reset_trace}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2156,10 +2940,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -2250,7 +3035,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2263,6 +3048,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -2279,7 +3070,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -2308,7 +3099,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2320,10 +3111,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -2412,7 +3204,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials)}
+\NormalTok{fitr.agents.agents.generate_data(}\VariableTok{self}\NormalTok{, ntrials, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2425,6 +3217,12 @@ Arguments:
 \tightlist
 \item
   \textbf{ntrials}: \texttt{int} number of trials
+\item
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 Returns:
@@ -2441,7 +3239,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -2470,7 +3268,7 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2482,10 +3280,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -2593,7 +3392,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -2622,28 +3421,102 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state)}
+\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state, action)}
 \end{Highlighting}
 \end{Shaded}
 
-Computes the log-likelihood over actions for a given state under the
-present agent parameters.
+Computes the log-probability of an action taken by the agent in a given
+state, as well as updates all partial derivatives with respect to the
+parameters.
 
-Presently this only works for the state-action value function. In all
-other cases, you should define your own log-likelihood function.
-However, this can be used as a template.
+This function overrides the \texttt{log\_prob} method of the parent
+class.
+
+Let
+
+\begin{itemize}
+\tightlist
+\item
+  \(n_u \in \mathbb N_+\) be the dimensionality of the action space
+\item
+  \(n_x \in \mathbb N_+\) be the dimensionality of the state space
+\item
+  \(\mathbf u = (u_0, u_1, u_{n_u})^\top\) be a one-hot action vector
+\item
+  \(\mathbf x = (x_0, x_1, x_{n_x})^\top\) be a one-hot action vector
+\item
+  \(\mathbf Q \in \mathbb R^{n_u \times n_x}\) be the state-action value
+  function parameters
+\item
+  \(\beta \in \mathbb R\) be the inverse softmax temperature
+\item
+  \(\alpha \in [0, 1]\) be the learning rate
+\item
+  \(\varsigma(\boldsymbol\pi) = p(\mathbf u | \mathbf Q, \beta)\) be a
+  softmax function with logits \(\pi_i = \beta Q_{ij} x^j\) (shown in
+  Einstein summation convention).
+\item
+  \(\mathcal L = \log p(\mathbf u | \mathbf Q, \beta)\) be the
+  log-likelihood function for trial \(t\)
+\item
+  \(q_i = Q_{ij} x^j\) be the value of the state \(x^j\)
+\item
+  \(v^i = e^{\beta q_i}\) be the softmax potential
+\item
+  \(\eta(\boldsymbol\pi)\) be the softmax partition function.
+\end{itemize}
+
+Then we have the partial derivative of \(\mathcal L\) at trial \(t\)
+with respect to \(\alpha\)
+
+\[
+\partial_{\alpha} \mathcal L = \beta \Big[ \big(\mathbf u - \varsigma(\pi)\big)_i (\partial_{\alpha} Q)^i_j x^j \Big],
+\]
+
+and with respect to \(\beta\)
+
+\[
+\partial_{\beta} \mathcal L = u_i \Big(\mathbf I_{n_u \times n_u} - \varsigma(\boldsymbol\pi)\Big)^i_j Q_{jk} x^k.
+\]
+
+We also compute the Hessian \(\mathbf H\), defined as
+
+\[
+\mathbf H = \left[
+\begin{array}{cc}
+\partial^2_{\alpha} \mathcal L & \partial_{\alpha} \partial_{\beta} \mathcal L \\
+\partial_{\beta} \partial_{\alpha} \mathcal L & \partial^2_{\beta} \mathcal L \\
+\end{array}\right].
+\]
+
+The components of \(\mathbf H\) are
+
+\[
+\partial^2_{\alpha} \mathcal L = \beta \Big( (\mathbf u - \varsigma(\boldsymbol\pi))_i (\partial^2_\alpha \mathbf Q)^i - \partial_{\alpha} \varsigma(\boldsymbol\pi)_i (\partial_{\alpha} \mathbf Q)^i \Big)_j x^j,
+\]
+
+\[
+\partial^2_{\beta} \mathcal L = u_i \Big( \Big),
+\]
+
+\[
+\partial_{\alpha} \partial_{\beta} \mathcal L = \Bigg[ (u - \varsigma(\boldsymbol\pi)) - \beta \partial_{\beta} \varsigma(\boldsymbol\pi) \Bigg]_i (\partial_{\alpha} Q)^i_k x^k.
+\]
+
+and where
+\(\partial_{\beta} \partial_{\alpha} \mathcal L = \partial_{\alpha} \partial_{\beta} \mathcal L\)
+since the second derivatives of \(\mathcal L\) are continuous in the
+neighbourhood of the parameters.
 
 Arguments:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+  \textbf{action}: \texttt{ndarray(nactions)}. One-hot action vector
+\item
+  \textbf{state}: \texttt{ndarray(nstates)}. One-hot state vector
 \end{itemize}
-
-Returns:
-
-\texttt{ndarray((nactions,))} log-likelihood vector
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -2651,7 +3524,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2663,10 +3536,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -2776,7 +3650,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -2805,28 +3679,126 @@ Arguments:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state)}
+\NormalTok{fitr.agents.agents.log_prob(}\VariableTok{self}\NormalTok{, state, action)}
 \end{Highlighting}
 \end{Shaded}
 
-Computes the log-likelihood over actions for a given state under the
-present agent parameters.
+Computes the log-probability of an action taken by the agent in a given
+state, as well as updates all partial derivatives with respect to the
+parameters.
 
-Presently this only works for the state-action value function. In all
-other cases, you should define your own log-likelihood function.
-However, this can be used as a template.
+This function overrides the \texttt{log\_prob} method of the parent
+class.
+
+Let
+
+\begin{itemize}
+\tightlist
+\item
+  \(n_u \in \mathbb N_+\) be the dimensionality of the action space
+\item
+  \(n_x \in \mathbb N_+\) be the dimensionality of the state space
+\item
+  \(\mathbf u = (u_0, u_1, u_{n_u})^\top\) be a one-hot action vector
+\item
+  \(\tilde{\mathbf u}\) be a one-hot vector representing the last
+  trial's action, where at trial 0, \(\tilde{\mathbf u} = \mathbf 0\).
+\item
+  \(\mathbf x = (x_0, x_1, x_{n_x})^\top\) be a one-hot action vector
+\item
+  \(\mathbf Q \in \mathbb R^{n_u \times n_x}\) be the state-action value
+  function parameters
+\item
+  \(\beta \in \mathbb R\) be the inverse softmax temperature scaling the
+  action values
+\item
+  \(\rho \in \mathbb R\) be the inverse softmax temperature scaling the
+  influence of the past trial's action
+\item
+  \(\alpha \in [0, 1]\) be the learning rate
+\item
+  \(\varsigma(\boldsymbol\pi) = p(\mathbf u | \mathbf Q, \beta, \rho)\)
+  be a softmax function with logits
+  \(\pi_i = \beta Q_{ij} x^j + \rho \tilde{u}_i\) (shown in Einstein
+  summation convention).
+\item
+  \(\mathcal L = \log p(\mathbf u | \mathbf Q, \beta, \rho)\) be the
+  log-likelihood function for trial \(t\)
+\item
+  \(q_i = Q_{ij} x^j\) be the value of the state \(x^j\)
+\item
+  \(v^i = e^{\beta q_i + \rho \tilde{u}_i}\) be the softmax potential
+\item
+  \(\eta(\boldsymbol\pi)\) be the softmax partition function.
+\end{itemize}
+
+Then we have the partial derivative of \(\mathcal L\) at trial \(t\)
+with respect to \(\alpha\)
+
+\[
+\partial_{\alpha} \mathcal L = \beta \Big[ \big(\mathbf u - \varsigma(\pi)\big)_i (\partial_{\alpha} Q)^i_j x^j \Big],
+\]
+
+and with respect to \(\beta\)
+
+\[
+\partial_{\beta} \mathcal L = u_i \Big(\mathbf I_{n_u \times n_u} - \varsigma(\boldsymbol\pi)\Big)^i_j Q_{jk} x^k
+\]
+
+and with respect to \(\rho\)
+
+\[
+\partial_{\rho} \mathcal L = u_i \Big(\mathbf I_{n_u \times n_u} - \varsigma(\boldsymbol\pi)\Big)^i_j \tilde{u}^j.
+\]
+
+We also compute the Hessian \(\mathbf H\), defined as
+
+\[
+\mathbf H = \left[
+\begin{array}{ccc}
+\partial^2_{\alpha} \mathcal L & \partial_{\alpha} \partial_{\beta} \mathcal L & \partial_{\alpha} \partial_{\rho} \mathcal L \\
+\partial_{\beta} \partial_{\alpha} \mathcal L & \partial^2_{\beta} \mathcal L & \partial_{\beta} \partial_{\rho} \mathcal L \\
+\partial_{\rho} \partial_{\alpha} \mathcal L & \partial_{\rho} \partial_{\beta} \mathcal L & \partial^2_{\rho} \mathcal L \\
+\end{array}\right].
+\]
+
+The components of \(\mathbf H\) are virtually identical to that of
+\texttt{RWSoftmaxAgent}, with the exception of the
+\(\partial_{\rho} \partial_{\alpha} \mathcal L\) and
+\(\partial_{\beta} \partial_{\rho} \mathcal L\)
+
+\[
+\partial^2_{\alpha} \mathcal L = \beta \Big( (\mathbf u - \varsigma(\boldsymbol\pi))_i (\partial^2_{\alpha} \mathbf Q)^i - \partial_{\alpha} \varsigma(\boldsymbol\pi)_i (\partial_{\alpha} \mathbf Q)^i \Big)_j x^j,
+\]
+
+\[
+\partial^2_{\beta} \mathcal L = u_k \Bigg(\frac{(q_i q_i v^i v^i}{z^2} - \frac{q_i q_i v^i}{z} \Bigg)^k
+\]
+
+\[
+\partial_{\alpha} \partial_{\beta} \mathcal L = \Bigg[ (u - \varsigma(\boldsymbol\pi)) - \beta \partial_{\beta} \varsigma(\boldsymbol\pi) \Bigg]_i (\partial_{\alpha} Q)^i_k x^k
+\]
+
+\[
+\partial_{\alpha} \partial_{\rho} \mathcal L = - \beta \Big( \partial_{\boldsymbol\pi} \varsigma(\boldsymbol\pi)_i \tilde{u}^i \Big)_j (\partial_{\alpha} Q)^j_k x^k
+\]
+
+and where \(\mathbf H\) is symmetric since the second derivatives of
+\(\mathcal L\) are continuous in the neighbourhood of the parameters.
 
 Arguments:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{state}: \texttt{ndarray((nstates,))} one-hot state vector
+  \textbf{action}: \texttt{ndarray(nactions)}. One-hot action vector
+\item
+  \textbf{state}: \texttt{ndarray(nstates)}. One-hot state vector
 \end{itemize}
 
 Returns:
 
-\texttt{ndarray((nactions,))} log-likelihood vector
+\texttt{float}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -2834,7 +3806,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2846,10 +3818,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
@@ -2961,7 +3934,7 @@ Returns:
 \end{Highlighting}
 \end{Shaded}
 
-Updates the model's parameters.
+Updates the model's parameters and computes gradients
 
 The implementation will vary depending on the type of agent and
 environment.
@@ -3019,7 +3992,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, x, u}\OperatorTok{=}\VariableTok{None}\NormalTok{)}
+\NormalTok{fitr.agents.agents.reset_trace(}\VariableTok{self}\NormalTok{, state_only}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -3031,10 +4004,11 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{x}: \texttt{ndarray((nstates,))} one-hot state vector
-\item
-  \textbf{u}: \texttt{ndarray((nactions,))} one-hot action vector
-  (optional)
+  \textbf{state\_only}: \texttt{bool}. If the eligibility trace is only
+  an \texttt{nstate} dimensional vector (i.e.~for a Pavlovian
+  conditioning model) then set to \texttt{True}. For instumental models,
+  the eligibility trace should be an \texttt{nactions} by
+  \texttt{nstates} matrix, so keep this to \texttt{False} in that case.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

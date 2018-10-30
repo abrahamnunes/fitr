@@ -1,6 +1,6 @@
-import numpy as np
+import autograd.numpy as np
 import matplotlib.pyplot as plt
-from fitr.metrics import linear_correlation
+from fitr.stats import pearson_rho
 
 def make_diagline_range(x, padding=0.01, npoints=100):
     """ Creates coordinates for a diagonal line for actual vs. estimate plots.
@@ -49,13 +49,13 @@ def actual_estimate(y_true,
     """
     xmin, xmax, dline = make_diagline_range(np.hstack((y_true, y_pred)))
 
-    rho = linear_correlation(y_true, y_pred)[0]
+    rho, pval = pearson_rho(y_true, y_pred)
 
     if figsize is None: figsize = (6, 4)
     fig, ax = plt.subplots(figsize=figsize)
     ax.plot(dline, dline, c='k', ls='--', lw=1.5)
     ax.scatter(y_true, y_pred, c='k')
-    ax.set_title(r'Pearson Correlation $\rho=%s$' %rho.round(3))
+    ax.set_title(r'Pearson Correlation $\rho=%s$ ($p=%s$)' %(rho[0].round(3), pval[0].round(3)))
     if xlabel is not None: ax.set_xlabel(xlabel)
     if ylabel is not None: ax.set_ylabel(ylabel)
     return fig

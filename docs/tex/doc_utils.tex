@@ -31,6 +31,35 @@ such that sum over \texttt{nfeatures} is 1.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsection{batch\_transform}\label{batch_transform}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.batch_transform(X, f_list)}
+\end{Highlighting}
+\end{Shaded}
+
+Applies the \texttt{fitr.utils.transform} function over a batch of
+parameters
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsamples,\ nparams))}. Raw parameters
+\item
+  \textbf{f\_list}: \texttt{list} where \texttt{len(list)\ ==\ nparams}.
+  Functions defining coordinate transformations on each element of
+  \texttt{x}.
+\end{itemize}
+
+Returns:
+
+\texttt{ndarray((nsamples,\ nparams))}. Transformed parameters
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsection{I}\label{i}
 
 \begin{Shaded}
@@ -56,6 +85,37 @@ Arguments:
 Returns:
 
 \texttt{ndarray(shape=x.shape)}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{log\_loss}\label{log_loss}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.log_loss(p, q)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes log loss.
+
+\[
+\mathcal L = - \frac{1}{n_s} \big( \mathbf p^\top \log \mathbf q + (1-\mathbf p)^\top \log (1 - \mathbf q) \big)
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{p}: Binary vector of true labels \texttt{ndarray((nsamples,))}
+\item
+  \textbf{q}: Vector of estimates (between 0 and 1) of type
+  \texttt{ndarray((nsamples,))}
+\end{itemize}
+
+Returns:
+
+Scalar log loss
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -86,6 +146,72 @@ Arguments:
 Returns:
 
 \texttt{float}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{rank\_data}\label{rank_data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.rank_data(x)}
+\end{Highlighting}
+\end{Shaded}
+
+Ranks a set of observations, assigning the average of ranks to ties.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray(nsamples)}. Vector of data to be compared
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ranks}: \texttt{ndarray(nsamples)}. Ranks for each observation
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{rank\_grouped\_data}\label{rank_grouped_data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.rank_grouped_data(x, g)}
+\end{Highlighting}
+\end{Shaded}
+
+Ranks observations taken across several groups
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray(nsamples)}. Vector of data to be compared
+\item
+  \textbf{g}: \texttt{ndarray(nsamples)}. Group ID's
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ranks}: \texttt{ndarray(nsamples)}. Ranks for each observation
+\item
+  \textbf{G}: \texttt{ndarray(nsamples,\ ngroups)}. Matrix indicating
+  whether sample i is in group j
+\item
+  \textbf{R}: \texttt{ndarray((nsamples,\ ngroups))}. Matrix indicating
+  the rank for sample i in group j
+\item
+  \textbf{lab}: \texttt{ndarray(ngroups)}. Group labels
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -172,10 +298,10 @@ Exponentiated values of \texttt{x}.
 \end{Highlighting}
 \end{Shaded}
 
-Rescales data by subtracting mean and dividing by variance
+Rescales data by subtracting mean and dividing by standard deviation.
 
 \[
-\mathbf x' = \frac{\mathbf x - \frac{1}{n} \mathbf 1^\top \mathbf x}{Var(\mathbf x)}
+\mathbf x' = \frac{\mathbf x - \frac{1}{n} \mathbf 1^\top \mathbf x}{SD(\mathbf x)}
 \]
 
 Arguments:
@@ -188,7 +314,7 @@ Arguments:
 \item
   \textbf{with\_mean}: \texttt{bool}. Whether to subtract the mean
 \item
-  \textbf{with\_var}: \texttt{bool}. Whether to divide by variance
+  \textbf{with\_var}: \texttt{bool}. Whether to normalize for variance
 \end{itemize}
 
 Returns:

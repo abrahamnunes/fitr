@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import numpy as np
+import autograd.numpy as np
 
 def batch_softmax(X, axis=1):
     """ Computes the softmax function for a batch of samples
@@ -21,6 +21,20 @@ def batch_softmax(X, axis=1):
     y = expx/reduce_then_tile(expx, np.sum, axis=axis)
     return y
 
+def batch_transform(X, f_list):
+    """ Applies the `fitr.utils.transform` function over a batch of parameters
+
+    Arguments:
+
+        X: `ndarray((nsamples, nparams))`. Raw parameters
+        f_list: `list` where `len(list) == nparams`. Functions defining coordinate transformations on each element of `x`.
+
+    Returns:
+
+        `ndarray((nsamples, nparams))`. Transformed parameters
+    """
+    return np.stack(np.ravel(transform(X[i], f_list)) for i in range(X.shape[0]))
+
 def I(x):
     """ Identity transformation.
 
@@ -36,6 +50,25 @@ def I(x):
 
     """
     return x
+
+
+def log_loss(p, q):
+    """ Computes log loss.
+
+    $$
+    \mathcal L = - \\frac{1}{n_s} \\big( \mathbf p^\\top \log \mathbf q + (1-\mathbf p)^\\top \log (1 - \mathbf q) \\big)
+    $$
+
+    Arguments:
+
+        p: Binary vector of true labels `ndarray((nsamples,))`
+        q: Vector of estimates (between 0 and 1) of type `ndarray((nsamples,))`
+
+    Returns:
+
+        Scalar log loss
+    """
+    return -np.mean(p*np.log(q) + (1-p)*np.log(1-q))
 
 def logsumexp(x):
     """ Numerically stable logsumexp.
@@ -57,6 +90,87 @@ def logsumexp(x):
     xmax = np.max(x)
     y = xmax + np.log(np.sum(np.exp(x-xmax)))
     return y
+
+
+def make_onehot(x):
+    """ Turns a vector of labels into a one-hot array
+
+    Arguments:
+
+        x: `ndarray(nsamples)`. Group labels
+
+    Returns:
+
+        xout: `ndarray((nsamples, ngroups))`. Data as onehot vectors
+        labels: `ndarray(ngroups)`. Group labels
+    """
+    nsamples = x.size
+    labels = np.unique(x)
+    ngroups = labels.size
+    xout = np.zeros((nsamples, ngroups))
+    for i, l in enumerate(labels):
+        xout[x == l, i] = 1
+
+    return xout, labels
+
+def rank_data(x):
+    """ Ranks a set of observations, assigning the average of ranks to ties. 
+
+
+    Arguments:
+
+        x: `ndarray(nsamples)`. Vector of data to be compared
+
+    Returns:
+
+        ranks: `ndarray(nsamples)`. Ranks for each observation
+    
+    """
+    x = x.flatten()
+    nsamples = x.size
+
+    # Sort in ascenting order
+    idx = np.argsort(x)
+    ranks = np.empty(idx.size)    
+    ranks[idx] = np.arange(idx.size) + 1
+
+    # Now average the ranks for ties
+    unique_x = np.unique(x)
+    if unique_x.size < nsamples:
+        for i, xi in enumerate(unique_x):
+            if x[x == xi].size > 1:
+                ranks[x==xi] = np.mean(ranks[x == xi])
+
+    return ranks
+
+
+def rank_grouped_data(x, g):
+    """ Ranks observations taken across several groups
+
+    Arguments:
+
+        x: `ndarray(nsamples)`. Vector of data to be compared
+        g: `ndarray(nsamples)`. Group ID's
+
+    Returns:
+
+        ranks: `ndarray(nsamples)`. Ranks for each observation
+        G: `ndarray(nsamples, ngroups)`.  Matrix indicating whether sample i is in group j
+        R: `ndarray((nsamples, ngroups))`. Matrix indicating the rank for sample i in group j
+        lab: `ndarray(ngroups)`. Group labels
+    """
+    nsamples = x.size
+    ngroups = np.unique(g).size
+
+    # Sort in ascending order
+    idx   = np.argsort(x)
+    G,lab = make_onehot(g[idx])
+
+    ranks = rank_data()    
+
+    R = np.tile(ranks.reshape(-1, 1), [1, ngroups]) * G
+    return ranks, G, R, lab
+
 
 def reduce_then_tile(X, f, axis=1):
     """ Computes some reduction function over an axis, then tiles that vector to create matrix of original size
@@ -114,17 +228,17 @@ def relu(x, a_max=None):
     return np.greater(x, 0)*x
 
 def scale_data(X, axis=0, with_mean=True, with_var=True):
-    """ Rescales data by subtracting mean and dividing by variance
+    """ Rescales data by subtracting mean and dividing by standard deviation. 
 
     $$
-    \mathbf x' = \\frac{\mathbf x - \\frac{1}{n} \mathbf 1^\\top \mathbf x}{Var(\mathbf x)}
+    \mathbf x' = \\frac{\mathbf x - \\frac{1}{n} \mathbf 1^\\top \mathbf x}{SD(\mathbf x)}
     $$
 
     Arguments:
 
         X: `ndarray((nsamples, [nfeatures]))`. Data. May be 1D or 2D.
         with_mean: `bool`. Whether to subtract the mean
-        with_var: `bool`. Whether to normalize for variance 
+        with_var: `bool`. Whether to normalize for variance
 
     Returns:
 
@@ -132,7 +246,10 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
     """
     if X.ndim == 1: X = X.reshape(-1, 1)
     if with_mean: X -= np.tile(np.mean(X, axis).reshape(1, -1), [X.shape[0], 1])
-    if with_var: X /= np.tile(np.std(X, axis).reshape(1, -1), [X.shape[0], 1])
+    if with_var: 
+        xstd = np.std(X, axis)
+        xstd[xstd == 0] = 1.
+        X /= np.tile(xstd.reshape(1, -1), [X.shape[0], 1])
     return X
 
 def sigmoid(x, a_min=-10, a_max=10):
@@ -173,6 +290,35 @@ def softmax(x):
     xmax = np.max(x)
     expx = np.exp(x-xmax)
     return expx/np.sum(expx)
+
+def softmax_components(x):
+    """ Returns the potential (numerator) and partition function (denominator) of softmax
+
+    Given a vector $\mathbf x = (x_1, x_2, \ldots, x_n)$ he potential of the softmax function is
+
+    $$
+    \psi(\mathbf x) = e^{\mathbf x}
+    $$
+
+    The partition function for the softmax is
+
+    $$
+    \eta(\mathbf x) = \sum_{i} \psi(x_i)
+    $$
+
+    Arguments:
+
+        x: Softmax logits (`ndarray((n,))`)
+
+    Returns:
+
+        potential: `ndarray(x.size)`
+        partition: `float`
+    """
+    xmax = np.max(x)
+    potential = np.exp(x-xmax)
+    partition = np.sum(potential)
+    return potential, partition
 
 def stable_exp(x, a_min=-10, a_max=10):
     """ Clipped exponential function

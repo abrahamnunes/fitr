@@ -53,7 +53,7 @@ Returns:
 ## mlepar
 
 ```python
-fitr.inference.mle_parallel.mlepar(f, data, nparams, minstarts=2, maxstarts=10, init_sd=2, njobs=-1)
+fitr.inference.mle_parallel.mlepar(f, data, nparams, minstarts=2, maxstarts=10, maxstarts_without_improvement=3, init_sd=2, njobs=-1, jac=None, hess=None, method='L-BFGS-B')
 ```
 
 Computes maximum likelihood estimates using parallel CPU resources.
@@ -68,11 +68,19 @@ Arguments:
 - **nparams**: `int` number of parameters to be estimated
 - **minstarts**: `int`. Minimum number of restarts with new initial values
 - **maxstarts**: `int`. Maximum number of restarts with new initial values
+- **maxstarts_without_improvement**: `int`. Maximum number of restarts without improvement in objective function value
 - **init_sd**: Standard deviation for Gaussian initial values
+- **jac**: `bool`. Set to `True` if `f` returns a Jacobian as the second element of the returned values
+- **hess**: `bool`. Set to `True` if third output value of `f` is the Hessian matrix
+- **method**: `str`. One of the `scipy.optimize` methods.
 
 Returns:
 
 `fitr.inference.OptimizationResult`
+
+Todo:
+
+- [ ] Raise errors when user selects inappropriate optimization function given values for `jac` and `hess`
 
 ---
 
@@ -81,7 +89,7 @@ Returns:
 ## l_bfgs_b
 
 ```python
-fitr.inference.mle_parallel.l_bfgs_b(f, i, data, nparams, minstarts=2, maxstarts=10, init_sd=2)
+fitr.inference.mle_parallel.l_bfgs_b(f, i, data, nparams, jac, minstarts=2, maxstarts=10, maxstarts_without_improvement=3, init_sd=2)
 ```
 
 Minimizes the negative log-probability of data with respect to some parameters under function `f` using the L-BFGS-B algorithm.
@@ -90,12 +98,14 @@ This function is specified for use with parallel CPU resources.
 
 Arguments:
 
-- **f**: Log likelihood function
+- **f**: (Negative!) Log likelihood function
 - **i**: `int`. Subject being optimized (slices first dimension of `data`)
 - **data**: Object subscriptable along first dimension to indicate subject being optimized
 - **nparams**: `int`. Number of parameters in the model
+- **jac**: `bool`. Set to `True` if `f` returns a Jacobian as the second element of the returned values
 - **minstarts**: `int`. Minimum number of restarts with new initial values
 - **maxstarts**: `int`. Maximum number of restarts with new initial values
+- **maxstarts_without_improvement**: `int`. Maximum number of restarts without improvement in objective function value
 - **init_sd**: Standard deviation for Gaussian initial values
 
 Returns:
@@ -116,7 +126,7 @@ Returns:
 ## bms
 
 ```python
-fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7fb569725990>, verbose=True)
+fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7fd2c03e3f78>, verbose=True)
 ```
 
 Implements variational Bayesian Model Selection as per Rigoux et al. (2014).
@@ -130,10 +140,10 @@ Arguments:
 - **verbose**: `bool (default=True)`. If `False`, no output provided.
 
 Returns:
+
 - **pxp**: `ndarray(nmodels)`. Protected exceedance probabilities
 - **xp**: `ndarray(nmodels)`. Exceedance probabilities
 - **bor**: `ndarray(nmodels)`. Bayesian Omnibus Risk
-- **pe**: `ndarray(niter)`. Prediction error time series throughout optimization
 - **q_m**: `ndarray((nsubjects, nmodels))`. Posterior distribution over models for each subject
 - **alpha**: `ndarray(nmodels)`. Posterior estimates of Dirichlet parameters
 - **f0**: `float`. Free energy of null model

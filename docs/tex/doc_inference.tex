@@ -85,7 +85,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.inference.mle_parallel.mlepar(f, data, nparams, minstarts}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{10}\NormalTok{, init_sd}\OperatorTok{=}\DecValTok{2}\NormalTok{, njobs}\OperatorTok{=-}\DecValTok{1}\NormalTok{)}
+\NormalTok{fitr.inference.mle_parallel.mlepar(f, data, nparams, minstarts}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{10}\NormalTok{, maxstarts_without_improvement}\OperatorTok{=}\DecValTok{3}\NormalTok{, init_sd}\OperatorTok{=}\DecValTok{2}\NormalTok{, njobs}\OperatorTok{=-}\DecValTok{1}\NormalTok{, jac}\OperatorTok{=}\VariableTok{None}\NormalTok{, hess}\OperatorTok{=}\VariableTok{None}\NormalTok{, method}\OperatorTok{=}\StringTok{'L-BFGS-B'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -114,12 +114,33 @@ Arguments:
   \textbf{maxstarts}: \texttt{int}. Maximum number of restarts with new
   initial values
 \item
+  \textbf{maxstarts\_without\_improvement}: \texttt{int}. Maximum number
+  of restarts without improvement in objective function value
+\item
   \textbf{init\_sd}: Standard deviation for Gaussian initial values
+\item
+  \textbf{jac}: \texttt{bool}. Set to \texttt{True} if \texttt{f}
+  returns a Jacobian as the second element of the returned values
+\item
+  \textbf{hess}: \texttt{bool}. Set to \texttt{True} if third output
+  value of \texttt{f} is the Hessian matrix
+\item
+  \textbf{method}: \texttt{str}. One of the \texttt{scipy.optimize}
+  methods.
 \end{itemize}
 
 Returns:
 
 \texttt{fitr.inference.OptimizationResult}
+
+Todo:
+
+\begin{itemize}
+\tightlist
+\item
+  {[} {]} Raise errors when user selects inappropriate optimization
+  function given values for \texttt{jac} and \texttt{hess}
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
@@ -127,7 +148,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.inference.mle_parallel.l_bfgs_b(f, i, data, nparams, minstarts}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{10}\NormalTok{, init_sd}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
+\NormalTok{fitr.inference.mle_parallel.l_bfgs_b(f, i, data, nparams, jac, minstarts}\OperatorTok{=}\DecValTok{2}\NormalTok{, maxstarts}\OperatorTok{=}\DecValTok{10}\NormalTok{, maxstarts_without_improvement}\OperatorTok{=}\DecValTok{3}\NormalTok{, init_sd}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -141,7 +162,7 @@ Arguments:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{f}: Log likelihood function
+  \textbf{f}: (Negative!) Log likelihood function
 \item
   \textbf{i}: \texttt{int}. Subject being optimized (slices first
   dimension of \texttt{data})
@@ -151,11 +172,17 @@ Arguments:
 \item
   \textbf{nparams}: \texttt{int}. Number of parameters in the model
 \item
+  \textbf{jac}: \texttt{bool}. Set to \texttt{True} if \texttt{f}
+  returns a Jacobian as the second element of the returned values
+\item
   \textbf{minstarts}: \texttt{int}. Minimum number of restarts with new
   initial values
 \item
   \textbf{maxstarts}: \texttt{int}. Maximum number of restarts with new
   initial values
+\item
+  \textbf{maxstarts\_without\_improvement}: \texttt{int}. Maximum number
+  of restarts without improvement in objective function value
 \item
   \textbf{init\_sd}: Standard deviation for Gaussian initial values
 \end{itemize}
@@ -191,7 +218,7 @@ Returns:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fitr.inference.bms.bms(L, ftol}\OperatorTok{=}\FloatTok{1e-12}\NormalTok{, nsamples}\OperatorTok{=}\DecValTok{1000000}\NormalTok{, rng}\OperatorTok{=<}\NormalTok{mtrand.RandomState }\BuiltInTok{object}\NormalTok{ at }\BaseNTok{0x7fb569725990}\OperatorTok{>}\NormalTok{, verbose}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\NormalTok{fitr.inference.bms.bms(L, ftol}\OperatorTok{=}\FloatTok{1e-12}\NormalTok{, nsamples}\OperatorTok{=}\DecValTok{1000000}\NormalTok{, rng}\OperatorTok{=<}\NormalTok{mtrand.RandomState }\BuiltInTok{object}\NormalTok{ at }\BaseNTok{0x7fd2c03e3f78}\OperatorTok{>}\NormalTok{, verbose}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -219,17 +246,31 @@ Arguments:
   output provided.
 \end{itemize}
 
-Returns: - \textbf{pxp}: \texttt{ndarray(nmodels)}. Protected exceedance
-probabilities - \textbf{xp}: \texttt{ndarray(nmodels)}. Exceedance
-probabilities - \textbf{bor}: \texttt{ndarray(nmodels)}. Bayesian
-Omnibus Risk - \textbf{pe}: \texttt{ndarray(niter)}. Prediction error
-time series throughout optimization - \textbf{q\_m}:
-\texttt{ndarray((nsubjects,\ nmodels))}. Posterior distribution over
-models for each subject - \textbf{alpha}: \texttt{ndarray(nmodels)}.
-Posterior estimates of Dirichlet parameters - \textbf{f0}:
-\texttt{float}. Free energy of null model - \textbf{f1}: \texttt{float}.
-Free energy of alternative model - \textbf{niter}: \texttt{int}. Number
-of iterations of posterior optimization
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{pxp}: \texttt{ndarray(nmodels)}. Protected exceedance
+  probabilities
+\item
+  \textbf{xp}: \texttt{ndarray(nmodels)}. Exceedance probabilities
+\item
+  \textbf{bor}: \texttt{ndarray(nmodels)}. Bayesian Omnibus Risk
+\item
+  \textbf{q\_m}: \texttt{ndarray((nsubjects,\ nmodels))}. Posterior
+  distribution over models for each subject
+\item
+  \textbf{alpha}: \texttt{ndarray(nmodels)}. Posterior estimates of
+  Dirichlet parameters
+\item
+  \textbf{f0}: \texttt{float}. Free energy of null model
+\item
+  \textbf{f1}: \texttt{float}. Free energy of alternative model
+\item
+  \textbf{niter}: \texttt{int}. Number of iterations of posterior
+  optimization
+\end{itemize}
 
 Examples:
 
