@@ -9,4 +9,4 @@ pydot==1.2.4
 graphviz==0.8.4
 autograd==1.2
 sklearn
-statsmodels
+statsmodels==0.9.0
