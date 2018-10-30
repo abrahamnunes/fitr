@@ -1,8 +1,10 @@
 import autograd.numpy as np
+from sklearn.metrics import log_loss as skl_logloss
 from scipy.special import logsumexp as scipy_logsumexp
 from fitr.utils import batch_softmax
 from fitr.utils import batch_transform
 from fitr.utils import I
+from fitr.utils import log_loss
 from fitr.utils import logsumexp
 from fitr.utils import reduce_then_tile
 from fitr.utils import relu
@@ -33,6 +35,12 @@ def test_batch_transform():
 def test_I():
     x = np.ones(5)
     assert np.all(np.equal(x, I(x)))
+
+def test_logloss(): 
+    rng = np.random.RandomState(457)
+    y = np.random.binomial(1, size=20)
+    yhat = np.random.uniform(0, 1, size=20)
+    assert(np.linalg.norm(log_loss(y, yhat) - skl_logloss(y, yhat)) < 1e-10)
 
 def test_logsumexp():
     x = np.arange(5)
