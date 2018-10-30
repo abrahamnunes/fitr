@@ -3,15 +3,15 @@ from autograd import jacobian, hessian
 import fitr.utils as fu
 import fitr.gradients as grad
 import fitr.hessians as hess
-from fitr.environments import TwoStep
+from fitr.environments import DawTwoStep
 from fitr.agents import SARSASoftmaxAgent
 
 ntrials = 20
 lr = 0.1; B = 2.; dc = 0.9; td=0.95
 w = np.array([lr, B, dc, td])
 
-task = TwoStep(rng=np.random.RandomState(532))
-agent = SARSASoftmaxAgent(TwoStep(rng=np.random.RandomState(532)),
+task = DawTwoStep(rng=np.random.RandomState(532))
+agent = SARSASoftmaxAgent(DawTwoStep(rng=np.random.RandomState(532)),
                           learning_rate=lr,
                           inverse_softmax_temp=B,
                           discount_factor=dc,
@@ -19,7 +19,7 @@ agent = SARSASoftmaxAgent(TwoStep(rng=np.random.RandomState(532)),
                           rng=np.random.RandomState(236))
 data = agent.generate_data(ntrials)
 
-agent_inv = SARSASoftmaxAgent(TwoStep(rng=np.random.RandomState(532)),
+agent_inv = SARSASoftmaxAgent(DawTwoStep(rng=np.random.RandomState(532)),
                               learning_rate=lr,
                               inverse_softmax_temp=B,
                               discount_factor=dc,

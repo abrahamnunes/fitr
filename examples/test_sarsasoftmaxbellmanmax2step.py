@@ -2,12 +2,12 @@ import autograd.numpy as np
 from autograd import jacobian, hessian, elementwise_grad
 import fitr.utils as fu
 import fitr.gradients as grad
-from fitr.environments import TwoStep
+from fitr.environments import DawTwoStep
 from fitr.data import BehaviouralData
 from fitr.agents.agents import TwoStepStickySoftmaxSARSABellmanMaxAgent
 
 ntrials = 201
-env = TwoStep(rng = np.random.RandomState(436))
+env = DawTwoStep(rng = np.random.RandomState(436))
 
 data = BehaviouralData(1)
 

@@ -2,12 +2,12 @@ import numpy as np
 from fitr import utils as fu
 from fitr import gradients as grad
 from fitr.environments import generate_behavioural_data
-from fitr.environments import TwoStep
+from fitr.environments import DawTwoStep
 from fitr.agents import SARSASoftmaxAgent
 from fitr.inference import mlepar
 from fitr.criticism.plotting import actual_estimate
 
-task = TwoStep
+task = DawTwoStep
 data = generate_behavioural_data(task, SARSASoftmaxAgent, 50, 200)
 nx, nu = task().nstates, task().nactions
 
