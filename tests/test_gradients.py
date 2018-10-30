@@ -162,7 +162,7 @@ def test_grad_qlearnerupdate():
 
     # GRADIENTS WITH FITR
     X1, X2, U1, U2, X3, R = make_mdp_trials()
-    q = QLearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=0.95)
+    q = QLearner(DawTwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=0.95)
     for i in range(ntrials):
         q.etrace = np.zeros(q.Q.shape)
         x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_
@@ -173,7 +173,7 @@ def test_grad_qlearnerupdate():
     # AUTOGRAD
     def agf_lr(lr):
         X1, X2, U1, U2, X3, R = make_mdp_trials()
-        q = QLearner(TwoStep(), learning_rate=lr, discount_factor=0.9, trace_decay=0.95)
+        q = QLearner(DawTwoStep(), learning_rate=lr, discount_factor=0.9, trace_decay=0.95)
         for i in range(ntrials):
             q.etrace = np.zeros((2, 5))
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_
@@ -184,7 +184,7 @@ def test_grad_qlearnerupdate():
 
     def agf_dc(dc):
         X1, X2, U1, U2, X3, R = make_mdp_trials()
-        q = QLearner(TwoStep(), learning_rate=0.1, discount_factor=dc, trace_decay=0.95)
+        q = QLearner(DawTwoStep(), learning_rate=0.1, discount_factor=dc, trace_decay=0.95)
         for i in range(ntrials):
             q.etrace = np.zeros((2, 5))
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_
@@ -195,7 +195,7 @@ def test_grad_qlearnerupdate():
 
     def agf_et(et):
         X1, X2, U1, U2, X3, R = make_mdp_trials()
-        q = QLearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=et)
+        q = QLearner(DawTwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=et)
         for i in range(ntrials):
             q.etrace = np.zeros((2, 5))
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_
@@ -232,7 +232,7 @@ def test_grad_sarsalearnerupdate():
 
     # GRADIENTS WITH FITR
     X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
-    q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=0.95)
+    q = SARSALearner(DawTwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=0.95)
     for i in range(ntrials):
         q.etrace = np.zeros(q.Q.shape)
         x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
@@ -243,7 +243,7 @@ def test_grad_sarsalearnerupdate():
     # AUTOGRAD
     def agf_lr(lr):
         X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
-        q = SARSALearner(TwoStep(), learning_rate=lr, discount_factor=0.9, trace_decay=0.95)
+        q = SARSALearner(DawTwoStep(), learning_rate=lr, discount_factor=0.9, trace_decay=0.95)
         for i in range(ntrials):
             q.etrace = np.zeros(q.Q.shape)
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
@@ -254,7 +254,7 @@ def test_grad_sarsalearnerupdate():
 
     def agf_dc(dc):
         X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
-        q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=dc, trace_decay=0.95)
+        q = SARSALearner(DawTwoStep(), learning_rate=0.1, discount_factor=dc, trace_decay=0.95)
         for i in range(ntrials):
             q.etrace = np.zeros(q.Q.shape)
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
@@ -265,7 +265,7 @@ def test_grad_sarsalearnerupdate():
 
     def agf_et(et):
         X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
-        q = SARSALearner(TwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=et)
+        q = SARSALearner(DawTwoStep(), learning_rate=0.1, discount_factor=0.9, trace_decay=et)
         for i in range(ntrials):
             q.etrace = np.zeros(q.Q.shape)
             x = X1[i]; u = U1[i]; x_= X2[i]; r = R@x_; u_ = U2[i];
@@ -416,7 +416,7 @@ def test_grad_sarsasoftmaxagent():
 
     # GRADIENTS WITH FITR
     X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
-    q = SARSASoftmaxAgent(TwoStep(),
+    q = SARSASoftmaxAgent(DawTwoStep(),
                           learning_rate=w[0],
                           inverse_softmax_temp=w[1],
                           discount_factor=w[2],
@@ -435,7 +435,7 @@ def test_grad_sarsasoftmaxagent():
     # AUTOGRAD
     def f(w):
         X1, X2, U1, U2, X3, U3, R = make_mdp_trials()
-        q = SARSASoftmaxAgent(TwoStep(),
+        q = SARSASoftmaxAgent(DawTwoStep(),
                               learning_rate=w[0],
                               inverse_softmax_temp=w[1],
                               discount_factor=w[2],

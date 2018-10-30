@@ -38,7 +38,7 @@ def test_I():
 
 def test_logloss(): 
     rng = np.random.RandomState(457)
-    y = np.random.binomial(1, size=20)
+    y = np.random.binomial(1, p=0.6, size=20)
     yhat = np.random.uniform(0, 1, size=20)
     assert(np.linalg.norm(log_loss(y, yhat) - skl_logloss(y, yhat)) < 1e-10)
 
