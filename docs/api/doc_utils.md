@@ -71,6 +71,31 @@ Returns:
 
 
 
+## log_loss
+
+```python
+fitr.utils.log_loss(p, q)
+```
+
+Computes log loss.
+
+$$
+\mathcal L = - \frac{1}{n_s} \big( \mathbf p^\top \log \mathbf q + (1-\mathbf p)^\top \log (1 - \mathbf q) \big)
+$$
+
+Arguments:
+
+- **p**: Binary vector of true labels `ndarray((nsamples,))`
+- **q**: Vector of estimates (between 0 and 1) of type `ndarray((nsamples,))`
+
+Returns:
+
+Scalar log loss
+
+---
+
+
+
 ## logsumexp
 
 ```python
@@ -92,6 +117,51 @@ Arguments:
 Returns:
 
 `float`
+
+---
+
+
+
+## rank_data
+
+```python
+fitr.utils.rank_data(x)
+```
+
+Ranks a set of observations, assigning the average of ranks to ties. 
+
+
+Arguments:
+
+- **x**: `ndarray(nsamples)`. Vector of data to be compared
+
+Returns:
+
+- **ranks**: `ndarray(nsamples)`. Ranks for each observation
+
+---
+
+
+
+## rank_grouped_data
+
+```python
+fitr.utils.rank_grouped_data(x, g)
+```
+
+Ranks observations taken across several groups
+
+Arguments:
+
+- **x**: `ndarray(nsamples)`. Vector of data to be compared
+- **g**: `ndarray(nsamples)`. Group ID's
+
+Returns:
+
+- **ranks**: `ndarray(nsamples)`. Ranks for each observation
+- **G**: `ndarray(nsamples, ngroups)`.  Matrix indicating whether sample i is in group j
+- **R**: `ndarray((nsamples, ngroups))`. Matrix indicating the rank for sample i in group j
+- **lab**: `ndarray(ngroups)`. Group labels
 
 ---
 

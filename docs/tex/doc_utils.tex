@@ -88,6 +88,37 @@ Returns:
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
+\subsection{log\_loss}\label{log_loss}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.log_loss(p, q)}
+\end{Highlighting}
+\end{Shaded}
+
+Computes log loss.
+
+\[
+\mathcal L = - \frac{1}{n_s} \big( \mathbf p^\top \log \mathbf q + (1-\mathbf p)^\top \log (1 - \mathbf q) \big)
+\]
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{p}: Binary vector of true labels \texttt{ndarray((nsamples,))}
+\item
+  \textbf{q}: Vector of estimates (between 0 and 1) of type
+  \texttt{ndarray((nsamples,))}
+\end{itemize}
+
+Returns:
+
+Scalar log loss
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
 \subsection{logsumexp}\label{logsumexp}
 
 \begin{Shaded}
@@ -115,6 +146,72 @@ Arguments:
 Returns:
 
 \texttt{float}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{rank\_data}\label{rank_data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.rank_data(x)}
+\end{Highlighting}
+\end{Shaded}
+
+Ranks a set of observations, assigning the average of ranks to ties.
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray(nsamples)}. Vector of data to be compared
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ranks}: \texttt{ndarray(nsamples)}. Ranks for each observation
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{rank\_grouped\_data}\label{rank_grouped_data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.utils.rank_grouped_data(x, g)}
+\end{Highlighting}
+\end{Shaded}
+
+Ranks observations taken across several groups
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{x}: \texttt{ndarray(nsamples)}. Vector of data to be compared
+\item
+  \textbf{g}: \texttt{ndarray(nsamples)}. Group ID's
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ranks}: \texttt{ndarray(nsamples)}. Ranks for each observation
+\item
+  \textbf{G}: \texttt{ndarray(nsamples,\ ngroups)}. Matrix indicating
+  whether sample i is in group j
+\item
+  \textbf{R}: \texttt{ndarray((nsamples,\ ngroups))}. Matrix indicating
+  the rank for sample i in group j
+\item
+  \textbf{lab}: \texttt{ndarray(ngroups)}. Group labels
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 

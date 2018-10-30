@@ -27,15 +27,18 @@ pages:
     - fitr.environments.mouthtask.MouthTask
     - fitr.environments.igt.IGT
     - fitr.environments.randombandit.RandomContextualBandit
-- page: doc_metrics.md
-  template: doc_metrics.md
+- page: doc_stats.md
+  template: doc_stats.md
   tags:
-  - tag: metrics
+  - tag: stats
     functions:
-    - fitr.metrics.bic
-    - fitr.metrics.linear_correlation
-    - fitr.metrics.lme
-    - fitr.metrics.log_loss
+    - fitr.stats.bic
+    - fitr.stats.lme
+    - fitr.stats.pearson_rho
+    - fitr.stats.spearman_rho
+    - fitr.stats.linear_regression 
+    - fitr.stats.kruskal_wallis
+    - fitr.stats.conover 
 - page: doc_utils.md
   template: doc_utils.md
   tags:
@@ -44,7 +47,10 @@ pages:
     - fitr.utils.batch_softmax
     - fitr.utils.batch_transform
     - fitr.utils.I
+    - fitr.utils.log_loss
     - fitr.utils.logsumexp
+    - fitr.utils.rank_data
+    - fitr.utils.rank_grouped_data
     - fitr.utils.reduce_then_tile
     - fitr.utils.relu
     - fitr.utils.scale_data

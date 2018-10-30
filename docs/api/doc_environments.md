@@ -8,7 +8,7 @@ Functions to synthesize data from behavioural tasks.
 ## Graph
 
 ```python
-fitr.environments.Graph()
+fitr.environments.graph.Graph()
 ```
 
 Base object that defines a reinforcement learning task.
@@ -57,7 +57,7 @@ What differentiates tasks are the transition tensor $\mathsf T$, starting state 
 ### Graph.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -70,7 +70,7 @@ Singular value decomposition of the graph adjacency matrix
 ### Graph.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -89,7 +89,7 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 ### Graph.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -102,7 +102,7 @@ Singular value decomposition of the graph Laplacian
 ### Graph.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -115,7 +115,7 @@ Creates labels for the actions (for plotting) if none provided
 ### Graph.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -128,7 +128,7 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 ### Graph.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -141,7 +141,7 @@ Creates labels for the states (for plotting) if none provided
 ### Graph.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -154,7 +154,7 @@ Converts the DiGraph to undirected and computes some stats
 ### Graph.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -181,7 +181,7 @@ x = env.observation()
 ### Graph.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -196,7 +196,7 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 ### Graph.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -209,7 +209,7 @@ Plots the directed graph of the task
 ### Graph.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -222,7 +222,7 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 ### Graph.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -251,7 +251,7 @@ u = env.random_action()
 ### Graph.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -268,7 +268,7 @@ Arguments:
 ### Graph.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.
@@ -292,7 +292,7 @@ Raises:
 ## TwoArmedBandit
 
 ```python
-fitr.environments.TwoArmedBandit()
+fitr.environments.twoarmedbandit.TwoArmedBandit()
 ```
 
 A simple 2-armed bandit task
@@ -306,7 +306,7 @@ A simple 2-armed bandit task
 ### TwoArmedBandit.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -319,7 +319,7 @@ Singular value decomposition of the graph adjacency matrix
 ### TwoArmedBandit.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -338,7 +338,7 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 ### TwoArmedBandit.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -351,7 +351,7 @@ Singular value decomposition of the graph Laplacian
 ### TwoArmedBandit.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -364,7 +364,7 @@ Creates labels for the actions (for plotting) if none provided
 ### TwoArmedBandit.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -377,7 +377,7 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 ### TwoArmedBandit.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -390,7 +390,7 @@ Creates labels for the states (for plotting) if none provided
 ### TwoArmedBandit.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -403,7 +403,7 @@ Converts the DiGraph to undirected and computes some stats
 ### TwoArmedBandit.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -430,7 +430,7 @@ x = env.observation()
 ### TwoArmedBandit.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -445,7 +445,7 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 ### TwoArmedBandit.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -458,7 +458,7 @@ Plots the directed graph of the task
 ### TwoArmedBandit.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -471,7 +471,7 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 ### TwoArmedBandit.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -500,7 +500,7 @@ u = env.random_action()
 ### TwoArmedBandit.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -517,7 +517,7 @@ Arguments:
 ### TwoArmedBandit.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.
@@ -541,7 +541,7 @@ Raises:
 ## OrthogonalGoNoGo
 
 ```python
-fitr.environments.OrthogonalGoNoGo()
+fitr.environments.orthogonal_gonogo.OrthogonalGoNoGo()
 ```
 
 The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
@@ -555,7 +555,7 @@ The Orthogonal GoNogo task from Guitart-Masip et al. (2012)
 ### OrthogonalGoNoGo.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -568,7 +568,7 @@ Singular value decomposition of the graph adjacency matrix
 ### OrthogonalGoNoGo.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -587,7 +587,7 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 ### OrthogonalGoNoGo.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -600,7 +600,7 @@ Singular value decomposition of the graph Laplacian
 ### OrthogonalGoNoGo.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -613,7 +613,7 @@ Creates labels for the actions (for plotting) if none provided
 ### OrthogonalGoNoGo.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -626,7 +626,7 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 ### OrthogonalGoNoGo.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -639,7 +639,7 @@ Creates labels for the states (for plotting) if none provided
 ### OrthogonalGoNoGo.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -652,7 +652,7 @@ Converts the DiGraph to undirected and computes some stats
 ### OrthogonalGoNoGo.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -679,7 +679,7 @@ x = env.observation()
 ### OrthogonalGoNoGo.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -694,7 +694,7 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 ### OrthogonalGoNoGo.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -707,7 +707,7 @@ Plots the directed graph of the task
 ### OrthogonalGoNoGo.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -720,7 +720,7 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 ### OrthogonalGoNoGo.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -749,7 +749,7 @@ u = env.random_action()
 ### OrthogonalGoNoGo.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -766,7 +766,7 @@ Arguments:
 ### OrthogonalGoNoGo.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.
@@ -787,10 +787,10 @@ Raises:
 
 
 
-## TwoStep
+## DawTwoStep
 
 ```python
-fitr.environments.TwoStep()
+fitr.environments.dawtwostep.DawTwoStep()
 ```
 
 An implementation of the Two-Step Task from Daw et al. (2011).
@@ -805,10 +805,10 @@ Arguments:
 
 
 
-### TwoStep.adjacency_matrix_decomposition
+### DawTwoStep.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -818,10 +818,10 @@ Singular value decomposition of the graph adjacency matrix
 
 
 
-### TwoStep.f_reward
+### DawTwoStep.f_reward
 
 ```python
-fitr.environments.f_reward(self, R, x)
+fitr.environments.dawtwostep.f_reward(self, R, x)
 ```
 
 
@@ -831,10 +831,10 @@ fitr.environments.f_reward(self, R, x)
 
 
 
-### TwoStep.get_graph_depth
+### DawTwoStep.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -850,10 +850,10 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 
 
 
-### TwoStep.laplacian_matrix_decomposition
+### DawTwoStep.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -863,10 +863,10 @@ Singular value decomposition of the graph Laplacian
 
 
 
-### TwoStep.make_action_labels
+### DawTwoStep.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -876,10 +876,10 @@ Creates labels for the actions (for plotting) if none provided
 
 
 
-### TwoStep.make_digraph
+### DawTwoStep.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -889,10 +889,10 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 
 
 
-### TwoStep.make_state_labels
+### DawTwoStep.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -902,10 +902,10 @@ Creates labels for the states (for plotting) if none provided
 
 
 
-### TwoStep.make_undirected_graph
+### DawTwoStep.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -915,10 +915,10 @@ Converts the DiGraph to undirected and computes some stats
 
 
 
-### TwoStep.observation
+### DawTwoStep.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -942,10 +942,10 @@ x = env.observation()
 
 
 
-### TwoStep.plot_action_outcome_probabilities
+### DawTwoStep.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -957,10 +957,10 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 
 
 
-### TwoStep.plot_graph
+### DawTwoStep.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -970,10 +970,10 @@ Plots the directed graph of the task
 
 
 
-### TwoStep.plot_reward_paths
+### DawTwoStep.plot_reward_paths
 
 ```python
-fitr.environments.plot_reward_paths(self, outfile=None, outfiletype='pdf', figsize=None)
+fitr.environments.dawtwostep.plot_reward_paths(self, outfile=None, outfiletype='pdf', figsize=None)
 ```
 
 
@@ -983,10 +983,10 @@ fitr.environments.plot_reward_paths(self, outfile=None, outfiletype='pdf', figsi
 
 
 
-### TwoStep.plot_spectral_properties
+### DawTwoStep.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -996,10 +996,10 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 
 
 
-### TwoStep.random_action
+### DawTwoStep.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -1025,10 +1025,10 @@ u = env.random_action()
 
 
 
-### TwoStep.set_seed
+### DawTwoStep.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -1042,10 +1042,10 @@ Arguments:
 
 
 
-### TwoStep.step
+### DawTwoStep.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.
@@ -1066,10 +1066,10 @@ Raises:
 
 
 
-## ReverseTwoStep
+## KoolTwoStep
 
 ```python
-fitr.environments.ReverseTwoStep()
+fitr.environments.kooltwostep.KoolTwoStep()
 ```
 
 From Kool & Gershman 2016.
@@ -1079,10 +1079,10 @@ From Kool & Gershman 2016.
 
 
 
-### ReverseTwoStep.adjacency_matrix_decomposition
+### KoolTwoStep.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -1092,10 +1092,10 @@ Singular value decomposition of the graph adjacency matrix
 
 
 
-### ReverseTwoStep.f_reward
+### KoolTwoStep.f_reward
 
 ```python
-fitr.environments.f_reward(self, R, x)
+fitr.environments.kooltwostep.f_reward(self, R, x)
 ```
 
 
@@ -1105,10 +1105,10 @@ fitr.environments.f_reward(self, R, x)
 
 
 
-### ReverseTwoStep.get_graph_depth
+### KoolTwoStep.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -1124,10 +1124,10 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 
 
 
-### ReverseTwoStep.laplacian_matrix_decomposition
+### KoolTwoStep.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -1137,10 +1137,10 @@ Singular value decomposition of the graph Laplacian
 
 
 
-### ReverseTwoStep.make_action_labels
+### KoolTwoStep.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -1150,10 +1150,10 @@ Creates labels for the actions (for plotting) if none provided
 
 
 
-### ReverseTwoStep.make_digraph
+### KoolTwoStep.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -1163,10 +1163,10 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 
 
 
-### ReverseTwoStep.make_state_labels
+### KoolTwoStep.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -1176,10 +1176,10 @@ Creates labels for the states (for plotting) if none provided
 
 
 
-### ReverseTwoStep.make_undirected_graph
+### KoolTwoStep.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -1189,10 +1189,10 @@ Converts the DiGraph to undirected and computes some stats
 
 
 
-### ReverseTwoStep.observation
+### KoolTwoStep.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -1216,10 +1216,10 @@ x = env.observation()
 
 
 
-### ReverseTwoStep.plot_action_outcome_probabilities
+### KoolTwoStep.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -1231,10 +1231,10 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 
 
 
-### ReverseTwoStep.plot_graph
+### KoolTwoStep.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -1244,10 +1244,10 @@ Plots the directed graph of the task
 
 
 
-### ReverseTwoStep.plot_spectral_properties
+### KoolTwoStep.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -1257,10 +1257,10 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 
 
 
-### ReverseTwoStep.random_action
+### KoolTwoStep.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -1286,10 +1286,10 @@ u = env.random_action()
 
 
 
-### ReverseTwoStep.set_seed
+### KoolTwoStep.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -1303,10 +1303,10 @@ Arguments:
 
 
 
-### ReverseTwoStep.step
+### KoolTwoStep.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.
@@ -1330,7 +1330,7 @@ Raises:
 ## MouthTask
 
 ```python
-fitr.environments.MouthTask()
+fitr.environments.mouthtask.MouthTask()
 ```
 
 The Pizzagalli reward sensitivity signal-detection task 
@@ -1343,7 +1343,7 @@ The Pizzagalli reward sensitivity signal-detection task
 ### MouthTask.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -1356,7 +1356,7 @@ Singular value decomposition of the graph adjacency matrix
 ### MouthTask.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -1375,7 +1375,7 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 ### MouthTask.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -1388,7 +1388,7 @@ Singular value decomposition of the graph Laplacian
 ### MouthTask.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -1401,7 +1401,7 @@ Creates labels for the actions (for plotting) if none provided
 ### MouthTask.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -1414,7 +1414,7 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 ### MouthTask.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -1427,7 +1427,7 @@ Creates labels for the states (for plotting) if none provided
 ### MouthTask.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -1440,7 +1440,7 @@ Converts the DiGraph to undirected and computes some stats
 ### MouthTask.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -1467,7 +1467,7 @@ x = env.observation()
 ### MouthTask.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -1482,7 +1482,7 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 ### MouthTask.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -1495,7 +1495,7 @@ Plots the directed graph of the task
 ### MouthTask.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -1508,7 +1508,7 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 ### MouthTask.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -1537,7 +1537,7 @@ u = env.random_action()
 ### MouthTask.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -1554,7 +1554,7 @@ Arguments:
 ### MouthTask.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.
@@ -1578,7 +1578,7 @@ Raises:
 ## IGT
 
 ```python
-fitr.environments.IGT()
+fitr.environments.igt.IGT()
 ```
 
 Iowa Gambling Task 
@@ -1591,7 +1591,7 @@ Iowa Gambling Task
 ### IGT.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -1604,7 +1604,7 @@ Singular value decomposition of the graph adjacency matrix
 ### IGT.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -1623,7 +1623,7 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 ### IGT.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -1636,7 +1636,7 @@ Singular value decomposition of the graph Laplacian
 ### IGT.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -1649,7 +1649,7 @@ Creates labels for the actions (for plotting) if none provided
 ### IGT.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -1662,7 +1662,7 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 ### IGT.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -1675,7 +1675,7 @@ Creates labels for the states (for plotting) if none provided
 ### IGT.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -1688,7 +1688,7 @@ Converts the DiGraph to undirected and computes some stats
 ### IGT.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -1715,7 +1715,7 @@ x = env.observation()
 ### IGT.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -1730,7 +1730,7 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 ### IGT.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -1743,7 +1743,7 @@ Plots the directed graph of the task
 ### IGT.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -1756,7 +1756,7 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 ### IGT.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -1785,7 +1785,7 @@ u = env.random_action()
 ### IGT.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -1802,7 +1802,7 @@ Arguments:
 ### IGT.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.
@@ -1826,7 +1826,7 @@ Raises:
 ## RandomContextualBandit
 
 ```python
-fitr.environments.RandomContextualBandit()
+fitr.environments.randombandit.RandomContextualBandit()
 ```
 
 Generates a random bandit task
@@ -1854,7 +1854,7 @@ Arguments:
 ### RandomContextualBandit.adjacency_matrix_decomposition
 
 ```python
-fitr.environments.adjacency_matrix_decomposition(self)
+fitr.environments.graph.adjacency_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph adjacency matrix 
@@ -1867,7 +1867,7 @@ Singular value decomposition of the graph adjacency matrix
 ### RandomContextualBandit.f_reward
 
 ```python
-fitr.environments.f_reward(self, R, x)
+fitr.environments.randombandit.f_reward(self, R, x)
 ```
 
 
@@ -1880,7 +1880,7 @@ fitr.environments.f_reward(self, R, x)
 ### RandomContextualBandit.get_graph_depth
 
 ```python
-fitr.environments.get_graph_depth(self)
+fitr.environments.graph.get_graph_depth(self)
 ```
 
 Returns the depth of the task graph.
@@ -1899,7 +1899,7 @@ An `int` identifying the depth of the current graph for a single trial of the ta
 ### RandomContextualBandit.laplacian_matrix_decomposition
 
 ```python
-fitr.environments.laplacian_matrix_decomposition(self)
+fitr.environments.graph.laplacian_matrix_decomposition(self)
 ```
 
 Singular value decomposition of the graph Laplacian 
@@ -1912,7 +1912,7 @@ Singular value decomposition of the graph Laplacian
 ### RandomContextualBandit.make_action_labels
 
 ```python
-fitr.environments.make_action_labels(self)
+fitr.environments.graph.make_action_labels(self)
 ```
 
 Creates labels for the actions (for plotting) if none provided 
@@ -1925,7 +1925,7 @@ Creates labels for the actions (for plotting) if none provided
 ### RandomContextualBandit.make_digraph
 
 ```python
-fitr.environments.make_digraph(self)
+fitr.environments.graph.make_digraph(self)
 ```
 
 Creates a `networkx` `DiGraph` object from the transition tensor for the purpose of plotting and some other analyses. 
@@ -1938,7 +1938,7 @@ Creates a `networkx` `DiGraph` object from the transition tensor for the purpose
 ### RandomContextualBandit.make_state_labels
 
 ```python
-fitr.environments.make_state_labels(self)
+fitr.environments.graph.make_state_labels(self)
 ```
 
 Creates labels for the states (for plotting) if none provided 
@@ -1951,7 +1951,7 @@ Creates labels for the states (for plotting) if none provided
 ### RandomContextualBandit.make_undirected_graph
 
 ```python
-fitr.environments.make_undirected_graph(self)
+fitr.environments.graph.make_undirected_graph(self)
 ```
 
 Converts the DiGraph to undirected and computes some stats 
@@ -1964,7 +1964,7 @@ Converts the DiGraph to undirected and computes some stats
 ### RandomContextualBandit.observation
 
 ```python
-fitr.environments.observation(self)
+fitr.environments.graph.observation(self)
 ```
 
 Samples an initial state from the start-state distribution $p(\mathbf x)$
@@ -1991,7 +1991,7 @@ x = env.observation()
 ### RandomContextualBandit.plot_action_outcome_probabilities
 
 ```python
-fitr.environments.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
+fitr.environments.graph.plot_action_outcome_probabilities(self, figsize=None, outfile=None, outfiletype='pdf', cmap='Greys_r')
 ```
 
 Plots the probabilities of different outcomes given actions.
@@ -2006,7 +2006,7 @@ Each plot is a heatmap for a starting state showing the transition probabilities
 ### RandomContextualBandit.plot_graph
 
 ```python
-fitr.environments.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_graph(self, figsize=None, node_size=2000, arrowsize=20, lw=1.5, font_size=12, title=False, outfile=None, outfiletype='pdf')
 ```
 
 Plots the directed graph of the task 
@@ -2019,7 +2019,7 @@ Plots the directed graph of the task
 ### RandomContextualBandit.plot_spectral_properties
 
 ```python
-fitr.environments.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
+fitr.environments.graph.plot_spectral_properties(self, figsize=None, outfile=None, outfiletype='pdf')
 ```
 
 Creates a set of subplots depicting the graph Laplacian and its spectral decomposition. 
@@ -2032,7 +2032,7 @@ Creates a set of subplots depicting the graph Laplacian and its spectral decompo
 ### RandomContextualBandit.random_action
 
 ```python
-fitr.environments.random_action(self)
+fitr.environments.graph.random_action(self)
 ```
 
 Samples a random one-hot action vector uniformly over the action space.
@@ -2061,7 +2061,7 @@ u = env.random_action()
 ### RandomContextualBandit.set_seed
 
 ```python
-fitr.environments.set_seed(self, seed=None)
+fitr.environments.graph.set_seed(self, seed=None)
 ```
 
 Allows user to specify a seed for the pseudorandom number generator.
@@ -2078,7 +2078,7 @@ Arguments:
 ### RandomContextualBandit.step
 
 ```python
-fitr.environments.step(self, action)
+fitr.environments.graph.step(self, action)
 ```
 
 Executes a state transition in the environment.

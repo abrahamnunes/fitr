@@ -98,7 +98,7 @@ This function is specified for use with parallel CPU resources.
 
 Arguments:
 
-- **f**: Log likelihood function
+- **f**: (Negative!) Log likelihood function
 - **i**: `int`. Subject being optimized (slices first dimension of `data`)
 - **data**: Object subscriptable along first dimension to indicate subject being optimized
 - **nparams**: `int`. Number of parameters in the model
@@ -126,7 +126,7 @@ Returns:
 ## bms
 
 ```python
-fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7f7848a3f048>, verbose=True)
+fitr.inference.bms.bms(L, ftol=1e-12, nsamples=1000000, rng=<mtrand.RandomState object at 0x7f3b711caf30>, verbose=True)
 ```
 
 Implements variational Bayesian Model Selection as per Rigoux et al. (2014).
@@ -144,7 +144,6 @@ Returns:
 - **pxp**: `ndarray(nmodels)`. Protected exceedance probabilities
 - **xp**: `ndarray(nmodels)`. Exceedance probabilities
 - **bor**: `ndarray(nmodels)`. Bayesian Omnibus Risk
-- **pe**: `ndarray(niter)`. Prediction error time series throughout optimization
 - **q_m**: `ndarray((nsubjects, nmodels))`. Posterior distribution over models for each subject
 - **alpha**: `ndarray(nmodels)`. Posterior estimates of Dirichlet parameters
 - **f0**: `float`. Free energy of null model
