@@ -228,10 +228,10 @@ def relu(x, a_max=None):
     return np.greater(x, 0)*x
 
 def scale_data(X, axis=0, with_mean=True, with_var=True):
-    """ Rescales data by subtracting mean and dividing by variance
+    """ Rescales data by subtracting mean and dividing by standard deviation. 
 
     $$
-    \mathbf x' = \\frac{\mathbf x - \\frac{1}{n} \mathbf 1^\\top \mathbf x}{Var(\mathbf x)}
+    \mathbf x' = \\frac{\mathbf x - \\frac{1}{n} \mathbf 1^\\top \mathbf x}{SD(\mathbf x)}
     $$
 
     Arguments:
