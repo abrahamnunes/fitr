@@ -1,4 +1,5 @@
 numpy
+tensorflow
 scipy
 matplotlib
 joblib
