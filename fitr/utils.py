@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import scipy.io as spio
 import autograd.numpy as np
 
 def batch_softmax(X, axis=1):
@@ -90,6 +91,38 @@ def logsumexp(x):
     xmax = np.max(x)
     y = xmax + np.log(np.sum(np.exp(x-xmax)))
     return y
+
+def loadmat(fname):
+    """ Loads a `.mat` file and parses it to make it easy to work win in python. 
+
+    This code was taken largely from the stackoverflow post at \href{https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}{}https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}.
+    
+    Arguments: 
+
+        fname: `str`. File name.
+
+    """ 
+    def _todict(data):
+        dout = {}
+        for s in data._fieldnames:
+            element = data.__dict__[s]
+            if isinstance(element, spio.matlab.mio5_params.mat_struct):
+                dout[s] = _todict(element)
+            else: 
+                dout[s] = element
+        return dout
+    
+    def _check_keys(data):
+        for key in data:
+            if isinstance(data[key], spio.matlab.mio5_params.mat_struct):
+                data[key] = _todict(data[key])
+        return data
+
+    data = spio.loadmat(fname, 
+                        struct_as_record=False,
+                        squeeze_me=True) 
+    return _check_keys(data)
+     
 
 
 def make_onehot(x):
@@ -237,6 +270,7 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
     Arguments:
 
         X: `ndarray((nsamples, [nfeatures]))`. Data. May be 1D or 2D.
+        axis: `int`. Over which axis to scale
         with_mean: `bool`. Whether to subtract the mean
         with_var: `bool`. Whether to normalize for variance
 
@@ -244,12 +278,15 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
 
         `ndarray(X.shape)`. Rescaled data.
     """
-    if X.ndim == 1: X = X.reshape(-1, 1)
-    if with_mean: X -= np.tile(np.mean(X, axis).reshape(1, -1), [X.shape[0], 1])
+    if X.ndim == 1: 
+        X = X.reshape(-1, 1)
+    
+    if with_mean: 
+        X -= reduce_then_tile(X, np.mean, axis)
     if with_var: 
-        xstd = np.std(X, axis)
+        xstd = reduce_then_tile(X, np.std, axis)
         xstd[xstd == 0] = 1.
-        X /= np.tile(xstd.reshape(1, -1), [X.shape[0], 1])
+        X /= xstd
     return X
 
 def sigmoid(x, a_min=-10, a_max=10):

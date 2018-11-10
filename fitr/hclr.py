@@ -86,7 +86,6 @@ class HCLR(object):
         y: `ndarray((nsubjects,ntrials,ntargets))`. Tensor of ``choices'' we are trying to predict.
         Z: `ndarray((nsubjects,ncovariates))`. Covariates of interest
         V: `ndarray((naxes,nfeatures))`. Vectors identifying features of interest (i.e. to compute indices). If `add_intercept=True`, then the dimensionality of `V` should be `ndarray((naxes, nfeatures+1))`, where the first column represents the basis coordinate for the bias.
-        filter_size: `int`. Number of steps prior to target included as features.
         loading_matrix_scale: `float > 0`. Scale of the loading matrix $\\boldsymbol\\Phi$, which is assumed that $\\phi_{ij} \\sim \\mathcal N(0, 1)$, with the default scale being 1.
         add_intercept: `bool'. Whether to add intercept
         group_mean: `ndarray`. Samples of the posterior group-level mean. `None` until model is fit
@@ -96,10 +95,6 @@ class HCLR(object):
         group_indices: `ndarray`. Samples of the posterior group-level projections on to the basis. `None` until model is fit
         covariate_effects: `ndarray`. Samples of the posterior projection of the loading matrix onto the basis. `None` until model is fit
 
-    ## Notes
-
-    - When presenting `X` and `y`, note that the indices of `y` should correspond exactly to the trial indices in `X`, even though the HCLR analysis is predicting a trial ahead. In other words, there should be no lag in the `X`, `y` inputs. The HCLR setup will automatically set up the lag depending on how you set the `filter_size`.
-
 
     """
     def __init__(self,
@@ -107,34 +102,26 @@ class HCLR(object):
                  y,
                  Z,
                  V,
-                 filter_size=5,
                  loading_matrix_scale=1.0,
                  add_intercept=True):
-        self.y = y
+        self.X = X
+        self.y = y.astype(np.int)
         self.Z = Z
-        self.filter_size = filter_size
+        self.V = V
         self.loading_matrix_scale = loading_matrix_scale
         self.add_intercept = add_intercept
 
-        self.X = self._flatten_feature_representation(X, filter_size, add_intercept)
-
-        # Prune the X and y data so that X[trial=t] lines up with y[trial=t+1]
-        self.X = self.X[:,:-1,:]
-        self.y = self.y[:,filter_size+1:]
-
-        # Compute dimensions
-        self.nsubjects, self.ntrials, self.nfeatures = self.X.shape
-        self.ncovariates = self.Z.shape[1]
 
         # Set up the basis vectors
         if add_intercept:
-            self.V = V[:,1:]
-            self.v_bias = V[:,0].reshape(-1, 1)
-        else:
-            self.V = V
-            self.v_bias = None
-
-        self.V = self._expand_basis_vectors(filter_size)
+            X = []
+            for i in range(self.X.shape[0]):
+                X.append(np.hstack((np.ones((self.X[i].shape[0], 1)), self.X[i])))
+            self.X = np.array(X)
+        
+        # Compute dimensions
+        self.nsubjects, self.ntrials, self.nfeatures = self.X.shape
+        self.ncovariates = self.Z.shape[1]
         self.naxes = self.V.shape[0]
 
         self.data = self._make_data_dict()
@@ -148,61 +135,6 @@ class HCLR(object):
         self.group_indices = None
         self.covariate_effects = None
 
-
-    def _expand_basis_vectors(self, filter_size):
-        """ Tiles the basis (feature template) vectors to make them of appropriate dimension
-
-        Arguments:
-
-            filter_size: `int`. Number of steps prior to target included as features.
-
-        Returns:
-
-            V: `ndarray((nfeatures*filter_size+/-1,naxes))`. Vectors identifying features of interest (i.e. to compute ``indices,'' now sized appropriately for the flattened version of `X`. Note that here `+/-1` in the `ndarray` dimension refers to the potentially increased number of columns if a bias term is included in `X`.
-
-        """
-        V = None
-        for i in range(filter_size):
-            if V is None:
-                V = self.V
-            else:
-                V = np.hstack((V, self.V))
-
-        if self.v_bias is not None:
-            V = np.hstack((self.v_bias, V))
-
-        return V
-
-    def _flatten_feature_representation(self, X, filter_size, add_intercept):
-        """ Facilitates formulation of convolution as matrix multiplication
-
-        Arguments:
-
-
-            X: `ndarray((nsubjects,ntrials,nfeatures))`. The ``experience'' tensor.
-            filter_size: `int`. Number of steps prior to target included as features.
-            add_intercept: `bool`. Whether intercept will be added
-
-        Returns:
-
-            X: `list` of size `nsubjects` containing `ndarray((ntrials-filter_size, nfeatures*filter_size))`. Matrix-representation of data for convolutional analysis
-        """
-        nsubjects = len(X)
-        X_ = []
-        for i in range(nsubjects):
-            ntrials, nfeatures = X[i].shape
-            Xi = []
-            for j in range(filter_size, ntrials):
-                Xi.append(np.ravel(X[i][j-filter_size:j,:]))
-
-            Xi = np.stack(Xi)
-
-            if add_intercept:
-                Xi = np.hstack((np.ones((Xi.shape[0], 1)), Xi))
-
-            X_.append(Xi)
-
-        return np.array(X_)
 
     def _make_data_dict(self):
         """ Creates dictionary format data for Stan """

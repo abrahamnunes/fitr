@@ -39,6 +39,7 @@ pages:
     - fitr.stats.linear_regression 
     - fitr.stats.kruskal_wallis
     - fitr.stats.conover 
+    - fitr.stats.confusion_matrix
 - page: doc_utils.md
   template: doc_utils.md
   tags:

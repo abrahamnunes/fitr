@@ -60,8 +60,8 @@ def pearson_rho(X, Y, comparison='diagonal'):
         X = X.reshape(-1, 1) - np.mean(X)
         Y = Y.reshape(-1, 1) - np.mean(Y)
 
-    X = scale_data(X, axis=0, with_mean=True, with_var=False)
-    Y = scale_data(Y, axis=0, with_mean=True, with_var=False)
+    X = scale_data(X, with_mean=True, with_var=False)
+    Y = scale_data(Y, with_mean=True, with_var=False)
 
     xnorm = np.linalg.norm(X, axis=0, ord=2)
     ynorm = np.linalg.norm(Y, axis=0, ord=2)

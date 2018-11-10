@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from fitr.stats.descriptive import mean_ci
+
 from fitr.stats.model_evaluation import bic
 from fitr.stats.model_evaluation import lme
 
@@ -13,8 +15,10 @@ from fitr.stats import effect_size
 
 from fitr.stats import meta_analysis
 
+from fitr.stats.confusion_matrix import confusion_matrix
 
-__all__ = ['bic',
+__all__ = ['mean_ci',
+           'bic',
            'lme',
            'pearson_rho',
            'spearman_rho', 
@@ -24,4 +28,5 @@ __all__ = ['bic',
            'conover',
            'linear_regression',
            'effect_size',
-           'meta_analysis']
+           'meta_analysis', 
+           'confusion_matrix']

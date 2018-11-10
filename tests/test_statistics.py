@@ -1,9 +1,35 @@
 import numpy as np
 import scipy.stats as ss
+import fitr.utils as fu
+from fitr.stats import mean_ci
 from fitr.stats import bic
 from fitr.stats import lme 
 from fitr.stats import pearson_rho
 from fitr.stats import spearman_rho
+
+def test_mean_ci():
+    rng = np.random.RandomState(235)
+    n = 100
+    m = 200
+    alpha = 0.05
+    e_ci = np.abs(ss.norm.ppf(alpha/2))
+    X = rng.normal(0, 1, size=(n, m))
+     
+    # Test along first axis
+    X0 = fu.scale_data(X, axis=0)
+    mu, l, u = mean_ci(X0, axis=0, alpha=alpha)
+    assert(np.linalg.norm(mu) < 1e-8)
+    assert(np.linalg.norm(np.abs(l)-(e_ci/np.sqrt(n))) < 1e-8)
+    
+
+    # Test along second axis
+    X1 = fu.scale_data(X, axis=1)
+    mu, l, u = mean_ci(X1, axis=1, alpha=alpha)
+    assert(np.linalg.norm(mu) < 1e-8)
+    assert(np.linalg.norm(np.abs(l)-(e_ci/np.sqrt(m))) < 1e-8)
+    
+     
+
 
 def test_pearson_rho():
     rng = np.random.RandomState(523)

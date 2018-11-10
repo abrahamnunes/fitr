@@ -382,3 +382,48 @@ W. J. Conover and R. L. Iman (1979), On multiple-comparisons procedures,
 Tech. Rep.~LA-7677-MS, Los Alamos Scientific Laboratory.
 
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{confusion\_matrix}\label{confusion_matrix}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.stats.confusion_matrix.confusion_matrix(ytrue, ypred)}
+\end{Highlighting}
+\end{Shaded}
+
+Creates a confusion matrix from some ground truth labels and predictions
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ytrue}: \texttt{ndarray(nsamples)}. Ground truth labels
+\item
+  \textbf{ypred}: \texttt{ndarray(nsamples)}. Predicted labels
+\end{itemize}
+
+Returns:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{C}: \texttt{ndarray((nlabels,\ nlabels))}. Confusion matrix
+\end{itemize}
+
+Example:
+
+In the binary classification case, we may have the following:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ fitr.stats }\ImportTok{import}\NormalTok{ confusion_matrix}
+
+\NormalTok{ytrue }\OperatorTok{=}\NormalTok{ np.array([}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{])}
+\NormalTok{ypred }\OperatorTok{=}\NormalTok{ np.array([}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{])}
+\NormalTok{C }\OperatorTok{=}\NormalTok{ confusion_matrix(ytrue, ypred)}
+\NormalTok{tn, fp, fn, tp }\OperatorTok{=}\NormalTok{ C.flatten()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
