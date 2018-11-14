@@ -4,6 +4,8 @@ from fitr.stats.descriptive import mean_ci
 from fitr.stats.model_evaluation import bic
 from fitr.stats.model_evaluation import lme
 
+from fitr.stats.distance import distance
+
 from fitr.stats.correlations import pearson_rho
 from fitr.stats.correlations import spearman_rho
 from fitr.stats.proportions import binomial_exact
@@ -20,6 +22,7 @@ from fitr.stats.confusion_matrix import confusion_matrix
 __all__ = ['mean_ci',
            'bic',
            'lme',
+           'distance',
            'pearson_rho',
            'spearman_rho', 
            'binomial_exact',

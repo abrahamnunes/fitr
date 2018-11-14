@@ -1,11 +1,38 @@
 import numpy as np
 import scipy.stats as ss
 import fitr.utils as fu
+from fitr.stats import distance
 from fitr.stats import mean_ci
 from fitr.stats import bic
 from fitr.stats import lme 
 from fitr.stats import pearson_rho
 from fitr.stats import spearman_rho
+from sklearn.metrics import pairwise_distances
+
+def test_distance():
+    rng = np.random.RandomState(235)
+    X = rng.normal(size=(100, 200))
+    Y = rng.normal(size=(100, 200))
+
+    # Euclidean
+    skd = pairwise_distances(X, Y)
+    fud = distance(X, Y)
+    assert(np.linalg.norm(skd-fud) < 1e-8)
+
+    # Manhattan
+    skd = pairwise_distances(X, Y, metric='manhattan')
+    fud = distance(X, Y, metric='manhattan')
+    assert(np.linalg.norm(skd-fud) < 1e-8)
+
+    # Chebyshev
+    skd = pairwise_distances(X, Y, metric='chebyshev')
+    fud = distance(X, Y, metric='chebyshev')
+    assert(np.linalg.norm(skd-fud) < 1e-8)
+
+    # Canberra 
+    skd = pairwise_distances(X, Y, metric='canberra')
+    fud = distance(X, Y, metric='canberra')
+    assert(np.linalg.norm(skd-fud) < 1e-8)
 
 def test_mean_ci():
     rng = np.random.RandomState(235)
