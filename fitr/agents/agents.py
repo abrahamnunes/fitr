@@ -1217,6 +1217,7 @@ class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
 
 
         """
+        self.task = task
         self.nstates = task.nstates
         self.nactions = task.nactions
         self.learning_rates = [learning_rate_1, learning_rate_2]
@@ -1225,6 +1226,16 @@ class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
         self.mb_weight = mb_weight
         self.perseveration = perseveration
         self.rng = rng
+
+        # Set the meta stuff
+        self.meta = ['TwoStepStickySoftmaxSARSABellmanMaxAgent']
+        self.params = [learning_rate_1, 
+                       learning_rate_2, 
+                       inverse_softmax_temp_1, 
+                       inverse_softmax_temp_2,
+                       trace_decay, 
+                       mb_weight, 
+                       perseveration]
 
         # Get the transition matrix from the task object and preprocess
         self.T = task.T
@@ -1493,3 +1504,29 @@ class TwoStepStickySoftmaxSARSABellmanMaxAgent(object):
         maxQmf = np.max(self.Qmf, axis=0)
         self.Qmb    = np.einsum('ijk,j->ik', self.T, maxQmf)
         self.Q      = self.mb_weight*self.Qmb + (1-self.mb_weight)*self.Qmf
+
+
+    def generate_data(self, ntrials, state_only=False):
+        """ For the parent agent, this function generates data from a Markov Decision Process (MDP) task
+
+        Arguments:
+
+            ntrials: `int` number of trials
+            state_only: `bool`. If the eligibility trace is only an `nstate` dimensional vector (i.e. for a Pavlovian conditioning model) then set to `True`. For instumental models, the eligibility trace should be an `nactions` by `nstates` matrix, so keep this to `False` in that case.
+
+        Returns:
+
+            `fitr.data.BehaviouralData`
+        """
+        data = BehaviouralData(1)
+        data.add_subject(0, self.params, self.meta)
+        for t in range(ntrials):
+            state1  = self.task.observation()
+            action1 = self.action_step1(state1)
+            state2, _, _ = self.task.step(action1)
+            action2 = self.action_step2(state2)
+            _, reward, _ = self.task.step(action2)
+            data.update(0, np.hstack((state1, action1, state2, action2, reward)))
+            self.learning(state1, action1, state2, action2, reward)
+        data.make_tensor_representations()
+        return data

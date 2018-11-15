@@ -90,40 +90,7 @@ def logsumexp(x):
     """
     xmax = np.max(x)
     y = xmax + np.log(np.sum(np.exp(x-xmax)))
-    return y
-
-def loadmat(fname):
-    """ Loads a `.mat` file and parses it to make it easy to work win in python. 
-
-    This code was taken largely from the stackoverflow post at \href{https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}{}https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}.
-    
-    Arguments: 
-
-        fname: `str`. File name.
-
-    """ 
-    def _todict(data):
-        dout = {}
-        for s in data._fieldnames:
-            element = data.__dict__[s]
-            if isinstance(element, spio.matlab.mio5_params.mat_struct):
-                dout[s] = _todict(element)
-            else: 
-                dout[s] = element
-        return dout
-    
-    def _check_keys(data):
-        for key in data:
-            if isinstance(data[key], spio.matlab.mio5_params.mat_struct):
-                data[key] = _todict(data[key])
-        return data
-
-    data = spio.loadmat(fname, 
-                        struct_as_record=False,
-                        squeeze_me=True) 
-    return _check_keys(data)
-     
-
+    return y 
 
 def make_onehot(x):
     """ Turns a vector of labels into a one-hot array
@@ -432,3 +399,40 @@ def transform(x, f_list):
         x = np.stack(np.array([x_i]) for i, x_i in enumerate(x))
     x_ = np.stack(f_list[i](x_i) for i, x_i in enumerate(x))
     return x_
+
+# ============================================================================
+#   LOADMAT FUNCTION AND RELATED METHODS 
+# ============================================================================
+
+def _todict(data):
+    """ A helper function for the `loadmat` function """
+    dout = {}
+    for s in data._fieldnames:
+        element = data.__dict__[s]
+        if isinstance(element, spio.matlab.mio5_params.mat_struct):
+            dout[s] = _todict(element)
+        else: 
+            dout[s] = element
+    return dout
+
+def _check_keys(data):
+    """ A helper function for the `loadmat` function """
+    for key in data:
+        if isinstance(data[key], spio.matlab.mio5_params.mat_struct):
+            data[key] = _todict(data[key])
+    return data
+
+def loadmat(fname):
+    """ Loads a `.mat` file and parses it to make it easy to work win in python. 
+
+    This code was taken largely from the stackoverflow post at \href{https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}{}https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}.
+    
+    Arguments: 
+
+        fname: `str`. File name.
+
+    """ 
+    data = spio.loadmat(fname, 
+                        struct_as_record=False,
+                        squeeze_me=True) 
+    return _check_keys(data)
