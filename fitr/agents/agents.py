@@ -1130,6 +1130,313 @@ class RWStickySoftmaxAgent(BanditAgent):
         self.logprob_ += np.dot(action, self.actor._log_prob_noderivatives(self.critic.Qx(state)))
         self.actor.a_last = action
 
+
+class ForgetfulRWStickySoftmaxAgent(BanditAgent):
+    """ An instrumental Rescorla-Wagner agent (with memory decay) with a 'sticky' softmax policy
+
+    The softmax policy selects actions from a multinomial
+
+    $$
+    \mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\\varsigma(\mathbf v, \mathbf u_{t-1})).
+    $$
+
+    whose parameters are
+
+    $$
+    p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \\varsigma(\mathbf v, \mathbf u_{t-1}) = \\frac{e^{\\beta \mathbf v + \\beta^\\rho \mathbf u_{t-1}}}{\sum_{i}^{|\mathbf v|} e^{\\beta v_i + \\beta^\\rho u_{t-1}^{(i)}}}.
+    $$
+
+    The instrumental Rescorla-Wagner rule is as follows:
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+
+    where $0 < \\alpha < 1$ is the learning rate, and where the reward prediction error (RPE) is $\\delta = (r - \mathbf u^\\top \mathbf Q \mathbf x)$.
+
+    There is an additional component that decays the memory of un-experienced state-action pairs:
+
+    $$
+    \\mathbf Q \\gets \\mathbf Q - \\zeta h(\\mathbf u \\mathbf x^\\top) \\odot \\mathbf Q,
+    $$
+
+    where $0 \\leq \\zeta \\leq 1$ is the memory decay parameter and $h(\\cdot)$ is a function that indicates the state-action pairs that were not experienced. 
+
+    $$
+    h(\\mathbf u \\mathbf x^\\top) = (-(2\\mathbf u \\mathbf x^\\top - 1) - 1)/2
+    $$
+
+
+    Arguments:
+
+        task: `fitr.environments.Graph`
+        learning_rate: `0 <= float <= 1`. Learning rate $\\alpha$
+        memory_decay: `0 <= float <= 1`. Memory decay parameter $\\zeta$
+        inverse_softmax_temp: `0 <= float`. Inverse softmax temperature $\\beta$
+        perseveration: `float`. Perseveration parameter $\\beta^\rho$
+        rng: `np.random.RandomState`
+
+    """
+    def __init__(self,
+                 task,
+                 learning_rate=None,
+                 memory_decay=None,
+                 inverse_softmax_temp=None,
+                 perseveration=None,
+                 rng=np.random.RandomState()):
+        super().__init__(task)
+        self.meta = ['ForgetfulRWStickySoftmaxAgent']
+        if learning_rate is None: learning_rate = rng.uniform(0.01, 0.99)
+        if memory_decay is None: memory_decay = rng.uniform(0.01, 0.99)
+        if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
+        if perseveration is None: perseveration = rng.uniform(0.01, 10)
+        self.params = [learning_rate, memory_decay, inverse_softmax_temp, perseveration]
+        self.actor  = StickySoftmaxPolicy(inverse_softmax_temp=inverse_softmax_temp,
+                                          perseveration=perseveration,
+                                          rng=rng)
+        self.actor.a_last = np.zeros(self.task.nactions)
+        self.critic = ForgetfulInstrumentalRescorlaWagnerLearner(task, learning_rate=learning_rate, memory_decay=memory_decay)
+
+        # Storage for partial derivatives
+        self.d_logprob = {
+            'learning_rate': 0,
+            'memory_decay': 0,
+            'inverse_softmax_temp': 0,
+            'perseveration': 0
+        }
+
+        # Storage for second order partial derivatives
+        self.hess_logprob = {
+            'learning_rate': 0,
+            'memory_decay': 0,
+            'inverse_softmax_temp': 0,
+            'perseveration': 0,
+            'learning_rate_inverse_softmax_temp': 0,
+            'learning_rate_perseveration': 0,
+            'inverse_softmax_temp_perseveration': 0
+        }
+
+    def action(self, state):
+        return self.actor.sample(self.critic.Qx(state))
+
+    def learning(self, state, action, reward, next_state, next_action):
+        self.critic.update(state, action, reward, next_state, None)
+
+    def log_prob(self, state, action):
+        """ Computes the log-probability of an action taken by the agent in a given state"""
+        self.logprob_ += np.dot(action, self.actor._log_prob_noderivatives(self.critic.Qx(state)))
+        self.actor.a_last = action
+
+
+class AsymmetricRWStickySoftmaxAgent(BanditAgent):
+    """ An instrumental Rescorla-Wagner agent with a 'sticky' softmax policy, and which has independent learning rates for reward and punishment, respectively.
+
+    The softmax policy selects actions from a multinomial
+
+    $$
+    \mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\\varsigma(\mathbf v, \mathbf u_{t-1})).
+    $$
+
+    whose parameters are
+
+    $$
+    p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \\varsigma(\mathbf v, \mathbf u_{t-1}) = \\frac{e^{\\beta \mathbf v + \\beta^\\rho \mathbf u_{t-1}}}{\sum_{i}^{|\mathbf v|} e^{\\beta v_i + \\beta^\\rho u_{t-1}^{(i)}}}.
+    $$
+
+    The instrumental Rescorla-Wagner rule is as follows. If $r \geq 0$, then 
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_+ \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+    
+    \\noindent but if $r < 0$
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_- \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+
+    where $0 < \\alpha_+ < 1$ and $0 < \\alpha_0 < 1$ are the learning rates for rewards and punishments, respectively, and where the reward prediction error (RPE) is $\\delta = (r - \mathbf u^\\top \mathbf Q \mathbf x)$.
+
+    $$
+
+
+    Arguments:
+
+        task: `fitr.environments.Graph`
+        learning_rate_pos: `0 <= float <= 1`. Learning rate $\\alpha_+$ for rewards
+        learning_rate_neg: `0 <= float <= 1`. Learning rate $\\alpha_-$ for punishments
+        inverse_softmax_temp: `0 <= float`. Inverse softmax temperature $\\beta$
+        perseveration: `float`. Perseveration parameter $\\beta^\rho$
+        rng: `np.random.RandomState`
+
+    """
+    def __init__(self,
+                 task,
+                 learning_rate_pos=None,
+                 learning_rate_neg=None,
+                 inverse_softmax_temp=None,
+                 perseveration=None,
+                 rng=np.random.RandomState()):
+        super().__init__(task)
+        self.meta = ['AsymmetricRWStickySoftmaxAgent']
+        if learning_rate_pos is None: learning_rate_pos = rng.uniform(0.01, 0.99)
+        if learning_rate_neg is None: learning_rate_neg = rng.uniform(0.01, 0.99)
+        if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
+        if perseveration is None: perseveration = rng.uniform(0.01, 10)
+        self.params = [learning_rate_pos, learning_rate_neg, inverse_softmax_temp, perseveration]
+        self.actor  = StickySoftmaxPolicy(inverse_softmax_temp=inverse_softmax_temp,
+                                          perseveration=perseveration,
+                                          rng=rng)
+        self.actor.a_last = np.zeros(self.task.nactions)
+        self.critic = AsymmetricRescorlaWagnerLearner(task, 
+                                                      learning_rate_pos=learning_rate_pos, 
+                                                      learning_rate_neg=learning_rate_neg)
+
+        # Storage for partial derivatives
+        self.d_logprob = {
+            'learning_rate': 0,
+            'memory_decay': 0,
+            'inverse_softmax_temp': 0,
+            'perseveration': 0
+        }
+
+        # Storage for second order partial derivatives
+        self.hess_logprob = {
+            'learning_rate': 0,
+            'memory_decay': 0,
+            'inverse_softmax_temp': 0,
+            'perseveration': 0,
+            'learning_rate_inverse_softmax_temp': 0,
+            'learning_rate_perseveration': 0,
+            'inverse_softmax_temp_perseveration': 0
+        }
+
+    def action(self, state):
+        return self.actor.sample(self.critic.Qx(state))
+
+    def learning(self, state, action, reward, next_state, next_action):
+        self.critic.update(state, action, reward, next_state, None)
+
+    def log_prob(self, state, action):
+        """ Computes the log-probability of an action taken by the agent in a given state"""
+        self.logprob_ += np.dot(action, self.actor._log_prob_noderivatives(self.critic.Qx(state)))
+        self.actor.a_last = action
+
+
+class ForgetfulAsymmetricRWStickySoftmaxAgent(BanditAgent):
+    """ An instrumental Rescorla-Wagner agent with a 'sticky' softmax policy, and which has independent learning rates for reward and punishment, respectively, as well as a memory decay.
+
+    The softmax policy selects actions from a multinomial
+
+    $$
+    \mathbf u \sim \mathrm{Multinomial}(1, \mathbf p=\\varsigma(\mathbf v, \mathbf u_{t-1})).
+    $$
+
+    whose parameters are
+
+    $$
+    p(\mathbf u|\mathbf v, \mathbf u_{t-1}) = \\varsigma(\mathbf v, \mathbf u_{t-1}) = \\frac{e^{\\beta \mathbf v + \\beta^\\rho \mathbf u_{t-1}}}{\sum_{i}^{|\mathbf v|} e^{\\beta v_i + \\beta^\\rho u_{t-1}^{(i)}}}.
+    $$
+
+    The instrumental Rescorla-Wagner rule is as follows. If $r \geq 0$, then 
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_+ \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+    
+    \\noindent but if $r < 0$
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_- \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+
+    where $0 < \\alpha_+ < 1$ and $0 < \\alpha_0 < 1$ are the learning rates for rewards and punishments, respectively, and where the reward prediction error (RPE) is $\\delta = (r - \mathbf u^\\top \mathbf Q \mathbf x)$.
+
+    $$
+
+    There is an additional component that decays the memory of un-experienced state-action pairs:
+
+    $$
+    \\mathbf Q \\gets \\mathbf Q - \\zeta h(\\mathbf u \\mathbf x^\\top) \\odot \\mathbf Q,
+    $$
+
+    where $0 \\leq \\zeta \\leq 1$ is the memory decay parameter and $h(\\cdot)$ is a function that indicates the state-action pairs that were not experienced. 
+
+    $$
+    h(\\mathbf u \\mathbf x^\\top) = (-(2\\mathbf u \\mathbf x^\\top - 1) - 1)/2
+    $$
+
+
+
+    Arguments:
+
+        task: `fitr.environments.Graph`
+        learning_rate_pos: `0 <= float <= 1`. Learning rate $\\alpha_+$ for rewards
+        learning_rate_neg: `0 <= float <= 1`. Learning rate $\\alpha_-$ for punishments
+        memory_decay: `0 <= float <= 1`. Memory decay parameter $\\zeta$
+        inverse_softmax_temp: `0 <= float`. Inverse softmax temperature $\\beta$
+        perseveration: `float`. Perseveration parameter $\\beta^\rho$
+        rng: `np.random.RandomState`
+
+    """
+    def __init__(self,
+                 task,
+                 learning_rate_pos=None,
+                 learning_rate_neg=None,
+                 memory_decay=None,
+                 inverse_softmax_temp=None,
+                 perseveration=None,
+                 rng=np.random.RandomState()):
+        super().__init__(task)
+        self.meta = ['AsymmetricRWStickySoftmaxAgent']
+        if learning_rate_pos is None: learning_rate_pos = rng.uniform(0.01, 0.99)
+        if learning_rate_neg is None: learning_rate_neg = rng.uniform(0.01, 0.99)
+        if memory_decay is None: memory_decay = rng.uniform(0.01, 0.99)
+        if inverse_softmax_temp is None: inverse_softmax_temp = rng.uniform(0.01, 10)
+        if perseveration is None: perseveration = rng.uniform(0.01, 10)
+        self.params = [learning_rate_pos, learning_rate_neg, memory_decay, inverse_softmax_temp, perseveration]
+        self.actor  = StickySoftmaxPolicy(inverse_softmax_temp=inverse_softmax_temp,
+                                          perseveration=perseveration,
+                                          rng=rng)
+        self.actor.a_last = np.zeros(self.task.nactions)
+        self.critic = ForgetfulAsymmetricRescorlaWagnerLearner(task, 
+                                                      learning_rate_pos=learning_rate_pos, 
+                                                      learning_rate_neg=learning_rate_neg, 
+                                                      memory_decay=memory_decay)
+
+        # Storage for partial derivatives
+        self.d_logprob = {
+            'learning_rate_pos': 0,
+            'learning_rate_neg': 0,
+            'memory_decay': 0,
+            'inverse_softmax_temp': 0,
+            'perseveration': 0
+        }
+
+        # Storage for second order partial derivatives
+        self.hess_logprob = { 
+            'learning_rate_pos': 0,
+            'learning_rate_neg': 0,
+            'memory_decay': 0,
+            'inverse_softmax_temp': 0,
+            'perseveration': 0,
+            'learning_rate_inverse_softmax_temp': 0,
+            'learning_rate_perseveration': 0,
+            'inverse_softmax_temp_perseveration': 0
+        }
+
+    def action(self, state):
+        return self.actor.sample(self.critic.Qx(state))
+
+    def learning(self, state, action, reward, next_state, next_action):
+        self.critic.update(state, action, reward, next_state, None)
+
+    def log_prob(self, state, action):
+        """ Computes the log-probability of an action taken by the agent in a given state"""
+        self.logprob_ += np.dot(action, self.actor._log_prob_noderivatives(self.critic.Qx(state)))
+        self.actor.a_last = action
+
+
 class RWSoftmaxAgentRewardSensitivity(BanditAgent):
     """ An instrumental Rescorla-Wagner agent with a softmax policy, whose experienced reward is scaled by a factor $\\rho$.
 

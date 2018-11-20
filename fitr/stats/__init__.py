@@ -19,6 +19,8 @@ from fitr.stats import meta_analysis
 
 from fitr.stats.confusion_matrix import confusion_matrix
 
+from fitr.stats import plotting
+
 __all__ = ['mean_ci',
            'bic',
            'lme',
@@ -32,4 +34,5 @@ __all__ = ['mean_ci',
            'linear_regression',
            'effect_size',
            'meta_analysis', 
-           'confusion_matrix']
+           'confusion_matrix', 
+           'plotting']

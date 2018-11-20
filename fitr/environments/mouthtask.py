@@ -7,15 +7,15 @@ class MouthTask(Graph):
     def __init__(self,rng=np.random.RandomState()):
         T = np.zeros((2, 4, 4))
         #[u,x',x]
-        T[0,2,0] = 0.75
-        T[0,3,0] = 0.3
-        T[1,2,0] = 0.3
-        T[1,3,0] = 0.75
+        T[0,2,0] = 0.3   # S=Lean, A=Lean, S'=Rewarded State
+        T[0,3,0] = 0.7   # S=Lean, A=Lean, S'=Unrewarded state
+        T[1,2,0] = 0.0   # S=Lean, A=Rich, S'=Rewarded state
+        T[1,3,0] = 1.0   # S=Lean, A=Rich, S'=Rewarded state
 
-        T[0,2,1] = 0.0
-        T[0,3,1] = 0.75
-        T[1,2,1] = 0.0
-        T[1,3,1] = 0.75
+        T[0,2,1] = 0.0   # S=Rich, A=Lean, S'=Rewarded state
+        T[0,3,1] = 1.0   # S=Rich, A=Lean, S'=Unrewarded state
+        T[1,2,1] = 0.75  # S=Rich, A=Rich, S'=Rewarded state
+        T[1,3,1] = 0.25  # S=Rich, A=Rich, S'=Unrewarded state
 
         p_start = np.array([0.5,0.5,0.,0.])
         R = np.array([0.,0.,1.,0])

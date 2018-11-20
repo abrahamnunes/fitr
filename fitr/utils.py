@@ -36,6 +36,23 @@ def batch_transform(X, f_list):
     """
     return np.stack(np.ravel(transform(X[i], f_list)) for i in range(X.shape[0]))
 
+
+def bitflip(x):
+    """ Flips the bits of a binary vector
+    
+    
+    Arguments: 
+
+        x: `ndarray((n, m))`. Only meaningful if binary. 
+
+    Returns: 
+
+        `ndarray(x.shape)`. Zeros become 1 and ones become 0.
+
+    """
+    return signinv(-sign(x))
+
+
 def I(x):
     """ Identity transformation.
 
@@ -275,6 +292,34 @@ def sigmoid(x, a_min=-10, a_max=10):
     """
     expnx = np.exp(-np.clip(x, a_min=a_min, a_max=a_max))
     return 1/(1+expnx)
+
+def sign(x):
+    """ Sign function (converts 0, 1 to -1, 1)
+
+    Arguments: 
+
+        x: `ndarray((n, m))`. Only meaningful if binary. 
+
+    Returns: 
+
+        `ndarray(x.shape)`. Zeros become -1 and ones become 1.
+
+    """
+    return 2*x -1
+
+def signinv(x):
+    """ Inverse of sign function (converts -1, 1 to 0, 1)
+
+    Arguments: 
+
+        x: `ndarray((n, m))`. Only meaningful if binary. 
+
+    Returns: 
+
+        `ndarray(x.shape)`. Zeros become -1 and ones become 1.
+
+    """
+    return (x + 1)/2
 
 def softmax(x):
     """ Computes the softmax function
