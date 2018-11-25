@@ -284,8 +284,6 @@ class HCLR(object):
         self.group_mean = self.stanres.extract(['mu'])['mu']
         self.group_scale = self.stanres.extract(['sigma'])['sigma']
         self.loading_matrix = self.stanres.extract(['K'])['K']
-        self.subject_parameters = self.stanres.extract(['W'])['W']
-        
-        if self.response_family == 'bernoulli':
-            self.group_indices = self.stanres.extract(['group_indices'])['group_indices']
-            self.covariate_effects = self.stanres.extract(['covariate_effects'])['covariate_effects']
+        self.subject_parameters = self.stanres.extract(['W'])['W'] 
+        self.group_indices = self.stanres.extract(['group_indices'])['group_indices']
+        self.covariate_effects = self.stanres.extract(['covariate_effects'])['covariate_effects']

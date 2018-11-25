@@ -1,4 +1,5 @@
 import numpy as np 
+import scipy.stats as ss
 from fitr.stats import linear_regression
 import matplotlib.pyplot as plt 
 
@@ -113,10 +114,18 @@ def plot_series(X,
     if series_labels is None: 
         series_labels = ['Series %s' %i for i in range(nseries)]
 
+    colors = plt.get_cmap(cmap)
     fig, ax = plt.subplots(figsize=figsize)
-    for i in range(nfeatures):
-        ax.fill_between(x=np.arange(nsteps), y1=lci[:,i], y2=uci[:,i], alpha=0.6)
-        ax.plot(np.arange(nsteps), Xm[:,i], label=series_labels[i])
+    for i in range(nseries):
+        ax.fill_between(x=np.arange(nsteps), 
+                        y1=lci[:,i], 
+                        y2=uci[:,i], 
+                        alpha=0.6, 
+                        facecolor=colors(i))
+        ax.plot(np.arange(nsteps), 
+                Xm[:,i], 
+                c=colors(i),
+                label=series_labels[i])
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)

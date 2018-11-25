@@ -4,6 +4,7 @@ from scipy.special import logsumexp as scipy_logsumexp
 from fitr.utils import batch_softmax
 from fitr.utils import batch_transform
 from fitr.utils import bitflip
+from fitr.utils import getquantile
 from fitr.utils import I
 from fitr.utils import log_loss
 from fitr.utils import logsumexp
@@ -39,6 +40,14 @@ def test_bitflip():
     x = np.array([0, 1, 0, 1, 0])
     y = np.array([1, 0, 1, 0, 1])
     assert(np.all(np.equal(y, bitflip(x))))
+
+def test_getquantile():
+    x = np.linspace(0, 1, 100)
+    y = getquantile(x, lower=0.25, upper=0.5)
+    assert(np.equal(y.mean(), 0.25))
+
+    y = getquantile(x, lower=0.25, upper=0.5, return_indices=True)
+    assert(np.all(np.equal(y, np.arange(25, 50))))
 
 def test_I():
     x = np.ones(5)

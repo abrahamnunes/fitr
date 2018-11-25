@@ -130,6 +130,29 @@ def make_onehot(x):
 
     return xout, labels
 
+def getquantile(x, lower=0.025, upper=0.975, return_indices=False):
+    """ Indicates which elements of `x` fall into a quantile range
+    
+    Arguments: 
+
+        x: `ndarray(nsamples)`
+        lower: `0<=float<max(upper,1)`. Lower quantile
+        upper: `min(0, lower)<float<=1`. Upper quantile
+        return_indices: `bool`. If `False`, returns boolean array. If `True` returns indices for entries of `x` falling between `lower` and `upper`.
+    
+    Returns: 
+
+        `ndarray`. Dimensionality will depend on `return_indices`
+
+    """
+    lb, ub = np.percentile(x, [lower*100, upper*100])
+    y = np.logical_and(np.greater_equal(x, lb), np.less(x, ub))
+
+    if return_indices: 
+        y = np.arange(x.size)[y]
+
+    return y
+
 def rank_data(x):
     """ Ranks a set of observations, assigning the average of ranks to ties. 
 
@@ -244,7 +267,7 @@ def relu(x, a_max=None):
     x = x.clip(max=a_max)
     return np.greater(x, 0)*x
 
-def scale_data(X, axis=0, with_mean=True, with_var=True):
+def scale_data(X, axis=0, with_mean=True, with_var=True, copy=True):
     """ Rescales data by subtracting mean and dividing by standard deviation. 
 
     $$
@@ -257,11 +280,15 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
         axis: `int`. Over which axis to scale
         with_mean: `bool`. Whether to subtract the mean
         with_var: `bool`. Whether to normalize for variance
+        copy: `bool`. Copies array so values are not normalized in place 
 
     Returns:
 
         `ndarray(X.shape)`. Rescaled data.
     """
+    if copy: 
+        X = X.copy()
+
     if X.ndim == 1: 
         X = X.reshape(-1, 1)
     

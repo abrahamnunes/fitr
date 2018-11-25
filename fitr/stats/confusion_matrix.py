@@ -34,5 +34,20 @@ def confusion_matrix(ytrue, ypred):
     C = np.sum(C, 0)
     return C
 
+def cohen_kappa(ytrue, ypred, bayesian=False):
+    """ Computes cohen's kappa 
 
-    
+    Arguments: 
+        
+        ytrue: `ndarray(nsamples)`. Ground truth labels 
+        ypred: `ndarray(nsamples)`. Predicted labels 
+        bayesian: `bool`. Computes posterior distribution over Cohen's Kappa score
+
+    Returns: 
+
+        kappa: `-1 <= float <= 1`. 
+    """
+    C = confusion_matrix(ytrue, ypred)
+    po = np.trace(C)/np.sum(C)
+    pe = np.dot(np.sum(C, 0)/np.sum(C), np.sum(C, 1)/np.sum(C))
+    return (po-pe)/pe
