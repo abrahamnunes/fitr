@@ -55,8 +55,6 @@ def test_mean_ci():
     assert(np.linalg.norm(mu) < 1e-8)
     assert(np.linalg.norm(np.abs(l)-(e_ci/np.sqrt(m))) < 1e-8)
     
-     
-
 
 def test_pearson_rho():
     rng = np.random.RandomState(523)

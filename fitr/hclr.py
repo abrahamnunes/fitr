@@ -195,10 +195,10 @@ class HCLR(object):
         self.loading_matrix_scale = loading_matrix_scale
         self.add_intercept = add_intercept
         self.response_family = response_family
-
-        if response_family == 'bernoulli':
-            self.nresponses = 1
-        elif response_family == 'categorical': 
+        
+        # Nresponses set to 1 for the default case of bernoulli choices
+        self.nresponses = 1 
+        if response_family == 'categorical': 
             self.nresponses = np.max(self.y)
 
         # Set up the basis vectors
@@ -214,9 +214,10 @@ class HCLR(object):
         self.naxes = self.V.shape[0]
 
         self.data = self._make_data_dict()
-        if self.response_family == 'bernoulli':
-            self.stancode = stancode_bernoulli
-        elif self.response_family == 'categorical':
+        
+        # Stancode set to bernoulli as default 
+        self.stancode = stancode_bernoulli
+        if self.response_family == 'categorical':
             self.stancode = stancode_categorical
 
         # Initialize the posterior sample objects
