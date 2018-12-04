@@ -1,12 +1,16 @@
 import numpy as np
+import pandas as pd 
 import scipy.stats as ss
 import fitr.utils as fu
 from fitr.stats import distance
 from fitr.stats import mean_ci
 from fitr.stats import bic
 from fitr.stats import lme 
+from fitr.stats import linear_regression
 from fitr.stats import pearson_rho
 from fitr.stats import spearman_rho
+from sklearn.datasets import make_regression
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import pairwise_distances
 
 def test_distance():
@@ -54,7 +58,17 @@ def test_mean_ci():
     mu, l, u = mean_ci(X1, axis=1, alpha=alpha)
     assert(np.linalg.norm(mu) < 1e-8)
     assert(np.linalg.norm(np.abs(l)-(e_ci/np.sqrt(m))) < 1e-8)
+   
+def test_linear_regression():
+    X, y = make_regression(n_features=3, random_state=832)
+    res = linear_regression(X, y)
+    m = LinearRegression()
+    m.fit(X, y)
+    skcoef_ = np.hstack(([m.intercept_], m.coef_))
+    assert(np.linalg.norm(skcoef_ - res.coef) < 1e-6)
     
+    df = res.summary()
+    assert(type(df)==pd.core.frame.DataFrame)
 
 def test_pearson_rho():
     rng = np.random.RandomState(523)
