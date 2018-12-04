@@ -89,10 +89,8 @@ def test_spearman_rho():
         assert(np.linalg.norm(sspval - pval[j]) < 1e-6)
 
     # Test pairwise 
-    rho, pval = pearson_rho(X, Y, 'pairwise')
-    for i in range(X.shape[1]):
-        for j in range(Y.shape[1]):
-            ssrho, sspval = ss.spearmanr(X[:,i], Y[:,j])
-            assert(np.linalg.norm(ssrho - rho[i,j]) < 1e-6)
-            assert(np.linalg.norm(sspval - pval[i,j]) < 1e-6)
+    rho, pval = spearman_rho(X, Y, 'pairwise')
+    ssrho, sspval = ss.spearmanr(X, Y)
+    assert(np.linalg.norm(ssrho[:3,3:] - rho) < 1e-6)
+    assert(np.linalg.norm(sspval[:3,3:] - pval) < 1e-6)
 

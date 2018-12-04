@@ -80,7 +80,8 @@ def pearson_rho(X, Y, comparison='diagonal', copy=True):
     n  = X.shape[0]
     df = n - 2
     T  = (rho*np.sqrt(df))/np.sqrt(1-(rho-np.spacing(10000))**2)
-    p  = 2*(1 - ss.t.cdf(np.abs(T), df=df))
+    p  = 2*(1 - ss.t.cdf(np.abs(T), df=df)) 
+    p[np.isnan(p)] = 0
 
     return rho, p
 
@@ -125,5 +126,6 @@ def spearman_rho(X, Y, comparison='diagonal', copy=True):
     df = nsamples - 2
     T = rho * np.sqrt(df/(1 - (rho-np.spacing(10000))**2)) 
     p = 2*(1 - ss.t.cdf(np.abs(T), df=df))
+    p[np.isnan(p)] = 0
 
     return rho, p
