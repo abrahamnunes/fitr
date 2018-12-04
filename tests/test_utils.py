@@ -8,6 +8,7 @@ from fitr.utils import getquantile
 from fitr.utils import I
 from fitr.utils import log_loss
 from fitr.utils import logsumexp
+from fitr.utils import make_onehot
 from fitr.utils import reduce_then_tile
 from fitr.utils import relu
 from fitr.utils import scale_data
@@ -62,6 +63,13 @@ def test_logloss():
 def test_logsumexp():
     x = np.arange(5)
     assert np.equal(logsumexp(x), scipy_logsumexp(x))
+
+def test_make_onehot():
+    rng = np.random.RandomState(23)
+    X = rng.multinomial(1, pvals=[0.5, 0.5], size=20)
+    y = np.argmax(X, axis=1)
+    G,_ = make_onehot(y)
+    assert(np.all(np.equal(X, G)))
 
 def test_reduce_then_tile():
     X = np.random.randint(1, 10, size=(10, 5))
