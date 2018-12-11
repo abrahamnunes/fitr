@@ -8,7 +8,7 @@ networkx
 pydot
 graphviz
 pydot
-autograd
+autograd==1.2
 sklearn
 statsmodels
 pystan
