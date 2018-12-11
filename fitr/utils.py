@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import scipy.io as spio
 import autograd.numpy as np
 
 def batch_softmax(X, axis=1):
@@ -34,6 +35,23 @@ def batch_transform(X, f_list):
         `ndarray((nsamples, nparams))`. Transformed parameters
     """
     return np.stack(np.ravel(transform(X[i], f_list)) for i in range(X.shape[0]))
+
+
+def bitflip(x):
+    """ Flips the bits of a binary vector
+    
+    
+    Arguments: 
+
+        x: `ndarray((n, m))`. Only meaningful if binary. 
+
+    Returns: 
+
+        `ndarray(x.shape)`. Zeros become 1 and ones become 0.
+
+    """
+    return signinv(-sign(x))
+
 
 def I(x):
     """ Identity transformation.
@@ -89,8 +107,7 @@ def logsumexp(x):
     """
     xmax = np.max(x)
     y = xmax + np.log(np.sum(np.exp(x-xmax)))
-    return y
-
+    return y 
 
 def make_onehot(x):
     """ Turns a vector of labels into a one-hot array
@@ -112,6 +129,29 @@ def make_onehot(x):
         xout[x == l, i] = 1
 
     return xout, labels
+
+def getquantile(x, lower=0.025, upper=0.975, return_indices=False):
+    """ Indicates which elements of `x` fall into a quantile range
+    
+    Arguments: 
+
+        x: `ndarray(nsamples)`
+        lower: `0<=float<max(upper,1)`. Lower quantile
+        upper: `min(0, lower)<float<=1`. Upper quantile
+        return_indices: `bool`. If `False`, returns boolean array. If `True` returns indices for entries of `x` falling between `lower` and `upper`.
+    
+    Returns: 
+
+        `ndarray`. Dimensionality will depend on `return_indices`
+
+    """
+    lb, ub = np.percentile(x, [lower*100, upper*100])
+    y = np.logical_and(np.greater_equal(x, lb), np.less(x, ub))
+
+    if return_indices: 
+        y = np.arange(x.size)[y]
+
+    return y
 
 def rank_data(x):
     """ Ranks a set of observations, assigning the average of ranks to ties. 
@@ -227,7 +267,7 @@ def relu(x, a_max=None):
     x = x.clip(max=a_max)
     return np.greater(x, 0)*x
 
-def scale_data(X, axis=0, with_mean=True, with_var=True):
+def scale_data(X, axis=0, with_mean=True, with_var=True, copy=True):
     """ Rescales data by subtracting mean and dividing by standard deviation. 
 
     $$
@@ -237,19 +277,27 @@ def scale_data(X, axis=0, with_mean=True, with_var=True):
     Arguments:
 
         X: `ndarray((nsamples, [nfeatures]))`. Data. May be 1D or 2D.
+        axis: `int`. Over which axis to scale
         with_mean: `bool`. Whether to subtract the mean
         with_var: `bool`. Whether to normalize for variance
+        copy: `bool`. Copies array so values are not normalized in place 
 
     Returns:
 
         `ndarray(X.shape)`. Rescaled data.
     """
-    if X.ndim == 1: X = X.reshape(-1, 1)
-    if with_mean: X -= np.tile(np.mean(X, axis).reshape(1, -1), [X.shape[0], 1])
+    if copy: 
+        X = X.copy()
+
+    if X.ndim == 1: 
+        X = X.reshape(-1, 1)
+    
+    if with_mean: 
+        X -= reduce_then_tile(X, np.mean, axis)
     if with_var: 
-        xstd = np.std(X, axis)
+        xstd = reduce_then_tile(X, np.std, axis)
         xstd[xstd == 0] = 1.
-        X /= np.tile(xstd.reshape(1, -1), [X.shape[0], 1])
+        X /= xstd
     return X
 
 def sigmoid(x, a_min=-10, a_max=10):
@@ -271,6 +319,34 @@ def sigmoid(x, a_min=-10, a_max=10):
     """
     expnx = np.exp(-np.clip(x, a_min=a_min, a_max=a_max))
     return 1/(1+expnx)
+
+def sign(x):
+    """ Sign function (converts 0, 1 to -1, 1)
+
+    Arguments: 
+
+        x: `ndarray((n, m))`. Only meaningful if binary. 
+
+    Returns: 
+
+        `ndarray(x.shape)`. Zeros become -1 and ones become 1.
+
+    """
+    return 2*x -1
+
+def signinv(x):
+    """ Inverse of sign function (converts -1, 1 to 0, 1)
+
+    Arguments: 
+
+        x: `ndarray((n, m))`. Only meaningful if binary. 
+
+    Returns: 
+
+        `ndarray(x.shape)`. Zeros become -1 and ones become 1.
+
+    """
+    return (x + 1)/2
 
 def softmax(x):
     """ Computes the softmax function
@@ -395,3 +471,40 @@ def transform(x, f_list):
         x = np.stack(np.array([x_i]) for i, x_i in enumerate(x))
     x_ = np.stack(f_list[i](x_i) for i, x_i in enumerate(x))
     return x_
+
+# ============================================================================
+#   LOADMAT FUNCTION AND RELATED METHODS 
+# ============================================================================
+
+def _todict(data):
+    """ A helper function for the `loadmat` function """
+    dout = {}
+    for s in data._fieldnames:
+        element = data.__dict__[s]
+        if isinstance(element, spio.matlab.mio5_params.mat_struct):
+            dout[s] = _todict(element)
+        else: 
+            dout[s] = element
+    return dout
+
+def _check_keys(data):
+    """ A helper function for the `loadmat` function """
+    for key in data:
+        if isinstance(data[key], spio.matlab.mio5_params.mat_struct):
+            data[key] = _todict(data[key])
+    return data
+
+def loadmat(fname):
+    """ Loads a `.mat` file and parses it to make it easy to work win in python. 
+
+    This code was taken largely from the stackoverflow post at \href{https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}{}https://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries}.
+    
+    Arguments: 
+
+        fname: `str`. File name.
+
+    """ 
+    data = spio.loadmat(fname, 
+                        struct_as_record=False,
+                        squeeze_me=True) 
+    return _check_keys(data)

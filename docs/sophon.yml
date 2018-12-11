@@ -39,6 +39,7 @@ pages:
     - fitr.stats.linear_regression 
     - fitr.stats.kruskal_wallis
     - fitr.stats.conover 
+    - fitr.stats.confusion_matrix
 - page: doc_utils.md
   template: doc_utils.md
   tags:
@@ -92,6 +93,12 @@ pages:
     - fitr.inference.mlepar
     - fitr.inference.mle_parallel.l_bfgs_b
     - fitr.inference.bms
+- page: doc_hclr.md
+  template: doc_hclr.md
+  tags:
+  - tag: hclr
+    classes_with_methods:
+    - fitr.hclr.HCLR 
 - page: doc_criticism.md
   template: doc_criticism.md
   tags:

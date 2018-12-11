@@ -80,16 +80,6 @@ class BehaviouralData(object):
         """
         self.dict[subject_index].append(behav_data)
 
-    def numpy_tensor_to_bdf(self, X):
-        """ Creates `BehaviouralData` formatted set from a dataset stored in a numpy `ndarray`.
-
-        Arguments:
-
-            X: `ndarray((nsubjects, ntrials, m))` with `m` being the size of flattened single-trial data
-        """
-        self.nsubjects, self.ntrials, _ = X.shape
-        self.tensor = X
-
     def make_tensor_representations(self):
         """ Creates a tensor with all subjects' data
 

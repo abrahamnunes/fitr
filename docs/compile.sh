@@ -12,6 +12,7 @@ pandoc -o tex/doc_data.tex api/doc_data.md
 pandoc -o tex/doc_inference.tex api/doc_inference.md
 pandoc -o tex/doc_criticism.tex api/doc_criticism.md
 pandoc -o tex/doc_stats.tex api/doc_stats.md
+pandoc -o tex/doc_hclr.tex api/doc_hclr.md
 pandoc -o tex/doc_utils.tex api/doc_utils.md
 
 # Compile LaTeX file

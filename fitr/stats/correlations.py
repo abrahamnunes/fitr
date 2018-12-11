@@ -3,7 +3,7 @@ import scipy.stats as ss
 from fitr.utils import scale_data
 from fitr.utils import rank_data
 
-def pearson_rho(X, Y, comparison='diagonal'):
+def pearson_rho(X, Y, comparison='diagonal', copy=True):
     """ Linear (Pearson) correlation coefficient.
 
     Will compute the following formula
@@ -43,6 +43,7 @@ def pearson_rho(X, Y, comparison='diagonal'):
         X: `ndarray((nsamples, nfeatures))` of dimension 1 or 2. If `X` is a 1D array, it will be converted to 2D prior to computation
         Y: `ndarray((nsamples, nfeatures))` of dimension 1 or 2. If `Y` is a 1D array, it will be converted to 2D prior to computation
         comparison: `str`. Here `'diagonal'` computes correlations individually, column-for-column between matrices. Otherwise `'pairwise'` computes pairwise correlations between columns in `X` and `Y`.
+        copy: `bool`. Copies array so values are not normalized in place 
 
     Returns:
 
@@ -55,13 +56,17 @@ def pearson_rho(X, Y, comparison='diagonal'):
 
     - [ ] Create error raised when X and Y are not same dimension
     """
+    if copy: 
+        X = X.copy()
+        Y = Y.copy()
+
     # Reshape if necessary
     if X.ndim == 1 and Y.ndim == 1:
         X = X.reshape(-1, 1) - np.mean(X)
         Y = Y.reshape(-1, 1) - np.mean(Y)
 
-    X = scale_data(X, axis=0, with_mean=True, with_var=False)
-    Y = scale_data(Y, axis=0, with_mean=True, with_var=False)
+    X = scale_data(X, with_mean=True, with_var=False)
+    Y = scale_data(Y, with_mean=True, with_var=False)
 
     xnorm = np.linalg.norm(X, axis=0, ord=2)
     ynorm = np.linalg.norm(Y, axis=0, ord=2)
@@ -75,11 +80,12 @@ def pearson_rho(X, Y, comparison='diagonal'):
     n  = X.shape[0]
     df = n - 2
     T  = (rho*np.sqrt(df))/np.sqrt(1-(rho-np.spacing(10000))**2)
-    p  = 2*(1 - ss.t.cdf(np.abs(T), df=df))
+    p  = 2*(1 - ss.t.cdf(np.abs(T), df=df)) 
+    p[np.isnan(p)] = 0
 
     return rho, p
 
-def spearman_rho(X, Y, comparison='diagonal'):
+def spearman_rho(X, Y, comparison='diagonal', copy=True):
     """ Spearman's rank correlation 
    
     Note this function takes correlations between the columns of `X` and `Y`. 
@@ -89,6 +95,7 @@ def spearman_rho(X, Y, comparison='diagonal'):
         X: `ndarray((nsamples, nfeatures))` of dimension 1 or 2. If `X` is a 1D array, it will be converted to 2D prior to computation
         Y: `ndarray((nsamples, nfeatures))` of dimension 1 or 2. If `Y` is a 1D array, it will be converted to 2D prior to computation
         comparison: `str`. Here `'diagonal'` computes correlations individually, column-for-column between matrices. Otherwise `'pairwise'` computes pairwise correlations between columns in `X` and `Y`.
+        copy: `bool`. Copies array so values are not normalized in place 
 
     Returns:
 
@@ -97,6 +104,10 @@ def spearman_rho(X, Y, comparison='diagonal'):
 
             
     """
+    if copy: 
+        X = X.copy()
+        Y = Y.copy()
+
     # Rank the data 
     for i in range(X.shape[1]): 
         X[:,i] = rank_data(X[:,i])
@@ -115,5 +126,6 @@ def spearman_rho(X, Y, comparison='diagonal'):
     df = nsamples - 2
     T = rho * np.sqrt(df/(1 - (rho-np.spacing(10000))**2)) 
     p = 2*(1 - ss.t.cdf(np.abs(T), df=df))
+    p[np.isnan(p)] = 0
 
     return rho, p

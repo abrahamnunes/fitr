@@ -1,4 +1,5 @@
 import autograd.numpy as np
+import fitr.utils as fu
 import fitr.gradients as grad
 
 class ValueFunction(object):
@@ -285,6 +286,169 @@ class InstrumentalRescorlaWagnerLearner(ValueFunction):
         rpe    = r - self.uQx(u, x)
         z = np.outer(u, x)
         self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
+
+
+class AsymmetricRescorlaWagnerLearner(ValueFunction):
+    """ Learns an instrumental control policy through one-step error-driven updates of the state-action value function, where there are learning rates for positive and negative feedback independently.
+
+    The instrumental Rescorla-Wagner rule is as follows. If $r \geq 0$, then 
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_+ \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+    
+    \\noindent but if $r < 0$
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_- \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+
+    where $0 < \\alpha_+ < 1$ and $0 < \\alpha_0 < 1$ are the learning rates for rewards and punishments, respectively, and where the reward prediction error (RPE) is $\\delta = (r - \mathbf u^\\top \mathbf Q \mathbf x)$.
+
+    $$
+
+    Arguments:
+
+        env: A `fitr.environments.Graph`
+        learning_rate_pos: Learning rate $\\alpha_+$ for rewards 
+        learning_rate_neg: Learning rate $\\alpha_-$ for punishments
+
+    """
+    def __init__(self, env, learning_rate_pos=0.1, learning_rate_neg=0.1):
+        self.learning_rate_pos = learning_rate_pos
+        self.learning_rate_neg = learning_rate_neg
+        super().__init__(env)
+
+        # Store gradient of learning rule with respect to learning rate
+        self.dQ = {
+            'learning_rate_pos': np.zeros(self.Q.shape),
+            'learning_rate_neg': np.zeros(self.Q.shape),
+            'rpe': np.zeros(self.Q.shape)}
+        self.hess_Q = {
+                'learning_rate_pos': np.zeros(self.Q.shape), 
+                'learning_rate_neg': np.zeros(self.Q.shape)
+        }
+
+    def update(self, x, u, r, x_, u_):
+        rpe    = r - self.uQx(u, x)
+        z = np.outer(u, x)
+        dQ = rpe*np.einsum('a,s->as', u, x)
+        if r >= 0: 
+            self.Q += self.learning_rate_pos*dQ
+        else: 
+            self.Q += self.learning_rate_neg*dQ
+
+class ForgetfulInstrumentalRescorlaWagnerLearner(ValueFunction):
+    """ Learns an instrumental control policy through one-step error-driven updates of the state-action value function, where the un-experienced state-action values decay according to a a parameter $\\zeta$
+
+    The instrumental Rescorla-Wagner rule is as follows:
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+
+    where $0 < \\alpha < 1$ is the learning rate, and where the reward prediction error (RPE) is $\\delta = (r - \mathbf u^\\top \mathbf Q \mathbf x)$.
+
+    There is an additional component that decays the memory of un-experienced state-action pairs:
+
+    $$
+    \\mathbf Q \\gets \\mathbf Q - \\zeta h(\\mathbf u \\mathbf x^\\top) \\odot \\mathbf Q,
+    $$
+
+    where $0 \\leq \\zeta \\leq 1$ is the memory decay parameter and $h(\\cdot)$ is a function that indicates the state-action pairs that were not experienced. 
+
+    $$
+    h(\\mathbf u \\mathbf x^\\top) = (-(2\\mathbf u \\mathbf x^\\top - 1) - 1)/2
+    $$
+
+    Arguments:
+
+        env: A `fitr.environments.Graph`
+        learning_rate: `0 <= float <= 1`. Learning rate $\\alpha$
+        memory_decay: `0 <= float <= 1`. Memory decay parameter $\\zeta$
+
+    """
+    def __init__(self, env, learning_rate=0.1, memory_decay=0.1):
+        self.learning_rate = learning_rate
+        self.memory_decay = memory_decay
+        super().__init__(env)
+
+    def update(self, x, u, r, x_, u_):
+        """ Computes the value function update of the instrumental Rescorla-Wagner learning rule with memory decay """
+        rpe    = r - self.uQx(u, x)
+        z = np.outer(u, x)
+        self.Q += self.learning_rate*rpe*np.einsum('a,s->as', u, x)
+        
+        self.Q -= self.memory_decay*fu.bitflip(z)*self.Q
+
+class ForgetfulAsymmetricRescorlaWagnerLearner(ValueFunction):
+    """ Learns an instrumental control policy through one-step error-driven updates of the state-action value function, where there are learning rates for positive and negative feedback independently, and a memory decay parameter.
+
+    The instrumental Rescorla-Wagner rule is as follows. If $r \geq 0$, then 
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_+ \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+    
+    \\noindent but if $r < 0$
+
+    $$
+    \mathbf Q \\gets \mathbf Q + \\alpha_- \\big(r - \mathbf u^\\top \mathbf Q \mathbf x \\big) \mathbf u \mathbf x^\\top,
+    $$
+
+    where $0 < \\alpha_+ < 1$ and $0 < \\alpha_0 < 1$ are the learning rates for rewards and punishments, respectively, and where the reward prediction error (RPE) is $\\delta = (r - \mathbf u^\\top \mathbf Q \mathbf x)$.
+
+    $$
+
+    There is an additional component that decays the memory of un-experienced state-action pairs:
+
+    $$
+    \\mathbf Q \\gets \\mathbf Q - \\zeta h(\\mathbf u \\mathbf x^\\top) \\odot \\mathbf Q,
+    $$
+
+    where $0 \\leq \\zeta \\leq 1$ is the memory decay parameter and $h(\\cdot)$ is a function that indicates the state-action pairs that were not experienced. 
+
+    $$
+    h(\\mathbf u \\mathbf x^\\top) = (-(2\\mathbf u \\mathbf x^\\top - 1) - 1)/2
+    $$
+
+
+    Arguments:
+
+        env: A `fitr.environments.Graph`
+        learning_rate_pos: `0 <= float <= 1`. Learning rate $\\alpha_+$ for rewards.
+        learning_rate_neg: `0 <= float <= 1`. Learning rate $\\alpha_-$ for punishments.
+        memory_decay: `0 <= float <= 1`. Memory decay parameter $\\zeta$
+
+    """
+    def __init__(self, env, learning_rate_pos=0.1, learning_rate_neg=0.1, memory_decay=0.1):
+        self.learning_rate_pos = learning_rate_pos
+        self.learning_rate_neg = learning_rate_neg
+        self.memory_decay = memory_decay
+        super().__init__(env)
+
+        # Store gradient of learning rule with respect to learning rate
+        self.dQ = {
+            'learning_rate_pos': np.zeros(self.Q.shape),
+            'learning_rate_neg': np.zeros(self.Q.shape),
+            'memory_decay': np.zeros(self.Q.shape),
+            'rpe': np.zeros(self.Q.shape)}
+        self.hess_Q = {
+                'learning_rate_pos': np.zeros(self.Q.shape), 
+                'learning_rate_neg': np.zeros(self.Q.shape),
+                'memory_decay': np.zeros(self.Q.shape)
+        }
+
+    def update(self, x, u, r, x_, u_):
+        rpe    = r - self.uQx(u, x)
+        z = np.outer(u, x)
+        dQ = rpe*np.einsum('a,s->as', u, x)
+        if r >= 0: 
+            self.Q += self.learning_rate_pos*dQ
+        else: 
+            self.Q += self.learning_rate_neg*dQ
+
+        self.Q -= self.memory_decay*fu.bitflip(z)*self.Q
 
 class QLearner(ValueFunction):
     """ Learns an instrumental control policy through Q-learning

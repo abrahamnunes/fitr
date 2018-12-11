@@ -1,0 +1,115 @@
+\section{\texorpdfstring{\texttt{fitr.hclr}}{fitr.hclr}}\label{fitr.hclr}
+
+Hierarchical convolutional logistic regression (HCLR): A general
+analysis method for trial-by-trial behavioural data with covariates.
+
+\subsection{HCLR}\label{hclr}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.hclr.HCLR()}
+\end{Highlighting}
+\end{Shaded}
+
+Hierarchical Convolutional Logistic Regression (HCLR) for general
+behavioural data.
+
+Attributes:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{X}: \texttt{ndarray((nsubjects,ntrials,nfeatures))}. The
+  ``experience'' tensor.
+\item
+  \textbf{y}: \texttt{ndarray((nsubjects,ntrials,ntargets))}. Tensor of
+  ``choices'' we are trying to predict.
+\item
+  \textbf{Z}: \texttt{ndarray((nsubjects,ncovariates))}. Covariates of
+  interest
+\item
+  \textbf{V}: \texttt{ndarray((naxes,nfeatures))}. Vectors identifying
+  features of interest (i.e.~to compute indices). If
+  \texttt{add\_intercept=True}, then the dimensionality of \texttt{V}
+  should be \texttt{ndarray((naxes,\ nfeatures+1))}, where the first
+  column represents the basis coordinate for the bias.
+\item
+  \textbf{filter\_size}: \texttt{int}. Number of steps prior to target
+  included as features.
+\item
+  \textbf{loading\_matrix\_scale}: \texttt{float\ \textgreater{}\ 0}.
+  Scale of the loading matrix \(\boldsymbol\Phi\), which is assumed that
+  \(\phi_{ij} \sim \mathcal N(0, 1)\), with the default scale being 1.
+\item
+  \textbf{add\_intercept}: `bool'. Whether to add intercept
+\item
+  \textbf{group\_mean}: \texttt{ndarray}. Samples of the posterior
+  group-level mean. \texttt{None} until model is fit
+\item
+  \textbf{group\_scale}: \texttt{ndarray}. Samples of the posterior
+  group-level scale. \texttt{None} until model is fit
+\item
+  \textbf{loading\_matrix}: \texttt{ndarray}. Samples of the posterior
+  loading matrix. \texttt{None} until model is fit
+\item
+  \textbf{subject\_parameters}: \texttt{ndarray}. Samples of the
+  posterior subject-level parameters. \texttt{None} until model is fit
+\item
+  \textbf{group\_indices}: \texttt{ndarray}. Samples of the posterior
+  group-level projections on to the basis. \texttt{None} until model is
+  fit
+\item
+  \textbf{covariate\_effects}: \texttt{ndarray}. Samples of the
+  posterior projection of the loading matrix onto the basis.
+  \texttt{None} until model is fit
+\end{itemize}
+
+\subsection{Notes}\label{notes}
+
+\begin{itemize}
+\tightlist
+\item
+  When presenting \texttt{X} and \texttt{y}, note that the indices of
+  \texttt{y} should correspond exactly to the trial indices in
+  \texttt{X}, even though the HCLR analysis is predicting a trial ahead.
+  In other words, there should be no lag in the \texttt{X}, \texttt{y}
+  inputs. The HCLR setup will automatically set up the lag depending on
+  how you set the \texttt{filter\_size}.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{HCLR.fit}\label{hclr.fit}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitr.hclr.fit(}\VariableTok{self}\NormalTok{, nchains}\OperatorTok{=}\DecValTok{4}\NormalTok{, niter}\OperatorTok{=}\DecValTok{1000}\NormalTok{, warmup}\OperatorTok{=}\VariableTok{None}\NormalTok{, thin}\OperatorTok{=}\DecValTok{1}\NormalTok{, seed}\OperatorTok{=}\VariableTok{None}\NormalTok{, verbose}\OperatorTok{=}\VariableTok{False}\NormalTok{, algorithm}\OperatorTok{=}\StringTok{'NUTS'}\NormalTok{, n_jobs}\OperatorTok{=-}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Fits the HCLR model
+
+Arguments:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{nchains}: \texttt{int}. Number of chains for the MCMC run.
+\item
+  \textbf{niter}: \texttt{int}. Number of iterations over which to run
+  MCMC.
+\item
+  \textbf{warmup}: \texttt{int}. Number of warmup iterations
+\item
+  \textbf{thin}: \texttt{int}. Periodicity of sample recording
+\item
+  \textbf{seed}: \texttt{int}. Seed for pseudorandom number generator
+\item
+  \textbf{algorithm}:
+  \texttt{\{\textquotesingle{}NUTS\textquotesingle{},\textquotesingle{}HMC\textquotesingle{}\}}
+\item
+  \textbf{n\_jobs}: \texttt{int}. Number of cores to use (default=-1, as
+  many as possible and required)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}

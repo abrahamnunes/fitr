@@ -127,7 +127,12 @@ def linear_regression(X, y, add_intercept=True, scale_x=False, scale_y=False):
 
         `LinearRegressionResult`
     """
-    nsamples, nfeatures = X.shape
+    if np.ndim(X) == 1:
+        nsamples = X.size
+        nfeatures = 1
+        X = X.reshape(-1, 1)
+    else: 
+        nsamples, nfeatures = X.shape
     dfd = nfeatures
     dfn = nsamples-nfeatures-1
 

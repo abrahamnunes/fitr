@@ -3,13 +3,18 @@ from sklearn.metrics import log_loss as skl_logloss
 from scipy.special import logsumexp as scipy_logsumexp
 from fitr.utils import batch_softmax
 from fitr.utils import batch_transform
+from fitr.utils import bitflip
+from fitr.utils import getquantile
 from fitr.utils import I
 from fitr.utils import log_loss
 from fitr.utils import logsumexp
+from fitr.utils import make_onehot
 from fitr.utils import reduce_then_tile
 from fitr.utils import relu
 from fitr.utils import scale_data
 from fitr.utils import sigmoid
+from fitr.utils import sign
+from fitr.utils import signinv
 from fitr.utils import softmax
 from fitr.utils import softmax_components
 from fitr.utils import stable_exp
@@ -32,6 +37,19 @@ def test_batch_transform():
     assert(np.all(np.logical_and(np.greater_equal(Y[:,0], 0), np.less_equal(Y[:,0], 1))))
     assert(np.all(np.greater_equal(Y[:,0], 0)))
 
+def test_bitflip():
+    x = np.array([0, 1, 0, 1, 0])
+    y = np.array([1, 0, 1, 0, 1])
+    assert(np.all(np.equal(y, bitflip(x))))
+
+def test_getquantile():
+    x = np.linspace(0, 1, 100)
+    y = getquantile(x, lower=0.25, upper=0.5)
+    assert(np.equal(y.mean(), 0.25))
+
+    y = getquantile(x, lower=0.25, upper=0.5, return_indices=True)
+    assert(np.all(np.equal(y, np.arange(25, 50))))
+
 def test_I():
     x = np.ones(5)
     assert np.all(np.equal(x, I(x)))
@@ -45,6 +63,13 @@ def test_logloss():
 def test_logsumexp():
     x = np.arange(5)
     assert np.equal(logsumexp(x), scipy_logsumexp(x))
+
+def test_make_onehot():
+    rng = np.random.RandomState(23)
+    X = rng.multinomial(1, pvals=[0.5, 0.5], size=20)
+    y = np.argmax(X, axis=1)
+    G,_ = make_onehot(y)
+    assert(np.all(np.equal(X, G)))
 
 def test_reduce_then_tile():
     X = np.random.randint(1, 10, size=(10, 5))
@@ -69,6 +94,25 @@ def test_scale_data():
     x = np.outer(x, np.ones(5))
     x = scale_data(x, with_mean=True, with_var=True)
     assert(np.all(np.equal(np.var(x, 0), np.ones(x.shape[1]))))
+
+def test_sigmoid():
+    x = np.linspace(-2, 2, 100)
+    y = sigmoid(x)
+    yidx = np.argsort(y)
+    xidx = np.argsort(x)
+    assert(np.all(np.logical_and(np.greater_equal(y, 0), np.less_equal(y, 1))))
+    assert(np.all(np.equal(yidx, xidx)))
+
+def test_sign():
+    x = np.array([0, 1, 0, 1, 0])
+    y = np.array([-1,1,-1, 1,-1])
+    assert(np.all(np.equal(y, sign(x))))
+
+
+def test_signinv():
+    y = np.array([0, 1, 0, 1, 0])
+    x = np.array([-1,1,-1, 1,-1])
+    assert(np.all(np.equal(y, signinv(x))))
 
 def test_softmax():
     x = np.arange(10)

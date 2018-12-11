@@ -8,7 +8,7 @@ from fitr import utils
 from fitr import stats
 from fitr import gradients
 from fitr import hessians
-
+from fitr import hclr
 
 from fitr.environments import generate_behavioural_data
 
@@ -22,4 +22,5 @@ __all__ = ['agents',
            'utils',
            'stats',
            'gradients',
-           'hessians']
+           'hessians', 
+           'hclr']
