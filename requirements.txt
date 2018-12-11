@@ -6,7 +6,7 @@ joblib
 nltk
 networkx
 pydot
-graphviz
+graphviz==0.10.1
 pydot
 autograd
 sklearn
