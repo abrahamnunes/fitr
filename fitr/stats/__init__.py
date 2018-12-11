@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from fitr.stats.descriptive import mean_ci
 
+from fitr.stats.model_evaluation import aic
 from fitr.stats.model_evaluation import bic
 from fitr.stats.model_evaluation import lme
 
@@ -26,11 +27,11 @@ __all__ = ['mean_ci',
            'lme',
            'distance',
            'pearson_rho',
-           'spearman_rho', 
+           'spearman_rho',
            'binomial_exact',
            'binomial_twosample',
            'linear_regression',
            'effect_size',
-           'meta_analysis', 
-           'confusion_matrix', 
+           'meta_analysis',
+           'confusion_matrix',
            'plotting']

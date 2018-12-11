@@ -1,32 +1,47 @@
 import numpy as np
 
-def bic(log_prob, nparams, ntrials):
+def aic(log_prob, K, n):
+    """ Akaike Information Criterion (AIC)
+
+    Arguments:
+
+        log_prob: `float`. Log probability
+        K: `int`. Number of parameters in the model
+
+    Returns:
+
+        `float`. Scalar estimate of AIC.
+    """
+    return 2*K - 2 * log_prob
+
+def bic(log_prob, K, n):
     """ Bayesian Information Criterion (BIC)
 
     Arguments:
 
-        log_prob: Log probability
-        nparams: Number of parameters in the model
-        ntrials: Number of trials in the time series
+        log_prob: `float`. Log probability
+        K: `int`. Number of parameters in the model
+        n: `int`. Number of observations used to compute the `log_prob`
 
     Returns:
 
-        Scalar estimate of BIC.
+        `float`. Scalar estimate of BIC.
     """
-    return nparams * np.log(ntrials) - 2 * log_prob
+    return K * np.log(n) - 2 * log_prob
 
 
-def lme(log_prob, nparams, hess_inv):
+
+def lme(log_prob, K, hess_inv):
     """ Laplace approximation to the log model evidence
 
     Arguments:
 
-        log_prob: Log probability
-        nparams: Number of parameters in the model
-        hess_inv: Hessian at the optimum (shape is $K \\times K$)
+        log_prob: `float`. Log probability
+        K: `int`. Number of parameters in the model
+        hess_inv: `ndarray((K, K))`. Hessian at the optimum.
 
     Returns:
 
         Scalar approximation of the log model evidence
     """
-    return log_prob + (nparams/2)*np.log(2*np.pi)-np.log(np.linalg.det(hess_inv))/2
+    return log_prob + (K/2)*np.log(2*np.pi)-np.log(np.linalg.det(hess_inv))/2
