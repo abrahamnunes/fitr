@@ -1,5 +1,10 @@
 import numpy as np
 from fitr.environments import DawTwoStep
+from fitr.environments import IGT
+from fitr.environments import MouthTask
+from fitr.environments import OrthogonalGoNoGo
+from fitr.environments import TwoArmedBandit
+from fitr.environments import RandomContextualBandit
 
 
 def test_set_seed():
@@ -25,3 +30,28 @@ def test_set_seed():
 
     f = task.plot_action_outcome_probabilities(outfile=None)
     del(f)
+
+def test_igt():
+    task = IGT()
+    x = task.observation()
+    u = task.random_action()
+
+def test_mouthtask():
+    task = MouthTask()
+    x = task.observation()
+    u = task.random_action()
+
+def test_two_armed_bandit():
+    task = TwoArmedBandit()
+    x = task.observation()
+    u = task.random_action()
+
+def test_ogng():
+    task = OrthogonalGoNoGo()
+    x = task.observation()
+    u = task.random_action()
+
+def test_random_contextual_bandit():
+    task = RandomContextualBandit(3, 5, 3, 3)
+    x = task.observation()
+    u = task.random_action()
