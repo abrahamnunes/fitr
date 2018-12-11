@@ -2,9 +2,12 @@ language: python
 python:
   - '3.5'
   - '3.6'
-# dependencies
-install:
+# dependencies'
+before_install:
   - pip install --upgrade pip
+  - "sudo apt-get install graphviz"
+  - "pip install pydot-ng pyparsing"
+install:
   - pip install -r requirements.txt
   - pip install -r requirements_test.txt
   - pip install -e .
