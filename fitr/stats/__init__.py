@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from fitr.stats import cluster
 from fitr.stats.descriptive import mean_ci
 
 from fitr.stats.model_evaluation import aic
@@ -25,6 +26,7 @@ from fitr.stats import plotting
 __all__ = ['mean_ci',
            'bic',
            'lme',
+           'cluster',
            'distance',
            'pearson_rho',
            'spearman_rho',
