@@ -300,6 +300,28 @@ def scale_data(X, axis=0, with_mean=True, with_var=True, copy=True):
         X /= xstd
     return X
 
+def shuffle(X, copy=True, rng=np.random.RandomState()):
+    """ Shuffles an array and returns the shuffled array. This is a simple wrapper for the numpy shuffle method. 
+
+    Arguments: 
+        
+        X: `ndarray((n, m))`. Array to be shuffled 
+        copy: `bool`. Whether to copy the array 
+        rng: `numpy.random.RandomState`. 
+
+    Returns: 
+        
+        `ndarray((n, m))`
+
+    """
+    if copy:
+        x = X.copy()
+    else: 
+        x = X
+
+    rng.shuffle(x)
+    return x
+
 def sigmoid(x, a_min=-10, a_max=10):
     """ Sigmoid function
 

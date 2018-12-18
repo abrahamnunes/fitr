@@ -12,6 +12,7 @@ from fitr.utils import make_onehot
 from fitr.utils import reduce_then_tile
 from fitr.utils import relu
 from fitr.utils import scale_data
+from fitr.utils import shuffle
 from fitr.utils import sigmoid
 from fitr.utils import sign
 from fitr.utils import signinv
@@ -94,6 +95,11 @@ def test_scale_data():
     x = np.outer(x, np.ones(5))
     x = scale_data(x, with_mean=True, with_var=True)
     assert(np.all(np.equal(np.var(x, 0), np.ones(x.shape[1]))))
+
+def test_shuffle():
+    x = np.eye(3)
+    y = shuffle(x)
+    assert(np.equal(np.sum(y), 3))
 
 def test_sigmoid():
     x = np.linspace(-2, 2, 100)
