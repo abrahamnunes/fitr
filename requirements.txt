@@ -5,10 +5,10 @@ matplotlib
 joblib
 nltk
 networkx
-pydot
+pydot==1.4.1
 graphviz
-pydot
+pydot==1.4.1
 autograd
 sklearn
 statsmodels
-pystan
+pystan==2.18.0.0
