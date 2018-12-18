@@ -5,9 +5,9 @@ matplotlib
 joblib
 nltk
 networkx
-pydot
+pydot==1.4.1
 graphviz
-pydot
+pydot==1.4.1
 autograd
 sklearn
 statsmodels
