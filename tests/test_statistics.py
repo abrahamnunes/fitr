@@ -28,10 +28,10 @@ def test_ami():
     rng = np.random.RandomState(7254)
     y, _  = fu.make_onehot(rng.randint(5, size=100))
     y_, _ = fu.make_onehot(rng.randint(4, size=100))
-    assert(np.equal(ami(y, y), 1))
+    assert(np.equal(ami(y, y, inputs='onehot'), 1))
 
     skami = adjusted_mutual_info_score(np.argmax(y, 1), np.argmax(y_, 1))
-    fami  = ami(y, y_)
+    fami  = ami(y, y_, inputs='onehot')
     assert(np.linalg.norm(skami-fami) < 1e-8)
 
 def test_silhouette():
