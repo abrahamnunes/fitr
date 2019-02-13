@@ -2,7 +2,7 @@ numpy
 tensorflow
 scipy
 matplotlib
-joblib
+joblib==0.13.2
 nltk
 networkx
 pydot==1.4.1
