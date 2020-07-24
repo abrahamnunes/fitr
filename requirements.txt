@@ -1,6 +1,6 @@
 numpy
 tensorflow
-scipy
+scipy==1.5.2
 matplotlib
 joblib
 nltk
