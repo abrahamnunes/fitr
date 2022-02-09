@@ -3,7 +3,7 @@ tensorflow
 scipy
 matplotlib
 joblib
-nltk
+nltk==3.7
 networkx
 pydot==1.4.1
 graphviz
