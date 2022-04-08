@@ -8,7 +8,7 @@ networkx
 pydot==1.4.1
 graphviz
 pydot==1.4.1
-autograd
+autograd==1.4
 sklearn
 statsmodels
 pystan==2.18.0.0
