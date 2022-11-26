@@ -11,4 +11,4 @@ pydot==1.4.1
 autograd
 sklearn
 statsmodels
-pystan==2.18.0.0
+pystan==3.6.0
