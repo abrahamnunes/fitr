@@ -9,6 +9,6 @@ pydot==1.4.1
 graphviz
 pydot==1.4.1
 autograd
-sklearn
+sklearn==0.0.post2
 statsmodels
 pystan==2.18.0.0
